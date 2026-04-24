@@ -12,6 +12,7 @@ Convert your **Mihon** or **Komikku** manga library to **AnymeX** format, comple
 |------|--------------|
 | `anilist_fetch.py` | Queries AniList API for every title in your Mihon CSV |
 | `build_anymex.py` | Builds a `.anymex` restore file from the fetched metadata |
+| `web/index.html` | Browser tool — convert Mihon CSV + AnymeX template into a ready-to-restore `.anymex` file |
 | `anilist-to-mal/index.html` | Browser tool — exports your AniList manga list to MAL XML |
 
 ---
@@ -24,6 +25,19 @@ AnymeX cannot directly import Mihon `.proto.gz` or Komikku backups. Its `.anymex
 - All entry IDs referenced inside **`mangaCustomLists`** or the library appears empty
 
 This toolset solves all of that automatically.
+
+---
+
+## Web App (No Python)
+
+Open `web/index.html` in your browser.
+
+It lets you:
+- Upload your Mihon CSV export
+- Upload your AnymeX backup template
+- Fetch AniList metadata directly in-browser
+- Track progress entry by entry
+- Download the finished `.anymex` file instantly
 
 ---
 
@@ -108,7 +122,7 @@ Get your token at [anilist.co/settings/developer](https://anilist.co/settings/de
 
 ## Roadmap
 
-- [ ] Web app / GUI version (no Python needed)
+- [x] Web app / GUI version (no Python needed)
 - [ ] Support for Mihon `.proto.gz` direct import
 - [ ] Resume support for interrupted AniList fetch
 - [ ] Progress data mapping if available
