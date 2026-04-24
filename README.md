@@ -2,7 +2,17 @@
 
 Convert your **Mihon** or **Komikku** manga library to **AnymeX** format, complete with AniList metadata, covers, ratings and genres.
 
-> Created by [G1NYU](https://github.com/G1NYU) 
+> Created by [G1NYU](https://github.com/G1NYU)
+
+---
+
+## Tools in This Repo
+
+| Tool | What it does |
+|------|--------------|
+| `anilist_fetch.py` | Queries AniList API for every title in your Mihon CSV |
+| `build_anymex.py` | Builds a `.anymex` restore file from the fetched metadata |
+| `anilist-to-mal/index.html` | Browser tool — exports your AniList manga list to MAL XML |
 
 ---
 
@@ -75,6 +85,16 @@ This produces `mihon_to_anymex.anymex` in the same folder.
 1. Transfer `mihon_to_anymex.anymex` to your Android device
 2. Open AnymeX → **Data Management → Restore Data**
 3. Select the file
+
+---
+
+## Bonus — Export AniList → MAL
+
+Open `anilist-to-mal/index.html` in your browser. Paste your AniList token, choose which list status to export, and click **Export XML**. It downloads a MAL-compatible XML file instantly — no Python needed.
+
+Get your token at [anilist.co/settings/developer](https://anilist.co/settings/developer).
+
+> **Note:** MAL currently only supports anime imports via their import page. The XML is valid but manga import may be restricted on their end.
 
 ---
 
