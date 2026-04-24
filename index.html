@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mihon → AnymeX Converter</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f13;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.4rem;
+    }
+
+    header p {
+      color: #888;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      color: #7c83fd;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+      margin-top: 0.5rem;
+      text-decoration: none;
+    }
+
+    .card {
+      background: #1a1a24;
+      border: 1px solid #2a2a3a;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .card h2 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #7c83fd;
+      margin-bottom: 1rem;
+    }
+
+    .upload-area {
+      border: 2px dashed #2a2a4a;
+      border-radius: 10px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: #7c83fd;
+      background: #1e1e30;
+    }
+
+    .upload-area.done {
+      border-color: #4caf7d;
+      background: #0f1f17;
+    }
+
+    .upload-area input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-area .icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+    .upload-area .label { font-size: 0.9rem; color: #aaa; }
+    .upload-area .label strong { color: #fff; }
+    .upload-area .filename { font-size: 0.82rem; color: #4caf7d; margin-top: 0.3rem; }
+
+    .note {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 0.7rem;
+      line-height: 1.5;
+    }
+
+    .note a { color: #7c83fd; text-decoration: none; }
+
+    button#startBtn {
+      width: 100%;
+      padding: 0.9rem;
+      background: #7c83fd;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    button#startBtn:hover:not(:disabled) { background: #6570fc; }
+    button#startBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .progress-wrap {
+      display: none;
+      margin-top: 1.2rem;
+    }
+
+    .progress-bar-bg {
+      background: #2a2a3a;
+      border-radius: 99px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7c83fd, #b47cfd);
+      border-radius: 99px;
+      transition: width 0.3s;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 0.82rem;
+      color: #888;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .log {
+      margin-top: 0.8rem;
+      background: #0f0f13;
+      border-radius: 8px;
+      padding: 0.8rem;
+      font-size: 0.78rem;
+      font-family: monospace;
+      color: #aaa;
+      max-height: 140px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .result-card {
+      display: none;
+      background: #0f1f17;
+      border: 1px solid #4caf7d;
+      border-radius: 14px;
+      padding: 1.5rem;
+      margin-top: 1.2rem;
+      text-align: center;
+    }
+
+    .result-card h3 { color: #4caf7d; margin-bottom: 0.4rem; font-size: 1.1rem; }
+    .result-card p { color: #888; font-size: 0.85rem; margin-bottom: 1rem; }
+
+    button#downloadBtn {
+      padding: 0.75rem 2rem;
+      background: #4caf7d;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button#downloadBtn:hover { background: #3d9e6e; }
+
+    .stats {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: #1a1a24;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      text-align: center;
+    }
+
+    .stat .num { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .stat .lbl { font-size: 0.72rem; color: #666; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.78rem;
+      color: #444;
+    }
+
+    footer a { color: #7c83fd; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Mihon → AnymeX</h1>
+    <p>Convert your manga library in your browser — no install needed</p>
+    <a href="https://github.com/G1NYU/mihon-to-anymex" class="badge" target="_blank">⭐ GitHub</a>
+  </header>
+
+  <!-- Step 1: CSV -->
+  <div class="card">
+    <h2>Step 1 — Mihon Library CSV</h2>
+    <div class="upload-area" id="csvArea">
+      <input type="file" id="csvFile" accept=".csv" />
+      <div class="icon">📄</div>
+      <div class="label"><strong>Click to upload</strong> or drag & drop</div>
+      <div class="label">Your Mihon library export (.csv)</div>
+      <div class="filename" id="csvName"></div>
+    </div>
+    <p class="note">CSV should have title, author, artist columns with no header row. Export from Mihon via <strong>More → Backup and restore → Create backup</strong>, then use a backup reader to get CSV.</p>
+  </div>
+
+  <!-- Step 2: Template -->
+  <div class="card">
+    <h2>Step 2 — AnymeX Backup Template</h2>
+    <div class="upload-area" id="backupArea">
+      <input type="file" id="backupFile" accept=".anymex,.pdf,.json" />
+      <div class="icon">🔑</div>
+      <div class="label"><strong>Click to upload</strong> or drag & drop</div>
+      <div class="label">Your .anymex backup file (even with 1 manga)</div>
+      <div class="filename" id="backupName"></div>
+    </div>
+    <p class="note">Open AnymeX → <strong>Data Management → Create Backup</strong> to get this file. It's used for your username and settings. Rename to .pdf if needed to upload.</p>
+  </div>
+
+  <!-- Convert -->
+  <div class="card">
+    <h2>Step 3 — Convert</h2>
+    <button id="startBtn" disabled>Upload both files to start</button>
+
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text">
+        <span id="progressLabel">Fetching AniList data...</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card" id="resultCard">
+    <h3>✅ Conversion complete!</h3>
+    <p id="resultDesc"></p>
+    <div class="stats" id="statsRow"></div>
+    <button id="downloadBtn">Download .anymex file</button>
+    <p class="note" style="margin-top:0.8rem">Transfer to your phone → AnymeX → Data Management → Restore Data</p>
+  </div>
+
+  <footer>
+    Made by <a href="https://github.com/G1NYU" target="_blank">G1NYU</a> ·
+    <a href="https://github.com/G1NYU/mihon-to-anymex" target="_blank">Source on GitHub</a>
+  </footer>
+</div>
+
+<script>
+const ANILIST_URL = 'https://graphql.anilist.co';
+const QUERY = `
+query ($s: String) {
+  Media(search: $s, type: MANGA) {
+    id
+    title { romaji english native }
+    description(asHtml: false)
+    coverImage { large }
+    status chapters genres averageScore popularity format
+    startDate { year month day }
+    endDate { year month day }
+  }
+}`;
+
+const EMPTY_CHAPTER = {
+  link: null, title: null, releaseDate: null, scanlator: null,
+  number: 1.0, pageNumber: null, totalPages: null,
+  lastReadTime: null, currentOffset: null, maxOffset: null,
+  sourceName: null, localPath: null, headerKeys: null, headerValues: null
+};
+
+let csvData = null;
+let backupData = null;
+let outputBlob = null;
+
+// --- File upload handlers ---
+function setupUpload(areaId, inputId, nameId, onLoad) {
+  const area = document.getElementById(areaId);
+  const input = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+
+  input.addEventListener('change', () => {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      onLoad(e.target.result, file.name);
+      area.classList.add('done');
+      nameEl.textContent = '✓ ' + file.name;
+      checkReady();
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+
+  ['dragover','dragleave','drop'].forEach(evt => {
+    area.addEventListener(evt, e => {
+      e.preventDefault();
+      if (evt === 'dragover') area.classList.add('dragover');
+      else area.classList.remove('dragover');
+      if (evt === 'drop') {
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = ev => {
+          onLoad(ev.target.result, file.name);
+          area.classList.add('done');
+          nameEl.textContent = '✓ ' + file.name;
+          checkReady();
+        };
+        reader.readAsText(file, 'UTF-8');
+      }
+    });
+  });
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const rows = lines.map(line => {
+    const cols = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; }
+      else if (c === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    cols.push(cur.trim());
+    return cols;
+  });
+  const seen = new Set();
+  return rows
+    .map(r => r[0]?.replace(/^"|"$/g, '').trim())
+    .filter(t => t && !seen.has(t) && seen.add(t));
+}
+
+setupUpload('csvArea', 'csvFile', 'csvName', (text) => {
+  csvData = parseCSV(text);
+});
+
+setupUpload('backupArea', 'backupFile', 'backupName', (text) => {
+  try { backupData = JSON.parse(text); }
+  catch (e) { alert('Could not parse backup file. Make sure it is a valid .anymex file.'); }
+});
+
+function checkReady() {
+  const btn = document.getElementById('startBtn');
+  if (csvData && backupData) {
+    btn.disabled = false;
+    btn.textContent = `Convert ${csvData.length} titles → .anymex`;
+  }
+}
+
+// --- AniList fetch ---
+async function fetchAniList(title) {
+  const res = await fetch(ANILIST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: QUERY, variables: { s: title } })
+  });
+  const json = await res.json();
+  return json?.data?.Media || null;
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function formatDate(d) {
+  if (!d || !d.year) return '?';
+  return `${d.year}-${d.month ? String(d.month).padStart(2,'0') : '?'}`;
+}
+
+function buildEntry(title, a) {
+  const desc = (a.description || '?')
+    .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '');
+  return {
+    id: String(a.id),
+    jname: a.title.native || title,
+    name: a.title.romaji || title,
+    english: a.title.english || a.title.romaji || title,
+    japanese: a.title.native || title,
+    description: desc,
+    poster: a.coverImage?.large || null,
+    cover: null,
+    totalEpisodes: '?', type: '?', season: '?',
+    premiered: '?', duration: '?',
+    status: 'ONGOING.. probably?',
+    rating: String(Math.round((a.averageScore || 0) / 10 * 10) / 10),
+    popularity: String(a.popularity || '?'),
+    format: '?',
+    aired: `${formatDate(a.startDate)} to ${formatDate(a.endDate)}`,
+    totalChapters: String(a.chapters || '?'),
+    genres: a.genres || [],
+    studios: null, chapters: null, episodes: null,
+    currentEpisode: null,
+    currentChapter: { ...EMPTY_CHAPTER },
+    watchedEpisodes: [], readChapters: [],
+    serviceIndex: 0, mediaTypeIndex: 0
+  };
+}
+
+// --- Main convert ---
+document.getElementById('startBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  btn.textContent = 'Converting...';
+
+  const progressWrap = document.getElementById('progressWrap');
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+  const pct = document.getElementById('progressPct');
+  const log = document.getElementById('log');
+  progressWrap.style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+  log.innerHTML = '';
+
+  const titles = csvData;
+  const total = titles.length;
+  const library = [];
+  const skipped = [];
+  let matched = 0;
+
+  function logLine(msg) {
+    log.innerHTML += msg + '<br>';
+    log.scrollTop = log.scrollHeight;
+  }
+
+  for (let i = 0; i < total; i++) {
+    const title = titles[i];
+    const p = Math.round((i / total) * 100);
+    fill.style.width = p + '%';
+    pct.textContent = p + '%';
+    label.textContent = `Fetching: ${title.substring(0, 45)}...`;
+
+    try {
+      const media = await fetchAniList(title);
+      if (media) {
+        library.push(buildEntry(title, media));
+        matched++;
+        if (matched % 10 === 0) logLine(`✓ ${matched} matched so far...`);
+      } else {
+        skipped.push(title);
+      }
+    } catch (e) {
+      skipped.push(title);
+    }
+
+    // Rate limit: AniList allows ~30 req/min
+    await sleep(2100);
+  }
+
+  fill.style.width = '100%';
+  pct.textContent = '100%';
+  label.textContent = 'Building .anymex file...';
+  logLine(`Done! ${matched} matched, ${skipped.length} skipped.`);
+
+  const allIds = library.map(e => e.id);
+
+  const backup = {
+    date: backupData.date,
+    appVersion: backupData.appVersion,
+    username: backupData.username,
+    avatar: backupData.avatar,
+    animeCount: 0,
+    mangaCount: library.length,
+    novelCount: 0,
+    animeLibrary: [],
+    mangaLibrary: library,
+    novelLibrary: [],
+    animeCustomLists: backupData.animeCustomLists || [],
+    mangaCustomLists: [{ listName: 'new', mediaIds: allIds, mediaTypeIndex: 0 }],
+    novelCustomLists: backupData.novelCustomLists || [],
+    settings: backupData.settings || []
+  };
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  outputBlob = blob;
+
+  // Show result
+  const resultCard = document.getElementById('resultCard');
+  document.getElementById('resultDesc').textContent =
+    `Your library has been converted and is ready to restore in AnymeX.`;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="num">${library.length}</div><div class="lbl">Imported</div></div>
+    <div class="stat"><div class="num">${skipped.length}</div><div class="lbl">Skipped</div></div>
+    <div class="stat"><div class="num">${Math.round(library.length/total*100)}%</div><div class="lbl">Match rate</div></div>
+  `;
+  resultCard.style.display = 'block';
+
+  btn.disabled = false;
+  btn.textContent = 'Convert again';
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!outputBlob) return;
+  const url = URL.createObjectURL(outputBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mihon_to_anymex.anymex';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+</script>
+</body>
+</html>
