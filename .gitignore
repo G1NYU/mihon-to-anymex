@@ -1,0 +1,8 @@
+# user data files
+mihon_library.csv
+anilist_results.json
+*.anymex
+*.pdf
+__pycache__/
+*.pyc
+.env
