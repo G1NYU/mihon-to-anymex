@@ -2,7 +2,7 @@
 
 Convert your **Mihon** or **Komikku** manga library to **AnymeX** format, complete with AniList metadata, covers, ratings and genres.
 
-> Created by [G1NYU](https://github.com/G1NYU) with the help of Perplexity AI.
+> Created by [G1NYU](https://github.com/G1NYU) 
 
 ---
 
