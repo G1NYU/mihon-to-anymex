@@ -1,26 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="0; url=web/index.html">
-  <title>Mihon → AnymeX</title>
-  <style>
-    body {
-      margin: 0;
-      background: #0f0f0f;
-      color: #e8e8e8;
-      font-family: 'DM Sans', system-ui, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      font-size: 1rem;
-    }
-    a { color: #4f98a3; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mihon → AnymeX Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --color-bg: #0f0f0f;
+    --color-surface: #1a1a1a;
+    --color-surface-2: #222;
+    --color-border: #2a2a2a;
+    --color-text: #e8e8e8;
+    --color-text-muted: #888;
+    --color-primary: #4f98a3;
+    --color-primary-hover: #227f8b;
+    --color-success: #6daa45;
+    --color-error: #d163a7;
+    --color-warn: #c9943a;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-full: 9999px;
+    --font-body: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-body);
+    background: var(--color-bg);
+    color: var(--color-text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1rem 4rem;
+  }
+  .container { width: 100%; max-width: 860px; }
+
+  .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
+  .logo svg { color: var(--color-primary); flex-shrink: 0; }
+  .logo-text { font-size: 1.1rem; font-weight: 600; }
+  .logo-sub { font-size: 0.8rem; color: var(--color-text-muted); }
+  h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; }
+  p.desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5; }
+
+  .guide-wrap {
+    background: linear-gradient(135deg, rgba(79,152,163,0.08) 0%, rgba(157,232,106,0.06) 100%);
+    border: 1px solid rgba(79,152,163,0.25);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .guide-wrap:hover { border-color: rgba(79,152,163,0.4); }
+  .guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    gap: 0.75rem;
+  }
+  .guide-header-left { display: flex; align-items: center; gap: 0.6rem; }
+  .guide-title { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
+  .guide-subtitle { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.25rem; }
+  .guide-chevron { color: var(--color-text-muted); font-size: 0.8rem; transition: transform 0.25s ease; flex-shrink: 0; }
+  .guide-wrap.open .guide-chevron { transform: rotate(180deg); }
+  .guide-body { display: none; padding: 0 1.25rem 1.25rem; }
+  .guide-wrap.open .guide-body { display: block; }
+
+  .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
+  @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
+  .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9rem 1rem; position: relative; }
+  .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 0.7rem; font-weight: 700; margin-bottom: 0.5rem; flex-shrink: 0; }
+  .guide-step h4 { font-size: 0.82rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.3rem; }
+  .guide-step p { font-size: 0.76rem; color: var(--color-text-muted); line-height: 1.45; }
+  .guide-step p a { color: var(--color-primary); text-decoration: none; font-weight: 600; }
+  .guide-step p a:hover { text-decoration: underline; }
+  .guide-step:not(:last-child)::after { content: '›'; position: absolute; right: -0.55rem; top: 50%; transform: translateY(-50%); color: var(--color-text-muted); font-size: 1.1rem; line-height: 1; z-index: 1; }
+  @media (max-width: 560px) { .guide-step:not(:last-child)::after { display: none; } }
+  .guide-cta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  .guide-btn { display: inline-flex; align-items: center; gap: 0.45rem; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-md); font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; padding: 0.6rem 1.1rem; cursor: pointer; text-decoration: none; transition: background 0.18s; flex-shrink: 0; }
+  .guide-btn:hover { background: var(--color-primary-hover); }
+  .guide-btn svg { width: 14px; height: 14px; }
+  .guide-dismiss { font-size: 0.78rem; color: var(--color-text-muted); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font-body); text-decoration: underline; }
+  .guide-dismiss:hover { color: var(--color-text); }
+
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.75rem; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.4); margin-bottom: 1rem; }
+  .card-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-muted); margin-bottom: 1.25rem; }
+  .or-divider { display: flex; align-items: center; gap: 0.75rem; margin: 0.25rem 0 1.25rem; }
+  .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
+  .or-divider span { font-size:0.75rem; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+
+  .mode-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid; margin-bottom: 1.25rem; transition: all 0.2s; }
+  .mode-badge.csv    { background:rgba(79,152,163,0.12); color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
+  .mode-badge.backup { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
+  .mode-badge.none   { background:rgba(136,136,136,0.1);  color:#888;   border-color:rgba(136,136,136,0.2); }
+
+  label { display:block; font-size:0.85rem; font-weight:500; margin-bottom:0.4rem; color:var(--color-text-muted); }
+  input[type="file"], input[type="number"], input[type="text"], select { width:100%; background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); color:var(--color-text); font-family:var(--font-body); font-size:0.9rem; padding:0.65rem 0.9rem; outline:none; transition:border-color 0.18s; margin-bottom:1.25rem; }
+  input[type="file"] { cursor:pointer; }
+  input:focus, select:focus { border-color:var(--color-primary); }
+  select { cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 0.9rem center; padding-right:2.2rem; }
+  .hint { font-size:0.78rem; color:var(--color-text-muted); margin-top:-1rem; margin-bottom:1.25rem; }
+  .hint a { color:var(--color-primary); text-decoration:none; }
+  .row  { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+  @media(max-width:600px){ .row3{grid-template-columns:1fr 1fr;} }
+  @media(max-width:520px){ .row {grid-template-columns:1fr;} }
+
+  .status-preview { display:inline-flex; align-items:center; gap:0.35rem; padding:0.2rem 0.6rem; border-radius:var(--radius-full); font-size:0.75rem; font-weight:600; letter-spacing:0.05em; margin-left:0.5rem; vertical-align:middle; transition:all 0.2s; }
+  .status-preview.CURRENT   { background:rgba(79,152,163,0.18);  color:#7ecfd8; border:1px solid rgba(79,152,163,0.35); }
+  .status-preview.PLANNING  { background:rgba(201,148,58,0.18);  color:#e0b86a; border:1px solid rgba(201,148,58,0.35); }
+  .status-preview.COMPLETED { background:rgba(109,170,69,0.18);  color:#9de86a; border:1px solid rgba(109,170,69,0.35); }
+  .status-preview.DROPPED   { background:rgba(209,99,167,0.18);  color:#e896cc; border:1px solid rgba(209,99,167,0.35); }
+  .status-preview.PAUSED    { background:rgba(136,136,136,0.15); color:#aaa;    border:1px solid rgba(136,136,136,0.25); }
+  .status-preview.REPEATING { background:rgba(157,232,106,0.15); color:#b8f07a; border:1px solid rgba(157,232,106,0.3); }
+  .status-preview.AUTO      { background:rgba(157,232,106,0.12); color:#b8f07a; border:1px solid rgba(157,232,106,0.25); }
+
+  .btn-row { display:flex; flex-wrap:wrap; gap:0.6rem; }
+  button { background:var(--color-primary); color:#fff; border:none; border-radius:var(--radius-md); font-family:var(--font-body); font-size:0.9rem; font-weight:600; padding:0.7rem 1.1rem; cursor:pointer; transition:background 0.18s; flex-shrink:0; }
+  button:hover:not(:disabled) { background:var(--color-primary-hover); }
+  button:disabled { opacity:0.45; cursor:not-allowed; }
+  button.secondary { background:var(--color-surface-2); color:var(--color-text); border:1px solid var(--color-border); }
+  button.secondary:hover:not(:disabled) { background:#2a2a2a; }
+  button.success { background:#3d6e28; }
+  button.success:hover:not(:disabled) { background:#4a8832; }
+
+  .progress-wrap { margin-top:1.5rem; }
+  .progress-meta { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.35rem; gap:0.5rem; flex-wrap:wrap; }
+  .progress-left { display:flex; flex-direction:column; gap:0.15rem; }
+  .progress-title { font-size:0.82rem; color:var(--color-text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:480px; }
+  .progress-sub   { font-size:0.75rem; color:var(--color-text-muted); }
+  .progress-right { display:flex; gap:0.75rem; align-items:center; flex-shrink:0; }
+  .progress-pct   { font-size:1rem; font-weight:600; color:var(--color-text); min-width:3rem; text-align:right; }
+  .progress-eta   { font-size:0.78rem; color:var(--color-text-muted); }
+  .progress-bar-bg { background:var(--color-surface-2); border-radius:var(--radius-full); height:8px; overflow:hidden; }
+  .progress-bar { height:100%; width:0%; border-radius:var(--radius-full); background:linear-gradient(90deg,#4f98a3,#7ecfd8); transition:width 0.3s ease,background 0.6s ease; position:relative; overflow:hidden; }
+  .progress-bar::after { content:''; position:absolute; top:0; left:-60%; width:40%; height:100%; background:rgba(255,255,255,0.25); animation:shimmer 1.6s infinite; }
+  @keyframes shimmer{0%{left:-60%}100%{left:120%}}
+  .progress-bar.done    { background:linear-gradient(90deg,#6daa45,#9de86a); }
+  .progress-bar.done::after    { animation:none; }
+  .progress-bar.stopped { background:linear-gradient(90deg,#d163a7,#e896cc); }
+  .progress-bar.stopped::after { animation:none; }
+
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.25rem; }
+  @media(max-width:400px){ .stats{grid-template-columns:1fr 1fr;} }
+  .stat { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:0.9rem 1rem; transition:border-color 0.3s; }
+  .stat.matched { border-color:rgba(109,170,69,0.4); }
+  .stat.skipped { border-color:rgba(209,99,167,0.3); }
+  .stat-num { font-size:1.4rem; font-weight:600; color:var(--color-text); margin-bottom:0.15rem; transition:color 0.3s; }
+  .stat.matched .stat-num { color:var(--color-success); }
+  .stat.skipped .stat-num { color:var(--color-error); }
+  .stat-label { font-size:0.78rem; color:var(--color-text-muted); }
+
+  .status-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.25rem; }
+  .pill { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.75rem; border-radius:var(--radius-full); background:var(--color-surface-2); border:1px solid var(--color-border); font-size:0.8rem; color:var(--color-text-muted); }
+  .pill .dot { width:7px; height:7px; border-radius:50%; background:var(--color-text-muted); flex-shrink:0; }
+  .pill.ok .dot   { background:var(--color-success); }
+  .pill.ok        { color:var(--color-text); }
+  .pill.warn .dot { background:var(--color-warn); }
+
+  .resume-banner { display:none; background:rgba(201,148,58,0.12); border:1px solid rgba(201,148,58,0.3); border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.85rem; color:var(--color-warn); margin-bottom:1rem; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; }
+  .resume-banner.show { display:flex; }
+  .resume-banner button { padding:0.4rem 0.9rem; font-size:0.82rem; background:var(--color-warn); color:#1a0f00; }
+  .resume-banner button:hover { background:#e0a93f; }
+
+  .log { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:0.9rem 1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.78rem; color:var(--color-text-muted); height:180px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
+
+  .status-box { margin-top:1rem; padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.85rem; display:none; }
+  .status-box.success { background:rgba(109,170,69,0.12); color:var(--color-success); border:1px solid rgba(109,170,69,0.25); }
+  .status-box.error   { background:rgba(209,99,167,0.12); color:var(--color-error);   border:1px solid rgba(209,99,167,0.25); }
+  .status-box.info    { background:rgba(79,152,163,0.12); color:var(--color-primary); border:1px solid rgba(79,152,163,0.25); }
+
+  #missionOverlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0); align-items:center; justify-content:center; flex-direction:column; transition:background 0.4s ease; }
+  #missionOverlay.show { display:flex; background:rgba(0,0,0,0.82); }
+  #missionOverlay canvas { position:absolute; inset:0; pointer-events:none; }
+  .mission-box { position:relative; z-index:2; text-align:center; animation:missionIn 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes missionIn { from{opacity:0;transform:scale(0.7) translateY(40px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  .slash-line { width:0; height:3px; background:linear-gradient(90deg,transparent,#fff,#4f98a3,transparent); margin:0 auto 1rem; animation:slashIn 0.35s 0.15s ease forwards; }
+  @keyframes slashIn{from{width:0;opacity:0}to{width:260px;opacity:1}}
+  .mission-title { font-family:'Bebas Neue','Impact',sans-serif; font-size:clamp(2.8rem,10vw,5.5rem); letter-spacing:0.05em; line-height:1; color:#fff; text-shadow:0 0 30px rgba(79,152,163,0.8),0 0 80px rgba(79,152,163,0.4); animation:glitch 3s infinite; }
+  @keyframes glitch { 0%,94%,100%{text-shadow:0 0 30px rgba(79,152,163,0.8),0 0 80px rgba(79,152,163,0.4);transform:none} 95%{transform:translateX(-3px);text-shadow:3px 0 #d163a7,-3px 0 #4f98a3} 97%{transform:translateX(3px);text-shadow:-3px 0 #d163a7,3px 0 #4f98a3} 99%{transform:none} }
+  .mission-sub { font-size:1rem; color:var(--color-text-muted); margin-top:0.5rem; letter-spacing:0.12em; text-transform:uppercase; animation:fadeUp 0.5s 0.4s both; }
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .mission-stats { display:flex; gap:2rem; justify-content:center; margin-top:1.5rem; animation:fadeUp 0.5s 0.55s both; }
+  .m-stat { text-align:center; }
+  .m-stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#fff; line-height:1; }
+  .m-stat-num.green { color:var(--color-success); }
+  .m-stat-num.pink  { color:var(--color-error); }
+  .m-stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-text-muted); margin-top:0.2rem; }
+  .slash-line-2 { width:0; height:2px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); margin:1.5rem auto 0; animation:slashIn 0.35s 0.6s ease forwards; }
+  .mission-close { margin-top:1.5rem; animation:fadeUp 0.5s 0.7s both; background:transparent; border:1px solid rgba(255,255,255,0.2); color:var(--color-text-muted); font-size:0.82rem; padding:0.5rem 1.5rem; letter-spacing:0.08em; }
+  .mission-close:hover { background:rgba(255,255,255,0.07); color:var(--color-text); border-color:rgba(255,255,255,0.35); }
+</style>
 </head>
 <body>
-  <p>Redirecting… <a href="web/index.html">click here if not redirected</a></p>
-  <script>window.location.replace('web/index.html');</script>
+
+<div id="missionOverlay">
+  <canvas id="particleCanvas"></canvas>
+  <div class="mission-box">
+    <div class="slash-line"></div>
+    <div class="mission-title">MISSION COMPLETE</div>
+    <div class="mission-sub">AniList scan finished</div>
+    <div class="mission-stats">
+      <div class="m-stat"><div class="m-stat-num" id="mTotal">0</div><div class="m-stat-label">Titles</div></div>
+      <div class="m-stat"><div class="m-stat-num green" id="mMatched">0</div><div class="m-stat-label">Matched</div></div>
+      <div class="m-stat"><div class="m-stat-num pink" id="mSkipped">0</div><div class="m-stat-label">Skipped</div></div>
+    </div>
+    <div class="slash-line-2"></div>
+    <button class="mission-close" onclick="closeMission()">CONTINUE →</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="9" fill="currentColor" fill-opacity="0.15"/>
+      <path d="M8 26L15 12l5 9 3-5 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="logo-text">Mihon → AnymeX</div>
+      <div class="logo-sub">Manga Library Converter</div>
+    </div>
+  </div>
+
+  <h1>Convert your Mihon library</h1>
+  <p class="desc">Upload a Mihon backup JSON <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file — no Python, no install.</p>
+
+  <div class="guide-wrap" id="guideWrap">
+    <div class="guide-header" onclick="toggleGuide()">
+      <div class="guide-header-left">
+        <span style="font-size:1.1rem">📖</span>
+        <span class="guide-title">How to migrate from Mihon</span>
+        <span class="guide-subtitle">3 steps — takes about 2 min</span>
+      </div>
+      <span class="guide-chevron">▾</span>
+    </div>
+    <div class="guide-body">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <h4>Export from Mihon</h4>
+          <p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <h4>Convert to JSON</h4>
+          <p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <h4>Upload &amp; convert</h4>
+          <p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p>
+        </div>
+      </div>
+      <div class="guide-cta">
+        <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open backup.mihon.tools
+        </a>
+        <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="resume-banner" id="resumeBanner">
+    <span id="resumeText">Unfinished session found — resume where you left off?</span>
+    <div style="display:flex;gap:0.5rem">
+      <button onclick="handleResume()">Resume</button>
+      <button onclick="clearSave()" style="background:#444;color:var(--color-text)">Discard</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Step 1 — Upload files</div>
+    <div class="mode-badge none" id="modeBadge">○ No source loaded</div>
+
+    <label for="backupJsonFile">💾 Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
+    <input type="file" id="backupJsonFile" accept=".json,application/json">
+    <p class="hint">Exported from <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> → Download → JSON. Preserves per-title reading status &amp; chapters read.</p>
+
+    <div class="or-divider"><span>or</span></div>
+
+    <label for="csvFile">CSV export (Mihon → Library → Export)</label>
+    <input type="file" id="csvFile" accept=".csv,text/csv">
+    <p class="hint">No header row expected. First column must be the manga title.</p>
+
+    <label for="templateFile">AnymeX backup template (.anymex)</label>
+    <input type="file" id="templateFile" accept=".anymex,.json,application/json">
+    <p class="hint">Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template.</p>
+
+    <div class="row3">
+      <div>
+        <label for="listName">Custom list name</label>
+        <select id="listName"><option value="new">new</option></select>
+      </div>
+      <div>
+        <label for="readingStatus">Reading status <span class="status-preview AUTO" id="statusBadge">↻ Auto</span></label>
+        <select id="readingStatus" onchange="updateStatusBadge()">
+          <option value="AUTO" selected>↻ Auto (from backup)</option>
+          <option value="CURRENT">● Reading (CURRENT)</option>
+          <option value="PLANNING">○ Plan to Read (PLANNING)</option>
+          <option value="COMPLETED">✓ Completed (COMPLETED)</option>
+          <option value="DROPPED">✕ Dropped (DROPPED)</option>
+          <option value="PAUSED">⏸ On Hold (PAUSED)</option>
+          <option value="REPEATING">↻ Re-reading (REPEATING)</option>
+        </select>
+      </div>
+      <div>
+        <label for="delayMs">Delay between requests (ms)</label>
+        <input type="number" id="delayMs" min="500" step="100" value="2100">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button id="parseBtn" onclick="handleParse()">Parse source</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Step 2 — Fetch AniList metadata</div>
+    <div class="status-row" id="stateRow">
+      <span class="pill" id="pillSource"><span class="dot"></span>Source: not loaded</span>
+      <span class="pill" id="pillTemplate"><span class="dot"></span>Template: not loaded</span>
+      <span class="pill" id="pillAnilist"><span class="dot"></span>AniList: not fetched</span>
+    </div>
+    <div class="btn-row" style="margin-bottom:1.25rem">
+      <button id="fetchBtn" onclick="handleFetch()" disabled>Fetch AniList metadata</button>
+      <button id="stopBtn" class="secondary" onclick="handleStop()" disabled>Stop</button>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <div class="progress-left">
+          <div class="progress-title" id="progressTitle">Waiting…</div>
+          <div class="progress-sub" id="progressSub"></div>
+        </div>
+        <div class="progress-right">
+          <div class="progress-eta" id="progressEta"></div>
+          <div class="progress-pct" id="progressPct">0%</div>
+        </div>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="sTitles">0</div><div class="stat-label">Titles</div></div>
+      <div class="stat matched"><div class="stat-num" id="sMatched">0</div><div class="stat-label">Matched</div></div>
+      <div class="stat skipped"><div class="stat-num" id="sSkipped">0</div><div class="stat-label">Skipped</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Step 3 — Build &amp; download</div>
+    <div class="btn-row">
+      <button id="buildBtn" class="success" onclick="handleBuild()" disabled>Build .anymex &amp; download</button>
+      <button id="dlMatchesBtn" class="secondary" onclick="dlMatches()" disabled>Download matches JSON</button>
+      <button id="dlSkippedBtn" class="secondary" onclick="dlSkipped()" disabled>Download skipped TXT</button>
+    </div>
+    <div class="status-box" id="statusBox"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:.75rem">Log</div>
+    <div class="log" id="log"></div>
+  </div>
+
+</div>
+
+<script>
+const ANILIST_URL='https://graphql.anilist.co';
+const LS_KEY='mihon_anymex_session';
+const LS_GUIDE='mihon_anymex_guide_dismissed';
+const GQL=`query($s:String){Media(search:$s,type:MANGA){id title{romaji english native} description(asHtml:false) coverImage{large} status chapters genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
+
+const EMPTY_CHAPTER={link:null,title:null,releaseDate:null,scanlator:null,number:1.0,pageNumber:null,totalPages:null,lastReadTime:null,currentOffset:null,maxOffset:null,sourceName:null,localPath:null,headerKeys:null,headerValues:null};
+
+const MIHON_STATUS={1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'PLANNING',6:'REPEATING'};
+const STATUS_LABELS={AUTO:'Auto (from backup)',CURRENT:'Reading',PLANNING:'Plan to Read',COMPLETED:'Completed',DROPPED:'Dropped',PAUSED:'On Hold',REPEATING:'Re-reading'};
+const STATUS_ICONS={AUTO:'↻',CURRENT:'●',PLANNING:'○',COMPLETED:'✓',DROPPED:'✕',PAUSED:'⏸',REPEATING:'↻'};
+const VALID_STATUSES=new Set(['CURRENT','PLANNING','COMPLETED','DROPPED','PAUSED','REPEATING']);
+
+const state={titles:[],titleMeta:{},results:{},skipped:[],template:null,running:false,stop:false,sourceMode:'none'};
+let fetchStartTime=null;
+
+function $(id){return document.getElementById(id);}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function stamp(){return new Date().toISOString().replace(/[:.]/g,'-');}
+
+function toggleGuide(){ $('guideWrap').classList.toggle('open'); }
+function dismissGuide(e){ e.stopPropagation(); $('guideWrap').style.display='none'; try{localStorage.setItem(LS_GUIDE,'1');}catch(e){} }
+function initGuide(){ try{ if(localStorage.getItem(LS_GUIDE)==='1'){ $('guideWrap').style.display='none'; return; } }catch(e){} $('guideWrap').classList.add('open'); }
+
+function updateStatusBadge(){ const v=$('readingStatus').value,b=$('statusBadge'); b.className='status-preview '+(VALID_STATUSES.has(v)?v:'AUTO'); b.textContent=(STATUS_ICONS[v]||'↻')+' '+(v==='AUTO'?'Auto':v); }
+function setModeBadge(mode){ const el=$('modeBadge'); if(mode==='backup'){el.className='mode-badge backup';el.textContent='💾 Mode: Mihon Backup JSON (per-title status)';} else if(mode==='csv'){el.className='mode-badge csv';el.textContent='📄 Mode: CSV export (manual status)';} else{el.className='mode-badge none';el.textContent='○ No source loaded';} }
+function setListOptions(names){ const sel=$('listName');sel.innerHTML=''; (names.length?names:['new']).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);}); }
+
+function log(msg){const t=new Date().toLocaleTimeString();$('log').textContent+=`[${t}] ${msg}\n`;$('log').scrollTop=$('log').scrollHeight;}
+function showStatus(msg,type){const b=$('statusBox');b.textContent=msg;b.className='status-box '+type;b.style.display='block';}
+function setPill(id,text,ok){ const el=$(id); el.querySelector('.dot').style.background=ok?'#6daa45':ok===false?'#d163a7':'#888'; el.className='pill'+(ok===true?' ok':ok==='warn'?' warn':''); el.querySelector('.dot').nextSibling.textContent=text; }
+function updateCounts(){$('sTitles').textContent=state.titles.length;$('sMatched').textContent=Object.keys(state.results).length;$('sSkipped').textContent=state.skipped.length;}
+function updateButtons(){ const hasTitles=state.titles.length>0,hasRes=Object.keys(state.results).length>0||state.skipped.length>0; $('fetchBtn').disabled=!hasTitles||state.running; $('stopBtn').disabled=!state.running; $('buildBtn').disabled=!(hasTitles&&state.template&&hasRes); $('dlMatchesBtn').disabled=!hasRes; $('dlSkippedBtn').disabled=state.skipped.length===0; }
+function download(fn,content,type){ const blob=new Blob([content],{type}),a=document.createElement('a'); a.href=URL.createObjectURL(blob);a.download=fn;a.click();URL.revokeObjectURL(a.href); }
+
+function setProgress(done,total,title){ const pct=total?Math.round(done/total*100):0,bar=$('bar'); bar.style.width=pct+'%';bar.classList.remove('done','stopped'); $('progressPct').textContent=pct+'%'; if(title)$('progressTitle').textContent=`Scanning: ${title}`; else if(!done)$('progressTitle').textContent='Waiting…'; $('progressSub').textContent=total?`${done} of ${total} titles`:''; if(fetchStartTime&&done>0&&done<total){ const el=(Date.now()-fetchStartTime)/1000,rem=Math.round(el/done*(total-done)); const m=Math.floor(rem/60),s=rem%60; $('progressEta').textContent=m?`~${m}m ${s}s left`:`~${s}s left`; }else $('progressEta').textContent=''; }
+function setBarDone(){$('bar').style.width='100%';$('bar').classList.add('done');$('progressPct').textContent='100%';$('progressEta').textContent='';}
+function setBarStopped(){$('bar').classList.add('stopped');$('progressEta').textContent='';}
+
+function saveSession(){try{localStorage.setItem(LS_KEY,JSON.stringify({titles:state.titles,titleMeta:state.titleMeta,results:state.results,skipped:state.skipped,sourceMode:state.sourceMode}));}catch(e){}}
+function clearSave(){localStorage.removeItem(LS_KEY);$('resumeBanner').classList.remove('show');}
+function checkResume(){ try{ const raw=localStorage.getItem(LS_KEY);if(!raw)return; const sv=JSON.parse(raw); const done=Object.keys(sv.results||{}).length+(sv.skipped||[]).length,total=(sv.titles||[]).length; if(total>0&&done<total){$('resumeText').textContent=`Unfinished session — ${done}/${total} processed. Resume?`;$('resumeBanner').classList.add('show');} }catch(e){} }
+function handleResume(){ try{ const sv=JSON.parse(localStorage.getItem(LS_KEY)); state.titles=sv.titles||[];state.titleMeta=sv.titleMeta||{}; state.results=sv.results||{};state.skipped=sv.skipped||[]; state.sourceMode=sv.sourceMode||'csv'; setModeBadge(state.sourceMode); const done=Object.keys(state.results).length+state.skipped.length; setPill('pillSource',`Source: ${state.titles.length} titles (resumed)`,true); setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn'); updateCounts();setProgress(done,state.titles.length); $('resumeBanner').classList.remove('show');updateButtons(); log(`Resumed — ${done}/${state.titles.length} already done.`); showStatus(`Resumed! ${state.titles.length-done} titles remaining.`,'info'); }catch(e){clearSave();} }
+
+function parseCsvLine(line){ const out=[];let cur='',inQ=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;} else if(c===','&&!inQ){out.push(cur);cur='';} else cur+=c; } out.push(cur);return out.map(v=>v.trim()); }
+function parseCsv(text){ const seen=new Set(),titles=[]; for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){ const t=(parseCsvLine(line)[0]||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); } return titles; }
+function parseMihonBackupJson(json){ const manga=json.backupManga||[],cats=json.backupCategories||[]; const catNames=cats.map(c=>c.name).filter(Boolean); const seen=new Set(),titles=[],meta={}; for(const m of manga){ const t=(m.title||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); meta[t]={status:MIHON_STATUS[m.status]||'CURRENT',chaptersRead:Array.isArray(m.chapters)?m.chapters.filter(c=>c.read===true||c.read===1).length:0}; } return{titles,meta,catNames}; }
+
+function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
+function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
+function buildEntry(title,a,fallbackStatus){
+  const perTitle=state.titleMeta[title]?.status,drop=fallbackStatus;
+  const status=(drop==='AUTO')?(perTitle||'CURRENT'):(VALID_STATUSES.has(drop)?drop:(perTitle||'CURRENT'));
+  const chapRead=state.titleMeta[title]?.chaptersRead||0;
+  const readChapters=chapRead>0?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[];
+  const displayName=a.title?.english||title||a.title?.romaji;
+  return{ id:String(a.id), jname:a.title?.native||title, name:displayName, english:displayName, japanese:a.title?.native||title, description:cleanDesc(a.description),poster:a.coverImage?.large||null,cover:null, totalEpisodes:'?',type:'MANGA',season:'?',premiered:'?',duration:'?',status, rating:String(Math.round((a.averageScore||0)/10*10)/10), popularity:String(a.popularity||'?'),format:'MANGA', aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`, totalChapters:String(a.chapters||'?'),genres:a.genres||[], studios:null,chapters:null,episodes:null,currentEpisode:null, currentChapter:structuredClone(EMPTY_CHAPTER), watchedEpisodes:[],readChapters,serviceIndex:0,mediaTypeIndex:1 };
+}
+
+async function handleParse(){
+  const bjFile=$('backupJsonFile').files[0],csvFile=$('csvFile').files[0],tplFile=$('templateFile').files[0];
+  if(!bjFile&&!csvFile){showStatus('Upload a Mihon backup JSON or a CSV file first.','error');return;}
+  state.results={};state.skipped=[];state.titles=[];state.titleMeta={};
+  if(bjFile){ try{ const json=JSON.parse(await bjFile.text()); if(!json.backupManga)throw new Error('No backupManga key — is this a Mihon backup JSON?'); const{titles,meta,catNames}=parseMihonBackupJson(json); state.titles=titles;state.titleMeta=meta;state.sourceMode='backup'; setListOptions(catNames.length?catNames:['imported']); setModeBadge('backup'); $('readingStatus').value='AUTO';updateStatusBadge(); setPill('pillSource',`Backup JSON: ${titles.length} titles`,true); log(`Backup JSON — ${titles.length} titles, ${catNames.length} categories.`); showStatus(`Ready — ${titles.length} titles from backup. Per-title status will be applied automatically.`,'info'); }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;} }else{ const text=await csvFile.text(); state.titles=parseCsv(text);state.sourceMode='csv'; setListOptions(['new']);setModeBadge('csv'); setPill('pillSource',`CSV: ${state.titles.length} titles`,true); log(`CSV — ${state.titles.length} unique titles.`); showStatus(`Ready — ${state.titles.length} titles. Set reading status then fetch.`,'info'); }
+  if(tplFile){ try{ state.template=JSON.parse(await tplFile.text()); setPill('pillTemplate',`Template: ${tplFile.name}`,true); log(`Template: ${tplFile.name}`); }catch(e){ state.template=null;setPill('pillTemplate','Template: invalid',false); showStatus('Template file is not valid JSON.','error'); } }
+  setProgress(0,state.titles.length);updateCounts();updateButtons();
+}
+
+async function handleFetch(){
+  if(!state.titles.length){showStatus('Parse a source file first.','error');return;}
+  state.running=true;state.stop=false;
+  const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]);
+  const remaining=state.titles.filter(t=>!alreadyDone.has(t));
+  if(!remaining.length){showStatus('All titles already processed!','info');state.running=false;updateButtons();return;}
+  setPill('pillAnilist','AniList: fetching…','warn');
+  $('statusBox').style.display='none';updateButtons();
+  const delay=Math.max(500,Number($('delayMs').value)||2100);
+  fetchStartTime=Date.now();
+  log(`AniList lookup — ${remaining.length} titles, ${delay}ms delay.`);
+  for(let i=0;i<remaining.length;i++){
+    if(state.stop){log('Stopped.');setBarStopped();break;}
+    const title=remaining[i];
+    setProgress(Object.keys(state.results).length+state.skipped.length,state.titles.length,title);
+    try{ const res=await fetch(ANILIST_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:GQL,variables:{s:title}})}); if(!res.ok)throw new Error(`HTTP ${res.status}`); const data=await res.json(),media=data?.data?.Media; if(media){state.results[title]=media;log(`✓ ${title} → ${media.title?.english||media.title?.romaji||media.id}`);}else{state.skipped.push(title);log(`✗ ${title} — no match`);} }catch(e){state.skipped.push(title);log(`! ${title} — ${e.message}`);}
+    updateCounts();saveSession();
+    if(i<remaining.length-1&&!state.stop)await sleep(delay);
+  }
+  state.running=false;
+  const matched=Object.keys(state.results).length;
+  if(!state.stop){ setBarDone(); $('progressTitle').textContent='Scan complete!'; $('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`; setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0); log(`Done. Matched=${matched}, skipped=${state.skipped.length}`); showStatus(`Fetch complete — ${matched} matched, ${state.skipped.length} skipped.`,matched?'success':'error'); clearSave(); triggerMissionComplete(matched,state.skipped.length,state.titles.length); }else{ setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped (stopped)`,'warn'); log(`Stopped. Matched=${matched}, skipped=${state.skipped.length}`); showStatus(`Stopped — ${matched} matched, ${state.skipped.length} skipped.`,'info'); }
+  updateButtons();
+}
+
+function handleStop(){state.stop=true;}
+
+function handleBuild(){
+  if(!state.template){showStatus('Upload an AnymeX template first.','error');return;}
+  const dropStatus=$('readingStatus').value;
+  const mangaLibrary=state.titles.filter(t=>state.results[t]).map(t=>buildEntry(t,state.results[t],dropStatus));
+  const allIds=mangaLibrary.map(e=>e.id);
+  const listName=($('listName').value||'new').trim()||'new';
+  const tpl=state.template;
+  const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:0,mangaCount:mangaLibrary.length,novelCount:0,animeLibrary:[],mangaLibrary,novelLibrary:[],animeCustomLists:tpl.animeCustomLists||[],mangaCustomLists:[{listName,mediaIds:allIds,mediaTypeIndex:0}],novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]};
+  const fn=`mihon_to_anymex_${stamp()}.anymex`;
+  download(fn,JSON.stringify(backup,null,2),'application/json');
+  const modeNote=state.sourceMode==='backup'?'per-title status from backup':STATUS_LABELS[dropStatus];
+  log(`Built: ${fn} (${mangaLibrary.length} entries, ${modeNote})`);
+  showStatus(`✓ ${mangaLibrary.length} manga exported (${modeNote}) — check your downloads!`,'success');
+}
+
+function dlMatches(){download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json');}
+function dlSkipped(){download(`skipped_titles_${stamp()}.txt`,state.skipped.join('\n'),'text/plain;charset=utf-8');}
+
+$('templateFile').addEventListener('change',async()=>{ const f=$('templateFile').files[0]; if(!f){state.template=null;setPill('pillTemplate','Template: not loaded',null);updateButtons();return;} try{state.template=JSON.parse(await f.text());setPill('pillTemplate',`Template: ${f.name}`,true);log(`Template: ${f.name}`);} catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);} updateButtons(); });
+
+let particleAnim=null;
+function triggerMissionComplete(m,s,t){ $('mTotal').textContent=t;$('mMatched').textContent=m;$('mSkipped').textContent=s; const o=$('missionOverlay');o.style.display='flex';requestAnimationFrame(()=>o.classList.add('show')); startParticles(); }
+function closeMission(){ const o=$('missionOverlay');o.classList.remove('show');setTimeout(()=>o.style.display='none',400); if(particleAnim){cancelAnimationFrame(particleAnim);particleAnim=null;} }
+function startParticles(){ const cv=$('particleCanvas'),ctx=cv.getContext('2d'); cv.width=window.innerWidth;cv.height=window.innerHeight; const C=['#4f98a3','#7ecfd8','#6daa45','#d163a7','#fff','#c9943a','#9de86a']; const p=Array.from({length:120},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height*0.6,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6-3,r:3+Math.random()*5,c:C[0|Math.random()*C.length],a:1,s:Math.random()>.5?'c':'r',rot:Math.random()*Math.PI*2,rs:(Math.random()-0.5)*0.2})); function frame(){ ctx.clearRect(0,0,cv.width,cv.height);let alive=false; for(const q of p){ q.x+=q.vx;q.y+=q.vy;q.vy+=0.12;q.a-=0.008;q.rot+=q.rs; if(q.a<=0)continue;alive=true; ctx.save();ctx.globalAlpha=q.a;ctx.fillStyle=q.c; ctx.translate(q.x,q.y);ctx.rotate(q.rot); if(q.s==='r')ctx.fillRect(-q.r,-q.r/2,q.r*2,q.r); else{ctx.beginPath();ctx.arc(0,0,q.r,0,Math.PI*2);ctx.fill();} ctx.restore(); } if(alive)particleAnim=requestAnimationFrame(frame); } particleAnim=requestAnimationFrame(frame); }
+
+initGuide();checkResume();updateButtons();
+</script>
 </body>
 </html>
