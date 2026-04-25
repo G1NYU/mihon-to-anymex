@@ -137,7 +137,6 @@
     font-weight: 600;
   }
   .guide-step p a:hover { text-decoration: underline; }
-  /* arrow between steps on desktop */
   .guide-step:not(:last-child)::after {
     content: '›';
     position: absolute;
@@ -440,7 +439,7 @@
           </svg>
           Open backup.mihon.tools
         </a>
-        <button class="guide-dismiss" onclick="dismissGuide(event)">Don’t show again</button>
+        <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
       </div>
     </div>
   </div>
@@ -702,6 +701,8 @@ function parseMihonBackupJson(json){
 }
 
 // ── Entry builder
+// Title priority: AniList english > original Mihon title (scanlation name) > AniList romaji
+// This ensures manhwa/manhua without official EN titles still search correctly in AnymeX.
 function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
 function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
 function buildEntry(title,a,fallbackStatus){
@@ -709,9 +710,15 @@ function buildEntry(title,a,fallbackStatus){
   const status=(drop==='AUTO')?(perTitle||'CURRENT'):(VALID_STATUSES.has(drop)?drop:(perTitle||'CURRENT'));
   const chapRead=state.titleMeta[title]?.chaptersRead||0;
   const readChapters=chapRead>0?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[];
+  // Use English title if available, then fall back to original Mihon title (scanlation EN name),
+  // then romaji. This fixes Korean/Chinese titles being unsearchable by their English name.
+  const displayName = a.title?.english || title || a.title?.romaji;
   return{
-    id:String(a.id),jname:a.title?.native||title,name:a.title?.romaji||title,
-    english:a.title?.english||a.title?.romaji||title,japanese:a.title?.native||title,
+    id:String(a.id),
+    jname:a.title?.native||title,
+    name:displayName,
+    english:displayName,
+    japanese:a.title?.native||title,
     description:cleanDesc(a.description),poster:a.coverImage?.large||null,cover:null,
     totalEpisodes:'?',type:'MANGA',season:'?',premiered:'?',duration:'?',status,
     rating:String(Math.round((a.averageScore||0)/10*10)/10),
@@ -782,7 +789,7 @@ async function handleFetch(){
       const res=await fetch(ANILIST_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:GQL,variables:{s:title}})});
       if(!res.ok)throw new Error(`HTTP ${res.status}`);
       const data=await res.json(),media=data?.data?.Media;
-      if(media){state.results[title]=media;log(`✓ ${title} → ${media.title?.romaji||media.id}`);}
+      if(media){state.results[title]=media;log(`✓ ${title} → ${media.title?.english||media.title?.romaji||media.id}`);}
       else{state.skipped.push(title);log(`✗ ${title} — no match`);}
     }catch(e){state.skipped.push(title);log(`! ${title} — ${e.message}`);}
     updateCounts();saveSession();
