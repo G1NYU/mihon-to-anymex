@@ -67,7 +67,7 @@
 
   /* Form */
   label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.4rem; color: var(--color-text-muted); }
-  input[type="file"], input[type="number"], input[type="text"] {
+  input[type="file"], input[type="number"], input[type="text"], select {
     width: 100%;
     background: var(--color-surface-2);
     border: 1px solid var(--color-border);
@@ -81,11 +81,35 @@
     margin-bottom: 1.25rem;
   }
   input[type="file"] { cursor: pointer; }
-  input:focus { border-color: var(--color-primary); }
+  input:focus, select:focus { border-color: var(--color-primary); }
+  select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.2rem; }
   .hint { font-size: 0.78rem; color: var(--color-text-muted); margin-top: -1rem; margin-bottom: 1.25rem; }
   .hint a { color: var(--color-primary); text-decoration: none; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row3 { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+
+  /* Status badge preview */
+  .status-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    transition: background 0.2s, color 0.2s;
+  }
+  .status-preview.CURRENT    { background: rgba(79,152,163,0.18); color: #7ecfd8; border: 1px solid rgba(79,152,163,0.35); }
+  .status-preview.PLANNING   { background: rgba(201,148,58,0.18); color: #e0b86a; border: 1px solid rgba(201,148,58,0.35); }
+  .status-preview.COMPLETED  { background: rgba(109,170,69,0.18); color: #9de86a; border: 1px solid rgba(109,170,69,0.35); }
+  .status-preview.DROPPED    { background: rgba(209,99,167,0.18); color: #e896cc; border: 1px solid rgba(209,99,167,0.35); }
+  .status-preview.PAUSED     { background: rgba(136,136,136,0.15); color: #aaa; border: 1px solid rgba(136,136,136,0.25); }
+  .status-preview.REPEATING  { background: rgba(157,232,106,0.15); color: #b8f07a; border: 1px solid rgba(157,232,106,0.3); }
 
   /* Buttons */
   .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
@@ -148,17 +172,10 @@
     background: rgba(255,255,255,0.25);
     animation: shimmer 1.6s infinite;
   }
-  @keyframes shimmer {
-    0%   { left: -60%; }
-    100% { left: 120%; }
-  }
-  .progress-bar.done {
-    background: linear-gradient(90deg, #6daa45, #9de86a);
-  }
+  @keyframes shimmer { 0% { left: -60%; } 100% { left: 120%; } }
+  .progress-bar.done { background: linear-gradient(90deg, #6daa45, #9de86a); }
   .progress-bar.done::after { animation: none; }
-  .progress-bar.stopped {
-    background: linear-gradient(90deg, #d163a7, #e896cc);
-  }
+  .progress-bar.stopped { background: linear-gradient(90deg, #d163a7, #e896cc); }
   .progress-bar.stopped::after { animation: none; }
 
   /* Stats */
@@ -219,33 +236,16 @@
   .status-box.error   { background: rgba(209,99,167,0.12); color: var(--color-error);   border: 1px solid rgba(209,99,167,0.25); }
   .status-box.info    { background: rgba(79,152,163,0.12); color: var(--color-primary); border: 1px solid rgba(79,152,163,0.25); }
 
-  /* ═══════════════════════════════════════════
-     MISSION COMPLETE OVERLAY
-  ═══════════════════════════════════════════ */
+  /* Mission Complete */
   #missionOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(0,0,0,0);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    transition: background 0.4s ease;
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0); align-items: center; justify-content: center;
+    flex-direction: column; transition: background 0.4s ease;
   }
-  #missionOverlay.show {
-    display: flex;
-    background: rgba(0,0,0,0.82);
-  }
-  #missionOverlay canvas {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
+  #missionOverlay.show { display: flex; background: rgba(0,0,0,0.82); }
+  #missionOverlay canvas { position: absolute; inset: 0; pointer-events: none; }
   .mission-box {
-    position: relative;
-    z-index: 2;
-    text-align: center;
+    position: relative; z-index: 2; text-align: center;
     animation: missionIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
   }
   @keyframes missionIn {
@@ -253,8 +253,7 @@
     to   { opacity:1; transform: scale(1) translateY(0); }
   }
   .slash-line {
-    width: 0;
-    height: 3px;
+    width: 0; height: 3px;
     background: linear-gradient(90deg, transparent, #fff, #4f98a3, transparent);
     margin: 0 auto 1rem;
     animation: slashIn 0.35s 0.15s ease forwards;
@@ -266,9 +265,7 @@
   .mission-title {
     font-family: 'Bebas Neue', 'Impact', sans-serif;
     font-size: clamp(2.8rem, 10vw, 5.5rem);
-    letter-spacing: 0.05em;
-    line-height: 1;
-    color: #fff;
+    letter-spacing: 0.05em; line-height: 1; color: #fff;
     text-shadow: 0 0 30px rgba(79,152,163,0.8), 0 0 80px rgba(79,152,163,0.4);
     animation: glitch 3s infinite;
   }
@@ -279,11 +276,8 @@
     99% { transform: none; }
   }
   .mission-sub {
-    font-size: 1rem;
-    color: var(--color-text-muted);
-    margin-top: 0.5rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 1rem; color: var(--color-text-muted); margin-top: 0.5rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
     animation: fadeUp 0.5s 0.4s both;
   }
   @keyframes fadeUp {
@@ -291,11 +285,8 @@
     to   { opacity:1; transform: translateY(0); }
   }
   .mission-stats {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    margin-top: 1.5rem;
-    animation: fadeUp 0.5s 0.55s both;
+    display: flex; gap: 2rem; justify-content: center;
+    margin-top: 1.5rem; animation: fadeUp 0.5s 0.55s both;
   }
   .m-stat { text-align: center; }
   .m-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #fff; line-height: 1; }
@@ -303,28 +294,23 @@
   .m-stat-num.pink  { color: var(--color-error); }
   .m-stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-top: 0.2rem; }
   .slash-line-2 {
-    width: 0;
-    height: 2px;
+    width: 0; height: 2px;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
     margin: 1.5rem auto 0;
     animation: slashIn 0.35s 0.6s ease forwards;
   }
   .mission-close {
-    margin-top: 1.5rem;
-    animation: fadeUp 0.5s 0.7s both;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: var(--color-text-muted);
-    font-size: 0.82rem;
-    padding: 0.5rem 1.5rem;
-    letter-spacing: 0.08em;
+    margin-top: 1.5rem; animation: fadeUp 0.5s 0.7s both;
+    background: transparent; border: 1px solid rgba(255,255,255,0.2);
+    color: var(--color-text-muted); font-size: 0.82rem;
+    padding: 0.5rem 1.5rem; letter-spacing: 0.08em;
   }
   .mission-close:hover { background: rgba(255,255,255,0.07); color: var(--color-text); border-color: rgba(255,255,255,0.35); }
 </style>
 </head>
 <body>
 
-<!-- ═══ MISSION COMPLETE OVERLAY ═══ -->
+<!-- Mission Complete Overlay -->
 <div id="missionOverlay">
   <canvas id="particleCanvas"></canvas>
   <div class="mission-box">
@@ -332,18 +318,9 @@
     <div class="mission-title">MISSION COMPLETE</div>
     <div class="mission-sub">AniList scan finished</div>
     <div class="mission-stats">
-      <div class="m-stat">
-        <div class="m-stat-num" id="mTotal">0</div>
-        <div class="m-stat-label">Titles</div>
-      </div>
-      <div class="m-stat">
-        <div class="m-stat-num green" id="mMatched">0</div>
-        <div class="m-stat-label">Matched</div>
-      </div>
-      <div class="m-stat">
-        <div class="m-stat-num pink" id="mSkipped">0</div>
-        <div class="m-stat-label">Skipped</div>
-      </div>
+      <div class="m-stat"><div class="m-stat-num" id="mTotal">0</div><div class="m-stat-label">Titles</div></div>
+      <div class="m-stat"><div class="m-stat-num green" id="mMatched">0</div><div class="m-stat-label">Matched</div></div>
+      <div class="m-stat"><div class="m-stat-num pink" id="mSkipped">0</div><div class="m-stat-label">Skipped</div></div>
     </div>
     <div class="slash-line-2"></div>
     <button class="mission-close" onclick="closeMission()">CONTINUE →</button>
@@ -387,10 +364,24 @@
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
     <p class="hint">Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works.</p>
 
-    <div class="row">
+    <div class="row3">
       <div>
         <label for="listName">Custom list name</label>
         <input type="text" id="listName" value="new">
+      </div>
+      <div>
+        <label for="readingStatus">
+          Reading status
+          <span class="status-preview CURRENT" id="statusBadge">● CURRENT</span>
+        </label>
+        <select id="readingStatus" onchange="updateStatusBadge()">
+          <option value="CURRENT"  selected>● Reading (CURRENT)</option>
+          <option value="PLANNING">○ Plan to Read (PLANNING)</option>
+          <option value="COMPLETED">✓ Completed (COMPLETED)</option>
+          <option value="DROPPED">✕ Dropped (DROPPED)</option>
+          <option value="PAUSED">⏸ On Hold (PAUSED)</option>
+          <option value="REPEATING">↻ Re-reading (REPEATING)</option>
+        </select>
       </div>
       <div>
         <label for="delayMs">Delay between requests (ms)</label>
@@ -418,7 +409,6 @@
       <button id="stopBtn" class="secondary" onclick="handleStop()" disabled>Stop</button>
     </div>
 
-    <!-- Progress -->
     <div class="progress-wrap">
       <div class="progress-meta">
         <div class="progress-left">
@@ -436,15 +426,15 @@
     </div>
 
     <div class="stats">
-      <div class="stat" id="statTitles">
+      <div class="stat">
         <div class="stat-num" id="sTitles">0</div>
         <div class="stat-label">Titles</div>
       </div>
-      <div class="stat matched" id="statMatched">
+      <div class="stat matched">
         <div class="stat-num" id="sMatched">0</div>
         <div class="stat-label">Matched</div>
       </div>
-      <div class="stat skipped" id="statSkipped">
+      <div class="stat skipped">
         <div class="stat-num" id="sSkipped">0</div>
         <div class="stat-label">Skipped</div>
       </div>
@@ -491,6 +481,17 @@ const EMPTY_CHAPTER = {
   lastReadTime:null,currentOffset:null,maxOffset:null,
   sourceName:null,localPath:null,headerKeys:null,headerValues:null
 };
+
+// Status labels for log messages
+const STATUS_LABELS = {
+  CURRENT:   'Reading',
+  PLANNING:  'Plan to Read',
+  COMPLETED: 'Completed',
+  DROPPED:   'Dropped',
+  PAUSED:    'On Hold',
+  REPEATING: 'Re-reading'
+};
+
 const state = { titles:[], results:{}, skipped:[], template:null, running:false, stop:false };
 let fetchStartTime = null;
 
@@ -498,6 +499,15 @@ let fetchStartTime = null;
 function $(id){ return document.getElementById(id); }
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 function stamp(){ return new Date().toISOString().replace(/[:.]/g,'-'); }
+function getStatus(){ return $('readingStatus').value; }
+
+function updateStatusBadge(){
+  const val = getStatus();
+  const badge = $('statusBadge');
+  badge.className = 'status-preview ' + val;
+  const icons = { CURRENT:'●', PLANNING:'○', COMPLETED:'✓', DROPPED:'✕', PAUSED:'⏸', REPEATING:'↻' };
+  badge.textContent = (icons[val]||'') + ' ' + val;
+}
 
 function log(msg){
   const now = new Date().toLocaleTimeString();
@@ -541,102 +551,67 @@ function download(filename,content,type){
   URL.revokeObjectURL(a.href);
 }
 
-// ── Progress bar ──────────────────────────────────────────────────────────────
+// ── Progress ──────────────────────────────────────────────────────────────────
 function setProgress(done, total, currentTitle){
   const pct = total ? Math.round(done/total*100) : 0;
   const bar = $('bar');
   bar.style.width = pct+'%';
   bar.classList.remove('done','stopped');
   $('progressPct').textContent = pct+'%';
-
-  if(currentTitle){
-    $('progressTitle').textContent = `Scanning: ${currentTitle}`;
-  } else if(done===0){
-    $('progressTitle').textContent = 'Waiting…';
-  }
-
+  if(currentTitle) $('progressTitle').textContent = `Scanning: ${currentTitle}`;
+  else if(done===0) $('progressTitle').textContent = 'Waiting…';
   $('progressSub').textContent = total ? `${done} of ${total} titles` : '';
-
-  // ETA
-  if(fetchStartTime && done > 0 && done < total){
-    const elapsed = (Date.now()-fetchStartTime)/1000;
-    const rate    = elapsed/done; // seconds per title
-    const remaining = Math.round(rate*(total-done));
-    const mins = Math.floor(remaining/60);
-    const secs = remaining%60;
-    $('progressEta').textContent = mins>0
-      ? `~${mins}m ${secs}s left`
-      : `~${secs}s left`;
-  } else {
-    $('progressEta').textContent = '';
-  }
+  if(fetchStartTime && done>0 && done<total){
+    const elapsed=(Date.now()-fetchStartTime)/1000;
+    const remaining=Math.round((elapsed/done)*(total-done));
+    const mins=Math.floor(remaining/60), secs=remaining%60;
+    $('progressEta').textContent = mins>0 ? `~${mins}m ${secs}s left` : `~${secs}s left`;
+  } else { $('progressEta').textContent=''; }
 }
-
 function setBarDone(){
-  const bar=$('bar');
-  bar.style.width='100%';
-  bar.classList.add('done');
-  $('progressPct').textContent='100%';
-  $('progressEta').textContent='';
+  $('bar').style.width='100%'; $('bar').classList.add('done');
+  $('progressPct').textContent='100%'; $('progressEta').textContent='';
 }
-
 function setBarStopped(){
-  $('bar').classList.add('stopped');
-  $('progressEta').textContent='';
+  $('bar').classList.add('stopped'); $('progressEta').textContent='';
 }
 
-// ── localStorage save/resume ──────────────────────────────────────────────────
+// ── localStorage ──────────────────────────────────────────────────────────────
 function saveSession(){
-  try{
-    localStorage.setItem(LS_KEY, JSON.stringify({
-      titles: state.titles,
-      results: state.results,
-      skipped: state.skipped
-    }));
-  } catch(e){}
+  try{ localStorage.setItem(LS_KEY,JSON.stringify({titles:state.titles,results:state.results,skipped:state.skipped})); }catch(e){}
 }
-
 function clearSave(){
-  localStorage.removeItem(LS_KEY);
-  $('resumeBanner').classList.remove('show');
+  localStorage.removeItem(LS_KEY); $('resumeBanner').classList.remove('show');
 }
-
 function checkResume(){
   try{
-    const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return;
-    const saved = JSON.parse(raw);
-    const done = Object.keys(saved.results||{}).length + (saved.skipped||[]).length;
-    const total = (saved.titles||[]).length;
-    if(total>0 && done<total){
-      $('resumeText').textContent =
-        `Unfinished session found — ${done}/${total} titles processed. Resume where you left off?`;
+    const raw=localStorage.getItem(LS_KEY); if(!raw) return;
+    const saved=JSON.parse(raw);
+    const done=Object.keys(saved.results||{}).length+(saved.skipped||[]).length;
+    const total=(saved.titles||[]).length;
+    if(total>0&&done<total){
+      $('resumeText').textContent=`Unfinished session found — ${done}/${total} titles processed. Resume where you left off?`;
       $('resumeBanner').classList.add('show');
     }
-  } catch(e){}
+  }catch(e){}
 }
-
 function handleResume(){
   try{
-    const saved = JSON.parse(localStorage.getItem(LS_KEY));
-    state.titles  = saved.titles  || [];
-    state.results = saved.results || {};
-    state.skipped = saved.skipped || [];
+    const saved=JSON.parse(localStorage.getItem(LS_KEY));
+    state.titles=saved.titles||[]; state.results=saved.results||{}; state.skipped=saved.skipped||[];
     setPill('pillCsv',`CSV: ${state.titles.length} titles (resumed)`,true);
     setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn');
     updateCounts();
-    const done = Object.keys(state.results).length+state.skipped.length;
-    setProgress(done, state.titles.length);
+    const done=Object.keys(state.results).length+state.skipped.length;
+    setProgress(done,state.titles.length);
     $('resumeBanner').classList.remove('show');
     updateButtons();
     log(`Session resumed — ${done}/${state.titles.length} already processed.`);
     showStatus(`Resumed! ${state.titles.length-done} titles remaining. Click "Fetch AniList metadata" to continue.`,'info');
-  } catch(e){
-    clearSave();
-  }
+  }catch(e){ clearSave(); }
 }
 
-// ── CSV parsing ───────────────────────────────────────────────────────────────
+// ── CSV ───────────────────────────────────────────────────────────────────────
 function parseCsvLine(line){
   const out=[]; let cur=''; let inQ=false;
   for(let i=0;i<line.length;i++){
@@ -660,15 +635,12 @@ function dedupe(csvText){
 }
 
 // ── Entry builder ─────────────────────────────────────────────────────────────
-function fmtDate(d){
-  if(!d||!d.year) return '?';
-  return `${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;
-}
-function cleanDesc(s){
-  if(!s) return '?';
-  return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');
-}
-function buildEntry(title,a){
+const VALID_STATUSES = new Set(['CURRENT','PLANNING','COMPLETED','DROPPED','PAUSED','REPEATING']);
+function fmtDate(d){ if(!d||!d.year) return '?'; return `${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`; }
+function cleanDesc(s){ if(!s) return '?'; return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,''); }
+
+function buildEntry(title, a, userStatus){
+  const status = VALID_STATUSES.has(userStatus) ? userStatus : 'CURRENT';
   return {
     id:String(a.id),
     jname:a.title?.native||title, name:a.title?.romaji||title,
@@ -676,18 +648,19 @@ function buildEntry(title,a){
     japanese:a.title?.native||title,
     description:cleanDesc(a.description),
     poster:a.coverImage?.large||null, cover:null,
-    totalEpisodes:'?',type:'?',season:'?',premiered:'?',
-    duration:'?',status:'ONGOING.. probably?',
+    totalEpisodes:'?', type:'MANGA', season:'?', premiered:'?',
+    duration:'?',
+    status,                          // ← user-chosen reading status
     rating:String(Math.round((a.averageScore||0)/10*10)/10),
     popularity:String(a.popularity||'?'),
-    format:'?',
+    format:'MANGA',
     aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,
     totalChapters:String(a.chapters||'?'),
     genres:a.genres||[],
-    studios:null,chapters:null,episodes:null,currentEpisode:null,
+    studios:null, chapters:null, episodes:null, currentEpisode:null,
     currentChapter:structuredClone(EMPTY_CHAPTER),
-    watchedEpisodes:[],readChapters:[],
-    serviceIndex:0,mediaTypeIndex:0
+    watchedEpisodes:[], readChapters:[],
+    serviceIndex:0, mediaTypeIndex:1   // 1 = manga
   };
 }
 
@@ -708,20 +681,19 @@ async function handleParse(){
       state.template=JSON.parse(await tplFile.text());
       setPill('pillTemplate',`Template: ${tplFile.name}`,true);
       log(`Template loaded: ${tplFile.name}`);
-    } catch(e){
+    }catch(e){
       state.template=null;
       setPill('pillTemplate','Template: invalid file',false);
       showStatus('Template file is not valid JSON / .anymex.','error');
     }
   }
-  showStatus(`Ready — ${state.titles.length} titles parsed. Click "Fetch AniList metadata" to continue.`,'info');
+  showStatus(`Ready — ${state.titles.length} titles parsed. Status: ${STATUS_LABELS[getStatus()]}. Click "Fetch AniList metadata" to continue.`,'info');
   updateButtons();
 }
 
 async function handleFetch(){
   if(!state.titles.length){ showStatus('Parse the CSV first.','error'); return; }
   state.running=true; state.stop=false;
-  // only reset if not resuming
   const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]);
   const remaining=state.titles.filter(t=>!alreadyDone.has(t));
   if(!remaining.length){ showStatus('All titles already processed!','info'); state.running=false; updateButtons(); return; }
@@ -731,11 +703,11 @@ async function handleFetch(){
   const delay=Math.max(500,Number($('delayMs').value)||2100);
   const total=state.titles.length;
   fetchStartTime=Date.now();
-  log(`Starting AniList lookup — ${remaining.length} titles remaining, ${delay} ms delay.`);
+  log(`Starting AniList lookup — ${remaining.length} titles remaining, ${delay}ms delay.`);
   for(let i=0;i<remaining.length;i++){
     if(state.stop){ log('Stopped by user.'); setBarStopped(); break; }
     const title=remaining[i];
-    setProgress(Object.keys(state.results).length+state.skipped.length, total, title);
+    setProgress(Object.keys(state.results).length+state.skipped.length,total,title);
     try{
       const res=await fetch(ANILIST_URL,{
         method:'POST',
@@ -747,11 +719,10 @@ async function handleFetch(){
       const media=data?.data?.Media;
       if(media){ state.results[title]=media; log(`✓ ${title} → ${media.title?.romaji||media.id}`); }
       else { state.skipped.push(title); log(`✗ ${title} — no match`); }
-    } catch(e){
+    }catch(e){
       state.skipped.push(title); log(`! ${title} — ${e.message}`);
     }
-    updateCounts();
-    saveSession();
+    updateCounts(); saveSession();
     if(i<remaining.length-1&&!state.stop) await sleep(delay);
   }
   state.running=false;
@@ -764,8 +735,8 @@ async function handleFetch(){
     log(`Done. Matched=${matched}, skipped=${state.skipped.length}`);
     showStatus(`Fetch complete — ${matched} matched, ${state.skipped.length} skipped.`,matched?'success':'error');
     clearSave();
-    triggerMissionComplete(matched, state.skipped.length, state.titles.length);
-  } else {
+    triggerMissionComplete(matched,state.skipped.length,state.titles.length);
+  }else{
     setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped (stopped)`,'warn');
     log(`Stopped. Matched=${matched}, skipped=${state.skipped.length}`);
     showStatus(`Stopped — ${matched} matched, ${state.skipped.length} skipped. You can resume later.`,'info');
@@ -777,7 +748,8 @@ function handleStop(){ state.stop=true; }
 
 function handleBuild(){
   if(!state.template){ showStatus('Upload an AnymeX template first.','error'); return; }
-  const mangaLibrary=state.titles.filter(t=>state.results[t]).map(t=>buildEntry(t,state.results[t]));
+  const userStatus = getStatus();
+  const mangaLibrary=state.titles.filter(t=>state.results[t]).map(t=>buildEntry(t,state.results[t],userStatus));
   const allIds=mangaLibrary.map(e=>e.id);
   const listName=($('listName').value||'new').trim()||'new';
   const tpl=state.template;
@@ -793,8 +765,8 @@ function handleBuild(){
   };
   const filename=`mihon_to_anymex_${stamp()}.anymex`;
   download(filename,JSON.stringify(backup,null,2),'application/json');
-  log(`Built & downloaded: ${filename} (${mangaLibrary.length} entries)`);
-  showStatus(`✓ ${mangaLibrary.length} manga entries exported — check your downloads!`,'success');
+  log(`Built & downloaded: ${filename} (${mangaLibrary.length} entries, status: ${STATUS_LABELS[userStatus]})`);
+  showStatus(`✓ ${mangaLibrary.length} manga entries exported as "${STATUS_LABELS[userStatus]}" — check your downloads!`,'success');
 }
 
 function dlMatches(){ download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json'); }
@@ -807,7 +779,7 @@ $('templateFile').addEventListener('change',async()=>{
     state.template=JSON.parse(await f.text());
     setPill('pillTemplate',`Template: ${f.name}`,true);
     log(`Template loaded: ${f.name}`);
-  } catch(e){
+  }catch(e){
     state.template=null;
     setPill('pillTemplate','Template: invalid file',false);
   }
@@ -815,69 +787,40 @@ $('templateFile').addEventListener('change',async()=>{
 });
 
 // ── Mission Complete ──────────────────────────────────────────────────────────
-let particleAnim = null;
-
-function triggerMissionComplete(matched, skipped, total){
-  $('mTotal').textContent   = total;
-  $('mMatched').textContent = matched;
-  $('mSkipped').textContent = skipped;
-  const overlay = $('missionOverlay');
-  overlay.style.display='flex';
-  requestAnimationFrame(()=>{ overlay.classList.add('show'); });
+let particleAnim=null;
+function triggerMissionComplete(matched,skipped,total){
+  $('mTotal').textContent=total; $('mMatched').textContent=matched; $('mSkipped').textContent=skipped;
+  const o=$('missionOverlay'); o.style.display='flex';
+  requestAnimationFrame(()=>o.classList.add('show'));
   startParticles();
 }
-
 function closeMission(){
-  const overlay=$('missionOverlay');
-  overlay.classList.remove('show');
-  setTimeout(()=>{ overlay.style.display='none'; },400);
+  const o=$('missionOverlay'); o.classList.remove('show');
+  setTimeout(()=>o.style.display='none',400);
   if(particleAnim){ cancelAnimationFrame(particleAnim); particleAnim=null; }
 }
-
 function startParticles(){
-  const canvas=$('particleCanvas');
-  const ctx=canvas.getContext('2d');
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
+  const canvas=$('particleCanvas'),ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
   const COLORS=['#4f98a3','#7ecfd8','#6daa45','#d163a7','#fff','#c9943a','#9de86a'];
-  const particles=[];
-  const COUNT=120;
-  for(let i=0;i<COUNT;i++){
-    particles.push({
-      x: Math.random()*canvas.width,
-      y: Math.random()*canvas.height*0.6,
-      vx: (Math.random()-0.5)*6,
-      vy: (Math.random()-0.5)*6-3,
-      r: 3+Math.random()*5,
-      color: COLORS[Math.floor(Math.random()*COLORS.length)],
-      alpha: 1,
-      shape: Math.random()>0.5?'circle':'rect',
-      rot: Math.random()*Math.PI*2,
-      rSpeed: (Math.random()-0.5)*0.2
-    });
-  }
+  const particles=Array.from({length:120},()=>({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height*0.6,
+    vx:(Math.random()-0.5)*6, vy:(Math.random()-0.5)*6-3,
+    r:3+Math.random()*5, color:COLORS[Math.floor(Math.random()*COLORS.length)],
+    alpha:1, shape:Math.random()>0.5?'circle':'rect',
+    rot:Math.random()*Math.PI*2, rSpeed:(Math.random()-0.5)*0.2
+  }));
   function frame(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     let alive=false;
     for(const p of particles){
-      p.x+=p.vx; p.y+=p.vy;
-      p.vy+=0.12;
-      p.alpha-=0.008;
-      p.rot+=p.rSpeed;
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.alpha-=0.008; p.rot+=p.rSpeed;
       if(p.alpha<=0) continue;
       alive=true;
-      ctx.save();
-      ctx.globalAlpha=p.alpha;
-      ctx.fillStyle=p.color;
-      ctx.translate(p.x,p.y);
-      ctx.rotate(p.rot);
-      if(p.shape==='rect'){
-        ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
-      } else {
-        ctx.beginPath();
-        ctx.arc(0,0,p.r,0,Math.PI*2);
-        ctx.fill();
-      }
+      ctx.save(); ctx.globalAlpha=p.alpha; ctx.fillStyle=p.color;
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+      if(p.shape==='rect') ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      else { ctx.beginPath(); ctx.arc(0,0,p.r,0,Math.PI*2); ctx.fill(); }
       ctx.restore();
     }
     if(alive) particleAnim=requestAnimationFrame(frame);
