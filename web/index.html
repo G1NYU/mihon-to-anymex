@@ -6,7 +6,7 @@
 <title>Mihon → AnymeX Converter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
   :root {
     --color-bg: #0f0f0f;
@@ -38,21 +38,15 @@
   }
   .container { width: 100%; max-width: 860px; }
 
-  /* ── Header ── */
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-  }
+  /* Header */
+  .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
   .logo svg { color: var(--color-primary); flex-shrink: 0; }
   .logo-text { font-size: 1.1rem; font-weight: 600; }
   .logo-sub { font-size: 0.8rem; color: var(--color-text-muted); }
-
   h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; }
   p.desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 2rem; line-height: 1.5; }
 
-  /* ── Cards ── */
+  /* Cards */
   .card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -71,17 +65,9 @@
     margin-bottom: 1.25rem;
   }
 
-  /* ── Form elements ── */
-  label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 500;
-    margin-bottom: 0.4rem;
-    color: var(--color-text-muted);
-  }
-  input[type="file"],
-  input[type="number"],
-  input[type="text"] {
+  /* Form */
+  label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 0.4rem; color: var(--color-text-muted); }
+  input[type="file"], input[type="number"], input[type="text"] {
     width: 100%;
     background: var(--color-surface-2);
     border: 1px solid var(--color-border);
@@ -98,134 +84,272 @@
   input:focus { border-color: var(--color-primary); }
   .hint { font-size: 0.78rem; color: var(--color-text-muted); margin-top: -1rem; margin-bottom: 1.25rem; }
   .hint a { color: var(--color-primary); text-decoration: none; }
-
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
 
-  /* ── Buttons ── */
+  /* Buttons */
   .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
   button {
-    background: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-md);
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.7rem 1.1rem;
-    cursor: pointer;
-    transition: background 0.18s;
-    flex-shrink: 0;
+    background: var(--color-primary); color: #fff; border: none;
+    border-radius: var(--radius-md); font-family: var(--font-body);
+    font-size: 0.9rem; font-weight: 600; padding: 0.7rem 1.1rem;
+    cursor: pointer; transition: background 0.18s; flex-shrink: 0;
   }
   button:hover:not(:disabled) { background: var(--color-primary-hover); }
   button:disabled { opacity: 0.45; cursor: not-allowed; }
-  button.secondary {
-    background: var(--color-surface-2);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
-  }
+  button.secondary { background: var(--color-surface-2); color: var(--color-text); border: 1px solid var(--color-border); }
   button.secondary:hover:not(:disabled) { background: #2a2a2a; }
   button.success { background: #3d6e28; }
   button.success:hover:not(:disabled) { background: #4a8832; }
 
-  /* ── Progress ── */
+  /* Progress */
   .progress-wrap { margin-top: 1.5rem; }
-  .progress-label {
+  .progress-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 0.82rem;
-    color: var(--color-text-muted);
-    margin-bottom: 0.4rem;
+    align-items: flex-end;
+    margin-bottom: 0.35rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
+  .progress-left { display: flex; flex-direction: column; gap: 0.15rem; }
+  .progress-title {
+    font-size: 0.82rem;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 480px;
+  }
+  .progress-sub { font-size: 0.75rem; color: var(--color-text-muted); }
+  .progress-right { display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0; }
+  .progress-pct { font-size: 1rem; font-weight: 600; color: var(--color-text); min-width: 3rem; text-align: right; }
+  .progress-eta { font-size: 0.78rem; color: var(--color-text-muted); }
   .progress-bar-bg {
     background: var(--color-surface-2);
     border-radius: var(--radius-full);
-    height: 6px;
+    height: 8px;
     overflow: hidden;
   }
   .progress-bar {
-    background: var(--color-primary);
     height: 100%;
     width: 0%;
     border-radius: var(--radius-full);
-    transition: width 0.25s ease;
+    background: linear-gradient(90deg, #4f98a3, #7ecfd8);
+    transition: width 0.3s ease, background 0.6s ease;
+    position: relative;
+    overflow: hidden;
   }
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: rgba(255,255,255,0.25);
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer {
+    0%   { left: -60%; }
+    100% { left: 120%; }
+  }
+  .progress-bar.done {
+    background: linear-gradient(90deg, #6daa45, #9de86a);
+  }
+  .progress-bar.done::after { animation: none; }
+  .progress-bar.stopped {
+    background: linear-gradient(90deg, #d163a7, #e896cc);
+  }
+  .progress-bar.stopped::after { animation: none; }
 
-  /* ── Stats ── */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-  }
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1.25rem; }
   @media (max-width: 400px) { .stats { grid-template-columns: 1fr 1fr; } }
-  .stat {
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 0.9rem 1rem;
-  }
-  .stat-num {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--color-text);
-    margin-bottom: 0.15rem;
-  }
+  .stat { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9rem 1rem; transition: border-color 0.3s; }
+  .stat.matched { border-color: rgba(109,170,69,0.4); }
+  .stat.skipped { border-color: rgba(209,99,167,0.3); }
+  .stat-num { font-size: 1.4rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.15rem; transition: color 0.3s; }
+  .stat.matched .stat-num { color: var(--color-success); }
+  .stat.skipped .stat-num { color: var(--color-error); }
   .stat-label { font-size: 0.78rem; color: var(--color-text-muted); }
 
-  /* ── Status pills ── */
-  .status-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.25rem;
-  }
+  /* Pills */
+  .status-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem; }
   .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: var(--radius-full);
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-border);
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.3rem 0.75rem; border-radius: var(--radius-full);
+    background: var(--color-surface-2); border: 1px solid var(--color-border);
+    font-size: 0.8rem; color: var(--color-text-muted);
   }
   .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-text-muted); flex-shrink: 0; }
   .pill.ok .dot { background: var(--color-success); }
   .pill.ok { color: var(--color-text); }
   .pill.warn .dot { background: var(--color-warn); }
 
-  /* ── Log ── */
-  .log {
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-border);
+  /* Resume banner */
+  .resume-banner {
+    display: none;
+    background: rgba(201,148,58,0.12);
+    border: 1px solid rgba(201,148,58,0.3);
     border-radius: var(--radius-md);
-    padding: 0.9rem 1rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    color: var(--color-warn);
+    margin-bottom: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .resume-banner.show { display: flex; }
+  .resume-banner button { padding: 0.4rem 0.9rem; font-size: 0.82rem; background: var(--color-warn); color: #1a0f00; }
+  .resume-banner button:hover { background: #e0a93f; }
+
+  /* Log */
+  .log {
+    background: var(--color-surface-2); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); padding: 0.9rem 1rem;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 0.78rem;
-    color: var(--color-text-muted);
-    height: 180px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-    margin-top: 0;
+    font-size: 0.78rem; color: var(--color-text-muted);
+    height: 180px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;
   }
 
-  /* ── Status box ── */
-  .status-box {
-    margin-top: 1rem;
-    padding: 0.75rem 1rem;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    display: none;
-  }
+  /* Status box */
+  .status-box { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: var(--radius-md); font-size: 0.85rem; display: none; }
   .status-box.success { background: rgba(109,170,69,0.12); color: var(--color-success); border: 1px solid rgba(109,170,69,0.25); }
   .status-box.error   { background: rgba(209,99,167,0.12); color: var(--color-error);   border: 1px solid rgba(209,99,167,0.25); }
   .status-box.info    { background: rgba(79,152,163,0.12); color: var(--color-primary); border: 1px solid rgba(79,152,163,0.25); }
+
+  /* ═══════════════════════════════════════════
+     MISSION COMPLETE OVERLAY
+  ═══════════════════════════════════════════ */
+  #missionOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0,0,0,0);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: background 0.4s ease;
+  }
+  #missionOverlay.show {
+    display: flex;
+    background: rgba(0,0,0,0.82);
+  }
+  #missionOverlay canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .mission-box {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    animation: missionIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  @keyframes missionIn {
+    from { opacity:0; transform: scale(0.7) translateY(40px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .slash-line {
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #fff, #4f98a3, transparent);
+    margin: 0 auto 1rem;
+    animation: slashIn 0.35s 0.15s ease forwards;
+  }
+  @keyframes slashIn {
+    from { width: 0; opacity: 0; }
+    to   { width: 260px; opacity: 1; }
+  }
+  .mission-title {
+    font-family: 'Bebas Neue', 'Impact', sans-serif;
+    font-size: clamp(2.8rem, 10vw, 5.5rem);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(79,152,163,0.8), 0 0 80px rgba(79,152,163,0.4);
+    animation: glitch 3s infinite;
+  }
+  @keyframes glitch {
+    0%,94%,100% { text-shadow: 0 0 30px rgba(79,152,163,0.8), 0 0 80px rgba(79,152,163,0.4); transform: none; }
+    95% { transform: translateX(-3px); text-shadow: 3px 0 #d163a7, -3px 0 #4f98a3; }
+    97% { transform: translateX(3px); text-shadow: -3px 0 #d163a7, 3px 0 #4f98a3; }
+    99% { transform: none; }
+  }
+  .mission-sub {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    animation: fadeUp 0.5s 0.4s both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .mission-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+    animation: fadeUp 0.5s 0.55s both;
+  }
+  .m-stat { text-align: center; }
+  .m-stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #fff; line-height: 1; }
+  .m-stat-num.green { color: var(--color-success); }
+  .m-stat-num.pink  { color: var(--color-error); }
+  .m-stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-text-muted); margin-top: 0.2rem; }
+  .slash-line-2 {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    margin: 1.5rem auto 0;
+    animation: slashIn 0.35s 0.6s ease forwards;
+  }
+  .mission-close {
+    margin-top: 1.5rem;
+    animation: fadeUp 0.5s 0.7s both;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    padding: 0.5rem 1.5rem;
+    letter-spacing: 0.08em;
+  }
+  .mission-close:hover { background: rgba(255,255,255,0.07); color: var(--color-text); border-color: rgba(255,255,255,0.35); }
 </style>
 </head>
 <body>
+
+<!-- ═══ MISSION COMPLETE OVERLAY ═══ -->
+<div id="missionOverlay">
+  <canvas id="particleCanvas"></canvas>
+  <div class="mission-box">
+    <div class="slash-line"></div>
+    <div class="mission-title">MISSION COMPLETE</div>
+    <div class="mission-sub">AniList scan finished</div>
+    <div class="mission-stats">
+      <div class="m-stat">
+        <div class="m-stat-num" id="mTotal">0</div>
+        <div class="m-stat-label">Titles</div>
+      </div>
+      <div class="m-stat">
+        <div class="m-stat-num green" id="mMatched">0</div>
+        <div class="m-stat-label">Matched</div>
+      </div>
+      <div class="m-stat">
+        <div class="m-stat-num pink" id="mSkipped">0</div>
+        <div class="m-stat-label">Skipped</div>
+      </div>
+    </div>
+    <div class="slash-line-2"></div>
+    <button class="mission-close" onclick="closeMission()">CONTINUE →</button>
+  </div>
+</div>
+
 <div class="container">
 
   <div class="logo">
@@ -242,7 +366,16 @@
   <h1>Convert your Mihon library</h1>
   <p class="desc">Upload your Mihon CSV export and an AnymeX backup template. The browser queries AniList directly, then downloads a ready-to-restore <code>.anymex</code> file — no Python, no install.</p>
 
-  <!-- Step 1: Files -->
+  <!-- Resume banner -->
+  <div class="resume-banner" id="resumeBanner">
+    <span id="resumeText">Unfinished session found — resume where you left off?</span>
+    <div style="display:flex;gap:0.5rem">
+      <button onclick="handleResume()">Resume</button>
+      <button onclick="clearSave()" style="background:#444;color:var(--color-text)">Discard</button>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
   <div class="card">
     <div class="card-title">Step 1 — Upload files</div>
 
@@ -270,7 +403,7 @@
     </div>
   </div>
 
-  <!-- Step 2: Fetch -->
+  <!-- Step 2 -->
   <div class="card">
     <div class="card-title">Step 2 — Fetch AniList metadata</div>
 
@@ -285,31 +418,47 @@
       <button id="stopBtn" class="secondary" onclick="handleStop()" disabled>Stop</button>
     </div>
 
+    <!-- Progress -->
     <div class="progress-wrap">
-      <div class="progress-label">
-        <span id="progressText">Waiting…</span>
-        <span id="progressPct">0%</span>
+      <div class="progress-meta">
+        <div class="progress-left">
+          <div class="progress-title" id="progressTitle">Waiting…</div>
+          <div class="progress-sub" id="progressSub"></div>
+        </div>
+        <div class="progress-right">
+          <div class="progress-eta" id="progressEta"></div>
+          <div class="progress-pct" id="progressPct">0%</div>
+        </div>
       </div>
-      <div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar" id="bar"></div>
+      </div>
     </div>
 
     <div class="stats">
-      <div class="stat"><div class="stat-num" id="sTitles">0</div><div class="stat-label">Titles</div></div>
-      <div class="stat"><div class="stat-num" id="sMatched">0</div><div class="stat-label">Matched</div></div>
-      <div class="stat"><div class="stat-num" id="sSkipped">0</div><div class="stat-label">Skipped</div></div>
+      <div class="stat" id="statTitles">
+        <div class="stat-num" id="sTitles">0</div>
+        <div class="stat-label">Titles</div>
+      </div>
+      <div class="stat matched" id="statMatched">
+        <div class="stat-num" id="sMatched">0</div>
+        <div class="stat-label">Matched</div>
+      </div>
+      <div class="stat skipped" id="statSkipped">
+        <div class="stat-num" id="sSkipped">0</div>
+        <div class="stat-label">Skipped</div>
+      </div>
     </div>
   </div>
 
-  <!-- Step 3: Build -->
+  <!-- Step 3 -->
   <div class="card">
     <div class="card-title">Step 3 — Build &amp; download</div>
-
     <div class="btn-row">
       <button id="buildBtn" class="success" onclick="handleBuild()" disabled>Build .anymex &amp; download</button>
       <button id="dlMatchesBtn" class="secondary" onclick="dlMatches()" disabled>Download matches JSON</button>
       <button id="dlSkippedBtn" class="secondary" onclick="dlSkipped()" disabled>Download skipped TXT</button>
     </div>
-
     <div class="status-box" id="statusBox"></div>
   </div>
 
@@ -323,11 +472,11 @@
 
 <script>
 const ANILIST_URL = 'https://graphql.anilist.co';
+const LS_KEY = 'mihon_anymex_session';
 const QUERY = `
   query ($s: String) {
     Media(search: $s, type: MANGA) {
-      id
-      title { romaji english native }
+      id title { romaji english native }
       description(asHtml: false)
       coverImage { large }
       status chapters genres averageScore popularity format
@@ -336,26 +485,19 @@ const QUERY = `
     }
   }
 `;
-
 const EMPTY_CHAPTER = {
   link:null,title:null,releaseDate:null,scanlator:null,
   number:1.0,pageNumber:null,totalPages:null,
   lastReadTime:null,currentOffset:null,maxOffset:null,
   sourceName:null,localPath:null,headerKeys:null,headerValues:null
 };
+const state = { titles:[], results:{}, skipped:[], template:null, running:false, stop:false };
+let fetchStartTime = null;
 
-const state = {
-  titles:[],
-  results:{},
-  skipped:[],
-  template:null,
-  running:false,
-  stop:false
-};
-
-// ── Utilities ────────────────────────────────────────────────────────────────
-
+// ── Utils ─────────────────────────────────────────────────────────────────────
 function $(id){ return document.getElementById(id); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function stamp(){ return new Date().toISOString().replace(/[:.]/g,'-'); }
 
 function log(msg){
   const now = new Date().toLocaleTimeString();
@@ -363,25 +505,16 @@ function log(msg){
   $('log').scrollTop = $('log').scrollHeight;
 }
 
-function showStatus(msg, type){
-  const b = $('statusBox');
-  b.textContent = msg;
-  b.className = 'status-box ' + type;
-  b.style.display = 'block';
+function showStatus(msg,type){
+  const b=$('statusBox'); b.textContent=msg;
+  b.className='status-box '+type; b.style.display='block';
 }
 
-function setPill(id, text, ok){
-  const el = $(id);
-  el.querySelector('.dot').style.background = ok ? '#6daa45' : ok === false ? '#d163a7' : '#888';
-  el.className = 'pill' + (ok === true ? ' ok' : ok === 'warn' ? ' warn' : '');
-  el.querySelector('.dot').nextSibling.textContent = text;
-}
-
-function setProgress(done, total){
-  const pct = total ? Math.round(done / total * 100) : 0;
-  $('bar').style.width = pct + '%';
-  $('progressPct').textContent = pct + '%';
-  $('progressText').textContent = total ? `${done} / ${total}` : 'Waiting…';
+function setPill(id,text,ok){
+  const el=$(id);
+  el.querySelector('.dot').style.background = ok?'#6daa45':ok===false?'#d163a7':'#888';
+  el.className='pill'+(ok===true?' ok':ok==='warn'?' warn':'');
+  el.querySelector('.dot').nextSibling.textContent=text;
 }
 
 function updateCounts(){
@@ -391,239 +524,287 @@ function updateCounts(){
 }
 
 function updateButtons(){
-  const hasTitles   = state.titles.length > 0;
-  const hasTemplate = !!state.template;
-  const hasResults  = Object.keys(state.results).length > 0 || state.skipped.length > 0;
-
-  $('fetchBtn').disabled      = !hasTitles || state.running;
-  $('stopBtn').disabled       = !state.running;
-  $('buildBtn').disabled      = !(hasTitles && hasTemplate && hasResults);
-  $('dlMatchesBtn').disabled  = !hasResults;
-  $('dlSkippedBtn').disabled  = state.skipped.length === 0;
+  const hasTitles  = state.titles.length>0;
+  const hasTemplate= !!state.template;
+  const hasResults = Object.keys(state.results).length>0||state.skipped.length>0;
+  $('fetchBtn').disabled    = !hasTitles||state.running;
+  $('stopBtn').disabled     = !state.running;
+  $('buildBtn').disabled    = !(hasTitles&&hasTemplate&&hasResults);
+  $('dlMatchesBtn').disabled= !hasResults;
+  $('dlSkippedBtn').disabled= state.skipped.length===0;
 }
 
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-function download(filename, content, type){
-  const blob = new Blob([content], {type});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
+function download(filename,content,type){
+  const blob=new Blob([content],{type});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=filename; a.click();
   URL.revokeObjectURL(a.href);
 }
 
-function stamp(){ return new Date().toISOString().replace(/[:.]/g,'-'); }
+// ── Progress bar ──────────────────────────────────────────────────────────────
+function setProgress(done, total, currentTitle){
+  const pct = total ? Math.round(done/total*100) : 0;
+  const bar = $('bar');
+  bar.style.width = pct+'%';
+  bar.classList.remove('done','stopped');
+  $('progressPct').textContent = pct+'%';
 
-// ── CSV parsing ──────────────────────────────────────────────────────────────
-
-function parseCsvLine(line){
-  const out = []; let cur = ''; let inQ = false;
-  for(let i = 0; i < line.length; i++){
-    const c = line[i];
-    if(c === '"'){
-      if(inQ && line[i+1] === '"'){ cur += '"'; i++; }
-      else inQ = !inQ;
-    } else if(c === ',' && !inQ){
-      out.push(cur); cur = '';
-    } else cur += c;
+  if(currentTitle){
+    $('progressTitle').textContent = `Scanning: ${currentTitle}`;
+  } else if(done===0){
+    $('progressTitle').textContent = 'Waiting…';
   }
-  out.push(cur);
-  return out.map(v => v.trim());
+
+  $('progressSub').textContent = total ? `${done} of ${total} titles` : '';
+
+  // ETA
+  if(fetchStartTime && done > 0 && done < total){
+    const elapsed = (Date.now()-fetchStartTime)/1000;
+    const rate    = elapsed/done; // seconds per title
+    const remaining = Math.round(rate*(total-done));
+    const mins = Math.floor(remaining/60);
+    const secs = remaining%60;
+    $('progressEta').textContent = mins>0
+      ? `~${mins}m ${secs}s left`
+      : `~${secs}s left`;
+  } else {
+    $('progressEta').textContent = '';
+  }
 }
 
+function setBarDone(){
+  const bar=$('bar');
+  bar.style.width='100%';
+  bar.classList.add('done');
+  $('progressPct').textContent='100%';
+  $('progressEta').textContent='';
+}
+
+function setBarStopped(){
+  $('bar').classList.add('stopped');
+  $('progressEta').textContent='';
+}
+
+// ── localStorage save/resume ──────────────────────────────────────────────────
+function saveSession(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      titles: state.titles,
+      results: state.results,
+      skipped: state.skipped
+    }));
+  } catch(e){}
+}
+
+function clearSave(){
+  localStorage.removeItem(LS_KEY);
+  $('resumeBanner').classList.remove('show');
+}
+
+function checkResume(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    const done = Object.keys(saved.results||{}).length + (saved.skipped||[]).length;
+    const total = (saved.titles||[]).length;
+    if(total>0 && done<total){
+      $('resumeText').textContent =
+        `Unfinished session found — ${done}/${total} titles processed. Resume where you left off?`;
+      $('resumeBanner').classList.add('show');
+    }
+  } catch(e){}
+}
+
+function handleResume(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    state.titles  = saved.titles  || [];
+    state.results = saved.results || {};
+    state.skipped = saved.skipped || [];
+    setPill('pillCsv',`CSV: ${state.titles.length} titles (resumed)`,true);
+    setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn');
+    updateCounts();
+    const done = Object.keys(state.results).length+state.skipped.length;
+    setProgress(done, state.titles.length);
+    $('resumeBanner').classList.remove('show');
+    updateButtons();
+    log(`Session resumed — ${done}/${state.titles.length} already processed.`);
+    showStatus(`Resumed! ${state.titles.length-done} titles remaining. Click "Fetch AniList metadata" to continue.`,'info');
+  } catch(e){
+    clearSave();
+  }
+}
+
+// ── CSV parsing ───────────────────────────────────────────────────────────────
+function parseCsvLine(line){
+  const out=[]; let cur=''; let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ; }
+    else if(c===','&&!inQ){out.push(cur);cur='';}
+    else cur+=c;
+  }
+  out.push(cur);
+  return out.map(v=>v.trim());
+}
 function dedupe(csvText){
-  const lines = csvText.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
-  const seen = new Set(); const titles = [];
+  const lines=csvText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const seen=new Set(); const titles=[];
   for(const line of lines){
-    const t = (parseCsvLine(line)[0] || '').trim();
+    const t=(parseCsvLine(line)[0]||'').trim();
     if(!t) continue;
     if(!seen.has(t.toLowerCase())){ seen.add(t.toLowerCase()); titles.push(t); }
   }
   return titles;
 }
 
-// ── AniList entry builder ────────────────────────────────────────────────────
-
+// ── Entry builder ─────────────────────────────────────────────────────────────
 function fmtDate(d){
-  if(!d || !d.year) return '?';
-  return `${d.year}-${d.month ? String(d.month).padStart(2,'0') : '?'}`;
+  if(!d||!d.year) return '?';
+  return `${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;
 }
-
 function cleanDesc(s){
   if(!s) return '?';
   return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');
 }
-
-function buildEntry(title, a){
+function buildEntry(title,a){
   return {
-    id: String(a.id),
-    jname:    a.title?.native  || title,
-    name:     a.title?.romaji  || title,
-    english:  a.title?.english || a.title?.romaji || title,
-    japanese: a.title?.native  || title,
-    description: cleanDesc(a.description),
-    poster: a.coverImage?.large || null,
-    cover:  null,
-    totalEpisodes: '?', type:'?', season:'?', premiered:'?',
-    duration:'?', status:'ONGOING.. probably?',
-    rating:     String(Math.round((a.averageScore||0)/10*10)/10),
-    popularity: String(a.popularity||'?'),
-    format: '?',
-    aired: `${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,
-    totalChapters: String(a.chapters||'?'),
-    genres: a.genres||[],
-    studios:null, chapters:null, episodes:null, currentEpisode:null,
-    currentChapter: structuredClone(EMPTY_CHAPTER),
-    watchedEpisodes:[], readChapters:[],
-    serviceIndex:0, mediaTypeIndex:0
+    id:String(a.id),
+    jname:a.title?.native||title, name:a.title?.romaji||title,
+    english:a.title?.english||a.title?.romaji||title,
+    japanese:a.title?.native||title,
+    description:cleanDesc(a.description),
+    poster:a.coverImage?.large||null, cover:null,
+    totalEpisodes:'?',type:'?',season:'?',premiered:'?',
+    duration:'?',status:'ONGOING.. probably?',
+    rating:String(Math.round((a.averageScore||0)/10*10)/10),
+    popularity:String(a.popularity||'?'),
+    format:'?',
+    aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,
+    totalChapters:String(a.chapters||'?'),
+    genres:a.genres||[],
+    studios:null,chapters:null,episodes:null,currentEpisode:null,
+    currentChapter:structuredClone(EMPTY_CHAPTER),
+    watchedEpisodes:[],readChapters:[],
+    serviceIndex:0,mediaTypeIndex:0
   };
 }
 
-// ── Handlers ─────────────────────────────────────────────────────────────────
-
+// ── Handlers ──────────────────────────────────────────────────────────────────
 async function handleParse(){
-  const csvFile = $('csvFile').files[0];
-  const tplFile = $('templateFile').files[0];
-
+  const csvFile=$('csvFile').files[0];
+  const tplFile=$('templateFile').files[0];
   if(!csvFile){ showStatus('Please choose a Mihon CSV file first.','error'); return; }
-
-  // Parse CSV
-  const csvText = await csvFile.text();
-  state.titles = dedupe(csvText);
-  state.results = {};
-  state.skipped = [];
-
-  setPill('pillCsv', `CSV: ${state.titles.length} titles`, true);
+  const csvText=await csvFile.text();
+  state.titles=dedupe(csvText);
+  state.results={}; state.skipped=[];
+  setPill('pillCsv',`CSV: ${state.titles.length} titles`,true);
   log(`Parsed CSV — ${state.titles.length} unique titles.`);
-  setProgress(0, state.titles.length);
+  setProgress(0,state.titles.length);
   updateCounts();
-
-  // Load template if provided
   if(tplFile){
     try{
-      const raw = await tplFile.text();
-      state.template = JSON.parse(raw);
-      setPill('pillTemplate', `Template: ${tplFile.name}`, true);
+      state.template=JSON.parse(await tplFile.text());
+      setPill('pillTemplate',`Template: ${tplFile.name}`,true);
       log(`Template loaded: ${tplFile.name}`);
     } catch(e){
-      state.template = null;
-      setPill('pillTemplate', 'Template: invalid file', false);
-      showStatus('Template file is not valid JSON / .anymex.', 'error');
+      state.template=null;
+      setPill('pillTemplate','Template: invalid file',false);
+      showStatus('Template file is not valid JSON / .anymex.','error');
     }
   }
-
-  showStatus(`Ready — ${state.titles.length} titles parsed. Click "Fetch AniList metadata" to continue.`, 'info');
+  showStatus(`Ready — ${state.titles.length} titles parsed. Click "Fetch AniList metadata" to continue.`,'info');
   updateButtons();
 }
 
 async function handleFetch(){
   if(!state.titles.length){ showStatus('Parse the CSV first.','error'); return; }
-
-  state.running = true;
-  state.stop    = false;
-  state.results = {};
-  state.skipped = [];
-
+  state.running=true; state.stop=false;
+  // only reset if not resuming
+  const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]);
+  const remaining=state.titles.filter(t=>!alreadyDone.has(t));
+  if(!remaining.length){ showStatus('All titles already processed!','info'); state.running=false; updateButtons(); return; }
   setPill('pillAnilist','AniList: fetching…','warn');
-  $('statusBox').style.display = 'none';
-  updateCounts();
+  $('statusBox').style.display='none';
   updateButtons();
-
-  const delay = Math.max(500, Number($('delayMs').value)||2100);
-  const total = state.titles.length;
-  log(`Starting AniList lookup — ${total} titles, ${delay} ms delay.`);
-
-  for(let i = 0; i < total; i++){
-    if(state.stop){
-      log('Stopped by user.');
-      break;
-    }
-
-    const title = state.titles[i];
+  const delay=Math.max(500,Number($('delayMs').value)||2100);
+  const total=state.titles.length;
+  fetchStartTime=Date.now();
+  log(`Starting AniList lookup — ${remaining.length} titles remaining, ${delay} ms delay.`);
+  for(let i=0;i<remaining.length;i++){
+    if(state.stop){ log('Stopped by user.'); setBarStopped(); break; }
+    const title=remaining[i];
+    setProgress(Object.keys(state.results).length+state.skipped.length, total, title);
     try{
-      const res = await fetch(ANILIST_URL,{
+      const res=await fetch(ANILIST_URL,{
         method:'POST',
         headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify({query:QUERY, variables:{s:title}})
+        body:JSON.stringify({query:QUERY,variables:{s:title}})
       });
       if(!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      const media = data?.data?.Media;
-      if(media){
-        state.results[title] = media;
-        log(`✓ ${title} → ${media.title?.romaji||media.id}`);
-      } else {
-        state.skipped.push(title);
-        log(`✗ ${title} — no match`);
-      }
+      const data=await res.json();
+      const media=data?.data?.Media;
+      if(media){ state.results[title]=media; log(`✓ ${title} → ${media.title?.romaji||media.id}`); }
+      else { state.skipped.push(title); log(`✗ ${title} — no match`); }
     } catch(e){
-      state.skipped.push(title);
-      log(`! ${title} — ${e.message}`);
+      state.skipped.push(title); log(`! ${title} — ${e.message}`);
     }
-
     updateCounts();
-    setProgress(i+1, total);
-    if(i < total-1 && !state.stop) await sleep(delay);
+    saveSession();
+    if(i<remaining.length-1&&!state.stop) await sleep(delay);
   }
-
-  const matched = Object.keys(state.results).length;
-  state.running = false;
-  setPill('pillAnilist', `AniList: ${matched} matched / ${state.skipped.length} skipped`, matched > 0);
-  log(`Done. Matched=${matched}, skipped=${state.skipped.length}`);
-  showStatus(`Fetch complete — ${matched} matched, ${state.skipped.length} skipped.`, matched ? 'success' : 'error');
+  state.running=false;
+  const matched=Object.keys(state.results).length;
+  if(!state.stop){
+    setBarDone();
+    $('progressTitle').textContent='Scan complete!';
+    $('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`;
+    setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0);
+    log(`Done. Matched=${matched}, skipped=${state.skipped.length}`);
+    showStatus(`Fetch complete — ${matched} matched, ${state.skipped.length} skipped.`,matched?'success':'error');
+    clearSave();
+    triggerMissionComplete(matched, state.skipped.length, state.titles.length);
+  } else {
+    setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped (stopped)`,'warn');
+    log(`Stopped. Matched=${matched}, skipped=${state.skipped.length}`);
+    showStatus(`Stopped — ${matched} matched, ${state.skipped.length} skipped. You can resume later.`,'info');
+  }
   updateButtons();
 }
 
-function handleStop(){ state.stop = true; }
+function handleStop(){ state.stop=true; }
 
 function handleBuild(){
   if(!state.template){ showStatus('Upload an AnymeX template first.','error'); return; }
-
-  const mangaLibrary = state.titles
-    .filter(t => state.results[t])
-    .map(t => buildEntry(t, state.results[t]));
-
-  const allIds  = mangaLibrary.map(e => e.id);
-  const listName = ($('listName').value||'new').trim()||'new';
-  const tpl     = state.template;
-
-  const backup = {
-    date:       tpl.date,
-    appVersion: tpl.appVersion,
-    username:   tpl.username,
-    avatar:     tpl.avatar,
-    animeCount: 0,
-    mangaCount: mangaLibrary.length,
-    novelCount: 0,
-    animeLibrary:  [],
-    mangaLibrary,
-    novelLibrary:  [],
-    animeCustomLists: tpl.animeCustomLists||[],
-    mangaCustomLists: [{ listName, mediaIds: allIds, mediaTypeIndex:0 }],
-    novelCustomLists: tpl.novelCustomLists||[],
-    settings: tpl.settings||[]
+  const mangaLibrary=state.titles.filter(t=>state.results[t]).map(t=>buildEntry(t,state.results[t]));
+  const allIds=mangaLibrary.map(e=>e.id);
+  const listName=($('listName').value||'new').trim()||'new';
+  const tpl=state.template;
+  const backup={
+    date:tpl.date, appVersion:tpl.appVersion,
+    username:tpl.username, avatar:tpl.avatar,
+    animeCount:0, mangaCount:mangaLibrary.length, novelCount:0,
+    animeLibrary:[], mangaLibrary, novelLibrary:[],
+    animeCustomLists:tpl.animeCustomLists||[],
+    mangaCustomLists:[{listName,mediaIds:allIds,mediaTypeIndex:0}],
+    novelCustomLists:tpl.novelCustomLists||[],
+    settings:tpl.settings||[]
   };
-
-  const filename = `mihon_to_anymex_${stamp()}.anymex`;
-  download(filename, JSON.stringify(backup, null, 2), 'application/json');
+  const filename=`mihon_to_anymex_${stamp()}.anymex`;
+  download(filename,JSON.stringify(backup,null,2),'application/json');
   log(`Built & downloaded: ${filename} (${mangaLibrary.length} entries)`);
-  showStatus(`✓ ${mangaLibrary.length} manga entries exported — check your downloads!`, 'success');
+  showStatus(`✓ ${mangaLibrary.length} manga entries exported — check your downloads!`,'success');
 }
 
-function dlMatches(){
-  download(`anilist_results_${stamp()}.json`, JSON.stringify(state.results,null,2), 'application/json');
-}
-function dlSkipped(){
-  download(`skipped_titles_${stamp()}.txt`, state.skipped.join('\n'), 'text/plain;charset=utf-8');
-}
+function dlMatches(){ download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json'); }
+function dlSkipped(){ download(`skipped_titles_${stamp()}.txt`,state.skipped.join('\n'),'text/plain;charset=utf-8'); }
 
-// template file can be picked at any time
-$('templateFile').addEventListener('change', async () => {
-  const f = $('templateFile').files[0];
+$('templateFile').addEventListener('change',async()=>{
+  const f=$('templateFile').files[0];
   if(!f){ state.template=null; setPill('pillTemplate','Template: not loaded',null); updateButtons(); return; }
   try{
-    state.template = JSON.parse(await f.text());
+    state.template=JSON.parse(await f.text());
     setPill('pillTemplate',`Template: ${f.name}`,true);
     log(`Template loaded: ${f.name}`);
   } catch(e){
@@ -633,6 +814,79 @@ $('templateFile').addEventListener('change', async () => {
   updateButtons();
 });
 
+// ── Mission Complete ──────────────────────────────────────────────────────────
+let particleAnim = null;
+
+function triggerMissionComplete(matched, skipped, total){
+  $('mTotal').textContent   = total;
+  $('mMatched').textContent = matched;
+  $('mSkipped').textContent = skipped;
+  const overlay = $('missionOverlay');
+  overlay.style.display='flex';
+  requestAnimationFrame(()=>{ overlay.classList.add('show'); });
+  startParticles();
+}
+
+function closeMission(){
+  const overlay=$('missionOverlay');
+  overlay.classList.remove('show');
+  setTimeout(()=>{ overlay.style.display='none'; },400);
+  if(particleAnim){ cancelAnimationFrame(particleAnim); particleAnim=null; }
+}
+
+function startParticles(){
+  const canvas=$('particleCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+  const COLORS=['#4f98a3','#7ecfd8','#6daa45','#d163a7','#fff','#c9943a','#9de86a'];
+  const particles=[];
+  const COUNT=120;
+  for(let i=0;i<COUNT;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height*0.6,
+      vx: (Math.random()-0.5)*6,
+      vy: (Math.random()-0.5)*6-3,
+      r: 3+Math.random()*5,
+      color: COLORS[Math.floor(Math.random()*COLORS.length)],
+      alpha: 1,
+      shape: Math.random()>0.5?'circle':'rect',
+      rot: Math.random()*Math.PI*2,
+      rSpeed: (Math.random()-0.5)*0.2
+    });
+  }
+  function frame(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    for(const p of particles){
+      p.x+=p.vx; p.y+=p.vy;
+      p.vy+=0.12;
+      p.alpha-=0.008;
+      p.rot+=p.rSpeed;
+      if(p.alpha<=0) continue;
+      alive=true;
+      ctx.save();
+      ctx.globalAlpha=p.alpha;
+      ctx.fillStyle=p.color;
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot);
+      if(p.shape==='rect'){
+        ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0,0,p.r,0,Math.PI*2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+    if(alive) particleAnim=requestAnimationFrame(frame);
+  }
+  particleAnim=requestAnimationFrame(frame);
+}
+
+// Boot
+checkResume();
 updateButtons();
 </script>
 </body>
