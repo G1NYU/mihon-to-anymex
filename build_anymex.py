@@ -40,11 +40,12 @@ def build_entry(title, a):
     ended = format_date(a.get('endDate'))
     desc = (a.get('description') or '?')\
         .replace('<br>', '\n').replace('<i>', '').replace('</i>', '')
+    english = a['title'].get('english') or a['title'].get('romaji') or title
     return {
         "id": str(a['id']),
         "jname": a['title'].get('native') or title,
-        "name": a['title'].get('romaji') or title,
-        "english": a['title'].get('english') or a['title'].get('romaji') or title,
+        "name": english,
+        "english": english,
         "japanese": a['title'].get('native') or title,
         "description": desc,
         "poster": (a.get('coverImage') or {}).get('large') or None,
