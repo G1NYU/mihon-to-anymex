@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mihon → AnymeX Converter</title>
+<title>Mihon / Mangayomi → AnymeX Converter</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root {
     --color-bg: #0f0f0f;
@@ -20,6 +21,7 @@
     --color-success: #6daa45;
     --color-error: #d163a7;
     --color-warn: #c9943a;
+    --color-mangayomi: #e07b39;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --radius-full: 9999px;
@@ -71,10 +73,18 @@
   .guide-body { display: none; padding: 0 1.25rem 1.25rem; }
   .guide-wrap.open .guide-body { display: block; }
 
+  .guide-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .guide-tab { padding: 0.35rem 0.9rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text-muted); transition: all 0.18s; }
+  .guide-tab.active { background: rgba(79,152,163,0.18); color: #7ecfd8; border-color: rgba(79,152,163,0.4); }
+  .guide-tab.mangayomi-tab.active { background: rgba(224,123,57,0.18); color: #f0a070; border-color: rgba(224,123,57,0.4); }
+  .guide-panel { display: none; }
+  .guide-panel.active { display: block; }
+
   .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
   @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
   .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9rem 1rem; position: relative; }
   .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 0.7rem; font-weight: 700; margin-bottom: 0.5rem; flex-shrink: 0; }
+  .step-num.orange { background: var(--color-mangayomi); }
   .guide-step h4 { font-size: 0.82rem; font-weight: 600; color: var(--color-text); margin-bottom: 0.3rem; }
   .guide-step p { font-size: 0.76rem; color: var(--color-text-muted); line-height: 1.45; }
   .guide-step p a { color: var(--color-primary); text-decoration: none; font-weight: 600; }
@@ -84,6 +94,8 @@
   .guide-cta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
   .guide-btn { display: inline-flex; align-items: center; gap: 0.45rem; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius-md); font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; padding: 0.6rem 1.1rem; cursor: pointer; text-decoration: none; transition: background 0.18s; flex-shrink: 0; }
   .guide-btn:hover { background: var(--color-primary-hover); }
+  .guide-btn.orange { background: var(--color-mangayomi); }
+  .guide-btn.orange:hover { background: #c96a2a; }
   .guide-btn svg { width: 14px; height: 14px; }
   .guide-dismiss { font-size: 0.78rem; color: var(--color-text-muted); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font-body); text-decoration: underline; }
   .guide-dismiss:hover { color: var(--color-text); }
@@ -95,9 +107,10 @@
   .or-divider span { font-size:0.75rem; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.1em; }
 
   .mode-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid; margin-bottom: 1.25rem; transition: all 0.2s; }
-  .mode-badge.csv    { background:rgba(79,152,163,0.12); color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
-  .mode-badge.backup { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
-  .mode-badge.none   { background:rgba(136,136,136,0.1);  color:#888;   border-color:rgba(136,136,136,0.2); }
+  .mode-badge.csv        { background:rgba(79,152,163,0.12);  color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
+  .mode-badge.backup     { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
+  .mode-badge.mangayomi  { background:rgba(224,123,57,0.12);  color:#f0a070; border-color:rgba(224,123,57,0.3); }
+  .mode-badge.none       { background:rgba(136,136,136,0.1);  color:#888;   border-color:rgba(136,136,136,0.2); }
 
   label { display:block; font-size:0.85rem; font-weight:500; margin-bottom:0.4rem; color:var(--color-text-muted); }
   input[type="file"], input[type="number"], input[type="text"], select { width:100%; background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); color:var(--color-text); font-family:var(--font-body); font-size:0.9rem; padding:0.65rem 0.9rem; outline:none; transition:border-color 0.18s; margin-bottom:1.25rem; }
@@ -223,52 +236,83 @@
       <path d="M8 26L15 12l5 9 3-5 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <div>
-      <div class="logo-text">Mihon → AnymeX</div>
+      <div class="logo-text">Mihon / Mangayomi → AnymeX</div>
       <div class="logo-sub">Manga Library Converter</div>
     </div>
   </div>
 
-  <h1>Convert your Mihon library</h1>
-  <p class="desc">Upload a Mihon backup JSON <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file — no Python, no install.</p>
+  <h1>Convert your manga library</h1>
+  <p class="desc">Upload a Mihon backup JSON, a Mangayomi <code>.backup</code> file, <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file — no Python, no install.</p>
 
   <div class="guide-wrap" id="guideWrap">
     <div class="guide-header" onclick="toggleGuide()">
       <div class="guide-header-left">
         <span style="font-size:1.1rem">📖</span>
-        <span class="guide-title">How to migrate from Mihon</span>
-        <span class="guide-subtitle">3 steps — takes about 2 min</span>
+        <span class="guide-title">How to migrate</span>
+        <span class="guide-subtitle">pick your source app — takes about 2 min</span>
       </div>
       <span class="guide-chevron">▾</span>
     </div>
     <div class="guide-body">
-      <div class="guide-steps">
-        <div class="guide-step">
-          <div class="step-num">1</div>
-          <h4>Export from Mihon</h4>
-          <p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p>
+      <div class="guide-tabs">
+        <button class="guide-tab active" onclick="switchGuideTab('mihon', this)">💾 Mihon</button>
+        <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi', this)">🟠 Mangayomi</button>
+      </div>
+
+      <div class="guide-panel active" id="guide-mihon">
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <h4>Export from Mihon</h4>
+            <p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <h4>Convert to JSON</h4>
+            <p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <h4>Upload &amp; convert</h4>
+            <p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p>
+          </div>
         </div>
-        <div class="guide-step">
-          <div class="step-num">2</div>
-          <h4>Convert to JSON</h4>
-          <p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p>
-        </div>
-        <div class="guide-step">
-          <div class="step-num">3</div>
-          <h4>Upload &amp; convert</h4>
-          <p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p>
+        <div class="guide-cta">
+          <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Open backup.mihon.tools
+          </a>
+          <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
         </div>
       </div>
-      <div class="guide-cta">
-        <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-            <polyline points="15 3 21 3 21 9"/>
-            <line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-          Open backup.mihon.tools
-        </a>
-        <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
+
+      <div class="guide-panel" id="guide-mangayomi">
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num orange">1</div>
+            <h4>Export from Mangayomi</h4>
+            <p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file — it contains your full manga library.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num orange">2</div>
+            <h4>Upload the .backup file</h4>
+            <p>Use the <strong>Mangayomi backup (.backup)</strong> input below — no conversion needed. Status and chapter progress are imported automatically.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num orange">3</div>
+            <h4>Parse → Fetch → Build</h4>
+            <p>Add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management → Restore backup.</p>
+          </div>
+        </div>
+        <div class="guide-cta">
+          <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -287,6 +331,12 @@
     <label for="backupJsonFile">💾 Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
     <input type="file" id="backupJsonFile" accept=".json,application/json">
     <p class="hint">Exported from <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> → Download → JSON. Preserves per-title reading status &amp; chapters read.</p>
+
+    <div class="or-divider"><span>or</span></div>
+
+    <label for="mangayomiFile">🟠 Mangayomi backup (.backup file)</label>
+    <input type="file" id="mangayomiFile" accept=".backup">
+    <p class="hint">Go to Mangayomi → More → Settings → Backup &amp; restore → Create backup. Upload that <code>.backup</code> file here — no conversion needed. Status and chapter progress are imported automatically.</p>
 
     <div class="or-divider"><span>or</span></div>
 
@@ -394,11 +444,23 @@ function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function stamp(){return new Date().toISOString().replace(/[:.]/g,'-');}
 
 function toggleGuide(){ $('guideWrap').classList.toggle('open'); }
+function switchGuideTab(name, btn) {
+  document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.guide-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  $('guide-'+name).classList.add('active');
+}
 function dismissGuide(e){ e.stopPropagation(); $('guideWrap').style.display='none'; try{localStorage.setItem(LS_GUIDE,'1');}catch(e){} }
 function initGuide(){ try{ if(localStorage.getItem(LS_GUIDE)==='1'){ $('guideWrap').style.display='none'; return; } }catch(e){} $('guideWrap').classList.add('open'); }
 
 function updateStatusBadge(){ const v=$('readingStatus').value,b=$('statusBadge'); b.className='status-preview '+(VALID_STATUSES.has(v)?v:'AUTO'); b.textContent=(STATUS_ICONS[v]||'↻')+' '+(v==='AUTO'?'Auto':v); }
-function setModeBadge(mode){ const el=$('modeBadge'); if(mode==='backup'){el.className='mode-badge backup';el.textContent='💾 Mode: Mihon Backup JSON (per-title status)';} else if(mode==='csv'){el.className='mode-badge csv';el.textContent='📄 Mode: CSV export (manual status)';} else{el.className='mode-badge none';el.textContent='○ No source loaded';} }
+function setModeBadge(mode){
+  const el=$('modeBadge');
+  if(mode==='backup')     { el.className='mode-badge backup';    el.textContent='💾 Mode: Mihon Backup JSON (per-title status)'; }
+  else if(mode==='mangayomi') { el.className='mode-badge mangayomi'; el.textContent='🟠 Mode: Mangayomi Backup (inferred status)'; }
+  else if(mode==='csv')   { el.className='mode-badge csv';       el.textContent='📄 Mode: CSV export (manual status)'; }
+  else                    { el.className='mode-badge none';      el.textContent='○ No source loaded'; }
+}
 function setListOptions(names){ const sel=$('listName');sel.innerHTML=''; (names.length?names:['new']).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);}); }
 
 function log(msg){const t=new Date().toLocaleTimeString();$('log').textContent+=`[${t}] ${msg}\n`;$('log').scrollTop=$('log').scrollHeight;}
@@ -421,6 +483,77 @@ function parseCsvLine(line){ const out=[];let cur='',inQ=false; for(let i=0;i<li
 function parseCsv(text){ const seen=new Set(),titles=[]; for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){ const t=(parseCsvLine(line)[0]||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); } return titles; }
 function parseMihonBackupJson(json){ const manga=json.backupManga||[],cats=json.backupCategories||[]; const catNames=cats.map(c=>c.name).filter(Boolean); const seen=new Set(),titles=[],meta={}; for(const m of manga){ const t=(m.title||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); meta[t]={status:MIHON_STATUS[m.status]||'CURRENT',chaptersRead:Array.isArray(m.chapters)?m.chapters.filter(c=>c.read===true||c.read===1).length:0}; } return{titles,meta,catNames}; }
 
+async function parseMangayomiBackup(file) {
+  if(typeof JSZip==='undefined') throw new Error('JSZip not loaded — check your internet connection and refresh.');
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const entries = Object.values(zip.files).filter(f => !f.dir);
+  if(!entries.length) throw new Error('ZIP is empty or could not be read.');
+  // Find the .backup.db entry (first file, as per Mangayomi source)
+  const dbEntry = entries.find(f => f.name.endsWith('.backup.db')) || entries[0];
+  log(`Mangayomi backup is zipped — extracting ${dbEntry.name}…`);
+  const bytes = await dbEntry.async('uint8array');
+  log(`Extracted ${bytes.byteLength} bytes from ${dbEntry.name}`);
+  let json;
+  try {
+    json = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  } catch(e) {
+    throw new Error('Could not parse backup JSON: ' + e.message + '. The .backup.db may be corrupt or an unsupported format.');
+  }
+  if(!json.manga) throw new Error(`No "manga" key found in backup (version: ${json.version||'unknown'}). Make sure this is a Mangayomi backup, not a Mihon/Tachiyomi backup.`);
+
+  log(`Mangayomi backup version: ${json.version||'?'}, manga entries: ${(json.manga||[]).length}, chapters: ${(json.chapters||[]).length}`);
+
+  // Build per-manga read chapter count (chapters are SEPARATE from manga in Mangayomi)
+  const readCountMap = {};
+  const totalCountMap = {};
+  for(const ch of json.chapters || []) {
+    const mid = ch.mangaId;
+    if(mid == null) continue;
+    totalCountMap[mid] = (totalCountMap[mid] || 0) + 1;
+    if(ch.isRead === true) readCountMap[mid] = (readCountMap[mid] || 0) + 1;
+  }
+
+  // Build category id -> name map
+  const catMap = {};
+  for(const c of json.categories || []) {
+    // forItemType: 0 = manga; also support legacy forManga bool
+    if(c.id != null && (c.forItemType === 0 || c.forManga === true || c.forItemType == null)) {
+      catMap[c.id] = c.name;
+    }
+  }
+
+  const seen = new Set(), titles = [], meta = {};
+  for(const m of json.manga) {
+    // itemType: 0=manga, 1=anime, 2=novel; also support legacy isManga bool
+    const isManga = m.itemType === 0 || m.isManga === true || (m.itemType == null && m.isManga == null);
+    if(!isManga) continue;
+    if(m.favorite !== true) continue;
+    const t = (m.name || '').trim();
+    if(!t || seen.has(t.toLowerCase())) continue;
+    seen.add(t.toLowerCase());
+    titles.push(t);
+    const chapRead = readCountMap[m.id] || 0;
+    const chapTotal = totalCountMap[m.id] || 0;
+    // Infer reading status from chapter progress
+    let status = 'PLANNING';
+    if(chapRead > 0 && chapTotal > 0 && chapRead >= chapTotal) status = 'COMPLETED';
+    else if(chapRead > 0) status = 'CURRENT';
+    meta[t] = { status, chaptersRead: chapRead };
+  }
+
+  // Gather category names used by manga in the library
+  const catNamesSet = new Set();
+  for(const m of json.manga) {
+    if(m.favorite !== true) continue;
+    for(const cid of m.categories || []) {
+      if(catMap[cid]) catNamesSet.add(catMap[cid]);
+    }
+  }
+  const catNames = [...catNamesSet];
+
+  return { titles, meta, catNames };
+}
+
 function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
 function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
 function buildEntry(title,a,fallbackStatus){
@@ -433,10 +566,46 @@ function buildEntry(title,a,fallbackStatus){
 }
 
 async function handleParse(){
-  const bjFile=$('backupJsonFile').files[0],csvFile=$('csvFile').files[0],tplFile=$('templateFile').files[0];
-  if(!bjFile&&!csvFile){showStatus('Upload a Mihon backup JSON or a CSV file first.','error');return;}
+  const bjFile=$('backupJsonFile').files[0];
+  const myFile=$('mangayomiFile').files[0];
+  const csvFile=$('csvFile').files[0];
+  const tplFile=$('templateFile').files[0];
+  if(!bjFile&&!myFile&&!csvFile){showStatus('Upload a Mihon backup JSON, a Mangayomi .backup file, or a CSV file first.','error');return;}
   state.results={};state.skipped=[];state.titles=[];state.titleMeta={};
-  if(bjFile){ try{ const json=JSON.parse(await bjFile.text()); if(!json.backupManga)throw new Error('No backupManga key — is this a Mihon backup JSON?'); const{titles,meta,catNames}=parseMihonBackupJson(json); state.titles=titles;state.titleMeta=meta;state.sourceMode='backup'; setListOptions(catNames.length?catNames:['imported']); setModeBadge('backup'); $('readingStatus').value='AUTO';updateStatusBadge(); setPill('pillSource',`Backup JSON: ${titles.length} titles`,true); log(`Backup JSON — ${titles.length} titles, ${catNames.length} categories.`); showStatus(`Ready — ${titles.length} titles from backup. Per-title status will be applied automatically.`,'info'); }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;} }else{ const text=await csvFile.text(); state.titles=parseCsv(text);state.sourceMode='csv'; setListOptions(['new']);setModeBadge('csv'); setPill('pillSource',`CSV: ${state.titles.length} titles`,true); log(`CSV — ${state.titles.length} unique titles.`); showStatus(`Ready — ${state.titles.length} titles. Set reading status then fetch.`,'info'); }
+
+  if(bjFile){
+    try{
+      const json=JSON.parse(await bjFile.text());
+      if(!json.backupManga)throw new Error('No backupManga key — is this a Mihon backup JSON?');
+      const{titles,meta,catNames}=parseMihonBackupJson(json);
+      state.titles=titles;state.titleMeta=meta;state.sourceMode='backup';
+      setListOptions(catNames.length?catNames:['imported']);
+      setModeBadge('backup');
+      $('readingStatus').value='AUTO';updateStatusBadge();
+      setPill('pillSource',`Backup JSON: ${titles.length} titles`,true);
+      log(`Backup JSON — ${titles.length} titles, ${catNames.length} categories.`);
+      showStatus(`Ready — ${titles.length} titles from backup. Per-title status will be applied automatically.`,'info');
+    }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;}
+  } else if(myFile){
+    try{
+      const{titles,meta,catNames}=await parseMangayomiBackup(myFile);
+      state.titles=titles;state.titleMeta=meta;state.sourceMode='mangayomi';
+      setListOptions(catNames.length?catNames:['imported']);
+      setModeBadge('mangayomi');
+      $('readingStatus').value='AUTO';updateStatusBadge();
+      setPill('pillSource',`Mangayomi: ${titles.length} titles`,true);
+      log(`Mangayomi backup — ${titles.length} manga titles, ${catNames.length} categories.`);
+      showStatus(`Ready — ${titles.length} titles from Mangayomi. Per-title status will be applied automatically.`,'info');
+    }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');setModeBadge('none');return;}
+  } else {
+    const text=await csvFile.text();
+    state.titles=parseCsv(text);state.sourceMode='csv';
+    setListOptions(['new']);setModeBadge('csv');
+    setPill('pillSource',`CSV: ${state.titles.length} titles`,true);
+    log(`CSV — ${state.titles.length} unique titles.`);
+    showStatus(`Ready — ${state.titles.length} titles. Set reading status then fetch.`,'info');
+  }
+
   if(tplFile){ try{ state.template=JSON.parse(await tplFile.text()); setPill('pillTemplate',`Template: ${tplFile.name}`,true); log(`Template: ${tplFile.name}`); }catch(e){ state.template=null;setPill('pillTemplate','Template: invalid',false); showStatus('Template file is not valid JSON.','error'); } }
   setProgress(0,state.titles.length);updateCounts();updateButtons();
 }
@@ -478,7 +647,7 @@ function handleBuild(){
   const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:0,mangaCount:mangaLibrary.length,novelCount:0,animeLibrary:[],mangaLibrary,novelLibrary:[],animeCustomLists:tpl.animeCustomLists||[],mangaCustomLists:[{listName,mediaIds:allIds,mediaTypeIndex:0}],novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]};
   const fn=`mihon_to_anymex_${stamp()}.anymex`;
   download(fn,JSON.stringify(backup,null,2),'application/json');
-  const modeNote=state.sourceMode==='backup'?'per-title status from backup':STATUS_LABELS[dropStatus];
+  const modeNote=state.sourceMode==='backup'?'per-title status from Mihon backup':state.sourceMode==='mangayomi'?'inferred status from Mangayomi backup':STATUS_LABELS[dropStatus];
   log(`Built: ${fn} (${mangaLibrary.length} entries, ${modeNote})`);
   showStatus(`✓ ${mangaLibrary.length} manga exported (${modeNote}) — check your downloads!`,'success');
 }
@@ -486,7 +655,7 @@ function handleBuild(){
 function dlMatches(){download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json');}
 function dlSkipped(){download(`skipped_titles_${stamp()}.txt`,state.skipped.join('\n'),'text/plain;charset=utf-8');}
 
-$('templateFile').addEventListener('change',async()=>{ const f=$('templateFile').files[0]; if(!f){state.template=null;setPill('pillTemplate','Template: not loaded',null);updateButtons();return;} try{state.template=JSON.parse(await f.text());setPill('pillTemplate',`Template: ${f.name}`,true);log(`Template: ${f.name}`);} catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);} updateButtons(); });
+$('templateFile').addEventListener('change',async()=>{ const f=$('templateFile').files[0]; if(!f){state.template=null;setPill('pillTemplate','Template: not loaded',null);updateButtons();return;} try{state.template=JSON.parse(await f.text());setPill('pillTemplate',`Template: ${f.name}`,true);log(`Template: ${f.name}`);}catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);} updateButtons(); });
 
 let particleAnim=null;
 function triggerMissionComplete(m,s,t){ $('mTotal').textContent=t;$('mMatched').textContent=m;$('mSkipped').textContent=s; const o=$('missionOverlay');o.style.display='flex';requestAnimationFrame(()=>o.classList.add('show')); startParticles(); }
