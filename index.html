@@ -166,6 +166,7 @@
   .mission-close { margin-top:1.5rem; animation:fadeUp 0.5s 0.7s both; background:transparent; border:1px solid rgba(255,255,255,0.2); color:var(--color-text-muted); font-size:0.82rem; padding:0.5rem 1.5rem; letter-spacing:0.08em; }
   .mission-close:hover { background:rgba(255,255,255,0.07); color:var(--color-text); border-color:rgba(255,255,255,0.35); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <div id="missionOverlay">
@@ -349,12 +350,56 @@ function parseMangayomiBackup(json){const mangaList=json.manga||[];const chapter
 function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
 function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
 function buildEntry(title,a,fallbackStatus){ const perTitle=state.titleMeta[title]?.status,drop=fallbackStatus; const status=(drop==='AUTO')?(perTitle||'CURRENT'):(VALID_STATUSES.has(drop)?drop:(perTitle||'CURRENT')); const chapRead=state.titleMeta[title]?.chaptersRead||0; const readChapters=chapRead>0?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[]; const displayName=a.title?.english||title||a.title?.romaji; return{ id:String(a.id),jname:a.title?.native||title,name:displayName,english:displayName,japanese:a.title?.native||title,description:cleanDesc(a.description),poster:a.coverImage?.large||null,cover:null,totalEpisodes:'?',type:'MANGA',season:'?',premiered:'?',duration:'?',status,rating:String(Math.round((a.averageScore||0)/10*10)/10),popularity:String(a.popularity||'?'),format:'MANGA',aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,totalChapters:String(a.chapters||'?'),genres:a.genres||[],studios:null,chapters:null,episodes:null,currentEpisode:null,currentChapter:structuredClone(EMPTY_CHAPTER),watchedEpisodes:[],readChapters,serviceIndex:0,mediaTypeIndex:1 }; }
-async function handleParse(){ const bjFile=$('backupJsonFile').files[0],mgFile=$('backupFile').files[0],csvFile=$('csvFile').files[0],tplFile=$('templateFile').files[0]; if(!bjFile&&!mgFile&&!csvFile){showStatus('Upload a Mihon backup JSON, a Mangayomi .backup file, or a CSV first.','error');return;} state.results={};state.skipped=[];state.titles=[];state.titleMeta={};
-if(bjFile){ try{ const json=JSON.parse(await bjFile.text()); if(!json.backupManga)throw new Error('No backupManga key — is this a Mihon backup JSON?'); const{titles,meta,catNames}=parseMihonBackupJson(json); state.titles=titles;state.titleMeta=meta;state.sourceMode='backup'; setListOptions(catNames.length?catNames:['imported']); setModeBadge('backup'); $('readingStatus').value='AUTO';updateStatusBadge(); setPill('pillSource',`Backup JSON: ${titles.length} titles`,true); log(`Backup JSON — ${titles.length} titles, ${catNames.length} categories.`); showStatus(`Ready — ${titles.length} titles from backup. Per-title status will be applied automatically.`,'info'); }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;}
-}else if(mgFile){ try{ const json=JSON.parse(await mgFile.text()); if(!json.manga)throw new Error('No manga key — is this a Mangayomi backup?'); const{titles,meta}=parseMangayomiBackup(json); state.titles=titles;state.titleMeta=meta;state.sourceMode='mangayomi'; setListOptions(['imported']); setModeBadge('mangayomi'); $('readingStatus').value='AUTO';updateStatusBadge(); setPill('pillSource',`Mangayomi: ${titles.length} titles`,true); log(`Mangayomi backup — ${titles.length} manga titles.`); showStatus(`Ready — ${titles.length} titles from Mangayomi. Per-title status will be applied automatically.`,'info'); }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');setModeBadge('none');return;}
-}else{ const text=await csvFile.text(); state.titles=parseCsv(text);state.sourceMode='csv'; setListOptions(['new']);setModeBadge('csv'); setPill('pillSource',`CSV: ${state.titles.length} titles`,true); log(`CSV — ${state.titles.length} unique titles.`); showStatus(`Ready — ${state.titles.length} titles. Set reading status then fetch.`,'info'); }
-if(tplFile){ try{ state.template=JSON.parse(await tplFile.text()); setPill('pillTemplate',`Template: ${tplFile.name}`,true); log(`Template: ${tplFile.name}`); }catch(e){ state.template=null;setPill('pillTemplate','Template: invalid',false); showStatus('Template file is not valid JSON.','error'); } }
-setProgress(0,state.titles.length);updateCounts();updateButtons(); }
+async function handleParse(){
+  const bjFile=$('backupJsonFile').files[0],mgFile=$('backupFile').files[0],csvFile=$('csvFile').files[0],tplFile=$('templateFile').files[0];
+  if(!bjFile&&!mgFile&&!csvFile){showStatus('Upload a Mihon backup JSON, a Mangayomi .backup file, or a CSV first.','error');return;}
+  state.results={};state.skipped=[];state.titles=[];state.titleMeta={};
+  if(bjFile){
+    try{
+      const json=JSON.parse(await bjFile.text());
+      if(!json.backupManga)throw new Error('No backupManga key — is this a Mihon backup JSON?');
+      const{titles,meta,catNames}=parseMihonBackupJson(json);
+      state.titles=titles;state.titleMeta=meta;state.sourceMode='backup';
+      setListOptions(catNames.length?catNames:['imported']); setModeBadge('backup');
+      $('readingStatus').value='AUTO';updateStatusBadge();
+      setPill('pillSource',`Backup JSON: ${titles.length} titles`,true);
+      log(`Backup JSON — ${titles.length} titles, ${catNames.length} categories.`);
+      showStatus(`Ready — ${titles.length} titles from backup. Per-title status will be applied automatically.`,'info');
+    }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;}
+  }else if(mgFile){
+    try{
+      const buf=await mgFile.arrayBuffer();
+      const bytes=new Uint8Array(buf);
+      let jsonText;
+      if(bytes[0]===0x50&&bytes[1]===0x4B){
+        log('Mangayomi backup is zipped — extracting…');
+        const zip=await JSZip.loadAsync(buf);
+        const files=Object.keys(zip.files).filter(f=>!zip.files[f].dir);
+        if(!files.length)throw new Error('ZIP archive is empty');
+        jsonText=await zip.files[files[0]].async('string');
+      }else{
+        jsonText=new TextDecoder().decode(bytes);
+      }
+      const json=JSON.parse(jsonText);
+      if(!json.manga)throw new Error('No manga key — is this a Mangayomi backup?');
+      const{titles,meta}=parseMangayomiBackup(json);
+      state.titles=titles;state.titleMeta=meta;state.sourceMode='mangayomi';
+      setListOptions(['imported']); setModeBadge('mangayomi');
+      $('readingStatus').value='AUTO';updateStatusBadge();
+      setPill('pillSource',`Mangayomi: ${titles.length} titles`,true);
+      log(`Mangayomi backup — ${titles.length} manga titles.`);
+      showStatus(`Ready — ${titles.length} titles from Mangayomi. Per-title status will be applied automatically.`,'info');
+    }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');setModeBadge('none');return;}
+  }else{
+    const text=await csvFile.text(); state.titles=parseCsv(text);state.sourceMode='csv';
+    setListOptions(['new']);setModeBadge('csv');
+    setPill('pillSource',`CSV: ${state.titles.length} titles`,true);
+    log(`CSV — ${state.titles.length} unique titles.`);
+    showStatus(`Ready — ${state.titles.length} titles. Set reading status then fetch.`,'info');
+  }
+  if(tplFile){ try{ state.template=JSON.parse(await tplFile.text()); setPill('pillTemplate',`Template: ${tplFile.name}`,true); log(`Template: ${tplFile.name}`); }catch(e){ state.template=null;setPill('pillTemplate','Template: invalid',false); showStatus('Template file is not valid JSON.','error'); } }
+  setProgress(0,state.titles.length);updateCounts();updateButtons();
+}
 async function handleFetch(){ if(!state.titles.length){showStatus('Parse a source file first.','error');return;} state.running=true;state.stop=false; const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]); const remaining=state.titles.filter(t=>!alreadyDone.has(t)); if(!remaining.length){showStatus('All titles already processed!','info');state.running=false;updateButtons();return;} setPill('pillAnilist','AniList: fetching…','warn'); $('statusBox').style.display='none';updateButtons(); const delay=Math.max(500,Number($('delayMs').value)||2100); fetchStartTime=Date.now(); log(`AniList lookup — ${remaining.length} titles, ${delay}ms delay.`); for(let i=0;i<remaining.length;i++){ if(state.stop){log('Stopped.');setBarStopped();break;} const title=remaining[i]; setProgress(Object.keys(state.results).length+state.skipped.length,state.titles.length,title); try{ const res=await fetch(ANILIST_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:GQL,variables:{s:title}})}); if(!res.ok)throw new Error(`HTTP ${res.status}`); const data=await res.json(),media=data?.data?.Media; if(media){state.results[title]=media;log(`✓ ${title} → ${media.title?.english||media.title?.romaji||media.id}`);}else{state.skipped.push(title);log(`✗ ${title} — no match`);} }catch(e){state.skipped.push(title);log(`! ${title} — ${e.message}`);} updateCounts();saveSession(); if(i<remaining.length-1&&!state.stop)await sleep(delay); } state.running=false; const matched=Object.keys(state.results).length; if(!state.stop){ setBarDone(); $('progressTitle').textContent='Scan complete!'; $('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`; setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0); log(`Done. Matched=${matched}, skipped=${state.skipped.length}`); showStatus(`Fetch complete — ${matched} matched, ${state.skipped.length} skipped.`,matched?'success':'error'); clearSave(); triggerMissionComplete(matched,state.skipped.length,state.titles.length); }else{ setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped (stopped)`,'warn'); log(`Stopped. Matched=${matched}, skipped=${state.skipped.length}`); showStatus(`Stopped — ${matched} matched, ${state.skipped.length} skipped.`,'info'); } updateButtons(); }
 function handleStop(){state.stop=true;}
 function handleBuild(){ if(!state.template){showStatus('Upload an AnymeX template first.','error');return;} const dropStatus=$('readingStatus').value; const mangaLibrary=state.titles.filter(t=>state.results[t]).map(t=>buildEntry(t,state.results[t],dropStatus)); const allIds=mangaLibrary.map(e=>e.id); const listName=($('listName').value||'new').trim()||'new'; const tpl=state.template; const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:0,mangaCount:mangaLibrary.length,novelCount:0,animeLibrary:[],mangaLibrary,novelLibrary:[],animeCustomLists:tpl.animeCustomLists||[],mangaCustomLists:[{listName,mediaIds:allIds,mediaTypeIndex:0}],novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]}; const fn=`mihon_to_anymex_${stamp()}.anymex`; download(fn,JSON.stringify(backup,null,2),'application/json'); const modeNote=state.sourceMode==='backup'||state.sourceMode==='mangayomi'?'per-title status from backup':STATUS_LABELS[dropStatus]; log(`Built: ${fn} (${mangaLibrary.length} entries, ${modeNote})`); showStatus(`✓ ${mangaLibrary.length} manga exported (${modeNote}) — check your downloads!`,'success'); }
