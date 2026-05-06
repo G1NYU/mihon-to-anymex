@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mangayomi .backup → CSV</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2a2a2a;
+    --text:#e8e8e8;--muted:#888;--primary:#4f98a3;--primary-h:#227f8b;
+    --success:#6daa45;--error:#d163a7;--warn:#c9943a;
+    --r:0.5rem;--rl:0.75rem;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:2.5rem 1rem 4rem;}
+  .container{width:100%;max-width:760px;}
+  .logo{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem;}
+  .logo-text{font-size:1.1rem;font-weight:600;}
+  .logo-sub{font-size:.8rem;color:var(--muted);}
+  h1{font-size:1.4rem;font-weight:600;margin-bottom:.4rem;}
+  p.desc{color:var(--muted);font-size:.88rem;margin-bottom:1.5rem;line-height:1.55;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.75rem;margin-bottom:1rem;}
+  .card-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:1.25rem;}
+  label{display:block;font-size:.85rem;font-weight:500;margin-bottom:.4rem;color:var(--muted);}
+  input[type="file"]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.9rem;padding:.65rem .9rem;outline:none;transition:border-color .18s;margin-bottom:.5rem;cursor:pointer;}
+  input[type="file"]:focus{border-color:var(--primary);}
+  .hint{font-size:.78rem;color:var(--muted);margin-bottom:1.25rem;}
+  button{background:var(--primary);color:#fff;border:none;border-radius:var(--r);font-family:inherit;font-size:.9rem;font-weight:600;padding:.7rem 1.1rem;cursor:pointer;transition:background .18s;}
+  button:hover:not(:disabled){background:var(--primary-h);}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  button.success{background:#3d6e28;}
+  button.success:hover:not(:disabled){background:#4a8832;}
+  .btn-row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.25rem;}
+  .status-box{margin-top:1rem;padding:.75rem 1rem;border-radius:var(--r);font-size:.85rem;display:none;}
+  .status-box.success{background:rgba(109,170,69,.12);color:var(--success);border:1px solid rgba(109,170,69,.25);}
+  .status-box.error{background:rgba(209,99,167,.12);color:var(--error);border:1px solid rgba(209,99,167,.25);}
+  .status-box.info{background:rgba(79,152,163,.12);color:var(--primary);border:1px solid rgba(79,152,163,.25);}
+  .log{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;color:var(--muted);height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;margin-top:1rem;}
+  .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:1.25rem;}
+  .stat{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:.9rem 1rem;}
+  .stat-num{font-size:1.4rem;font-weight:600;color:var(--text);margin-bottom:.15rem;}
+  .stat-label{font-size:.78rem;color:var(--muted);}
+  .back-link{display:inline-flex;align-items:center;gap:.4rem;font-size:.82rem;color:var(--muted);text-decoration:none;margin-bottom:1.5rem;transition:color .18s;}
+  .back-link:hover{color:var(--text);}
+  .info-box{background:rgba(79,152,163,.07);border:1px solid rgba(79,152,163,.2);border-radius:var(--r);padding:.65rem 1rem;font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:1.25rem;}
+  .info-box strong{color:var(--text);}
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="./index.html">&larr; Back to converter</a>
+  <div class="logo">
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="9" fill="currentColor" fill-opacity=".15" style="color:var(--primary)"/>
+      <path d="M8 26L15 12l5 9 3-5 5 10" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="logo-text">Mangayomi &rarr; CSV</div>
+      <div class="logo-sub">Extract your manga list from a .backup file</div>
+    </div>
+  </div>
+  <h1>Mangayomi .backup &rarr; CSV extractor</h1>
+  <p class="desc">Mangayomi backups are SQLite databases. This tool reads the <code>.backup</code> file entirely in your browser (nothing is uploaded), extracts your manga titles, and exports a CSV — ready to paste into the main converter.</p>
+
+  <div class="card">
+    <div class="card-title">Step 1 &mdash; Upload your .backup file</div>
+    <div class="info-box">&#128994; <strong>Where to find it:</strong> Mangayomi &rarr; More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup. The file is named something like <code>mangayomi_YYYY-MM-DD_….backup</code>.</div>
+    <label for="backupFile">Mangayomi .backup file</label>
+    <input type="file" id="backupFile" accept=".backup">
+    <p class="hint">The file stays 100% local — no server involved.</p>
+    <div class="btn-row">
+      <button id="extractBtn" onclick="handleExtract()" disabled>Extract manga titles</button>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="stat-num" id="sManga">0</div><div class="stat-label">Manga found</div></div>
+      <div class="stat"><div class="stat-num" id="sAnime">0</div><div class="stat-label">Anime (skipped)</div></div>
+      <div class="stat"><div class="stat-num" id="sTables">0</div><div class="stat-label">DB tables</div></div>
+    </div>
+    <div class="status-box" id="statusBox"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Step 2 &mdash; Download &amp; use</div>
+    <p style="font-size:.88rem;color:var(--muted);line-height:1.55;margin-bottom:1.25rem">Download the CSV, then head back to the main converter and upload it in the <strong>CSV export</strong> field. Set your reading status and fetch AniList.</p>
+    <div class="btn-row">
+      <button class="success" id="dlBtn" onclick="downloadCsv()" disabled>&#8681; Download manga.csv</button>
+      <a href="./index.html" style="display:inline-flex;align-items:center;padding:.7rem 1.1rem;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:var(--r);font-size:.9rem;font-weight:600;text-decoration:none;transition:background .18s;" onmouseover="this.style.background='#2a2a2a'" onmouseout="this.style.background='var(--surface2)'">Go to main converter &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- sql.js: SQLite compiled to WebAssembly -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/sql-wasm.js"></script>
+<script>
+let csvData = null;
+
+function log(msg) {
+  const t = new Date().toLocaleTimeString();
+  document.getElementById('log').textContent += `[${t}] ${msg}\n`;
+  document.getElementById('log').scrollTop = 9999;
+}
+
+function showStatus(msg, type) {
+  const b = document.getElementById('statusBox');
+  b.textContent = msg; b.className = 'status-box ' + type; b.style.display = 'block';
+}
+
+document.getElementById('backupFile').addEventListener('change', () => {
+  document.getElementById('extractBtn').disabled = !document.getElementById('backupFile').files.length;
+});
+
+async function handleExtract() {
+  const file = document.getElementById('backupFile').files[0];
+  if (!file) return;
+  document.getElementById('extractBtn').disabled = true;
+  document.getElementById('log').textContent = '';
+  csvData = null;
+  document.getElementById('dlBtn').disabled = true;
+  document.getElementById('sManga').textContent = '0';
+  document.getElementById('sAnime').textContent = '0';
+  document.getElementById('sTables').textContent = '0';
+  document.getElementById('statusBox').style.display = 'none';
+
+  try {
+    log(`Reading file: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)`);
+    const rawBuf = await file.arrayBuffer();
+    let dbBytes;
+
+    // Check if it's a ZIP (PK header)
+    const magic = new Uint8Array(rawBuf, 0, 4);
+    if (magic[0] === 0x50 && magic[1] === 0x4B) {
+      log('File is zipped — loading JSZip to extract inner DB...');
+      // Dynamically load JSZip if not present
+      if (typeof JSZip === 'undefined') {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+      }
+      const zip = await JSZip.loadAsync(rawBuf);
+      const entries = Object.keys(zip.files).filter(f => !zip.files[f].dir);
+      log('ZIP contents: ' + entries.join(', '));
+      if (!entries.length) throw new Error('ZIP is empty');
+      dbBytes = await zip.files[entries[0]].async('uint8array');
+      log(`Extracted inner file: ${entries[0]} (${(dbBytes.length/1024/1024).toFixed(2)} MB)`);
+    } else {
+      dbBytes = new Uint8Array(rawBuf);
+      log('File is not zipped — treating as raw SQLite database.');
+    }
+
+    // Check SQLite magic header
+    const sqliteMagic = new TextDecoder().decode(dbBytes.slice(0, 16));
+    if (!sqliteMagic.startsWith('SQLite format 3')) {
+      // Not SQLite — maybe JSON fallback?
+      log('Not a SQLite file. Trying JSON parse...');
+      const text = new TextDecoder('utf-8', {fatal:false}).decode(dbBytes);
+      const json = JSON.parse(text);
+      if (!json.manga) throw new Error('Neither SQLite nor valid Mangayomi JSON (no manga key)');
+      const titles = json.manga.filter(m => !('itemType' in m) || m.itemType === 0).map(m => m.name).filter(Boolean);
+      log(`JSON fallback: found ${titles.length} manga entries`);
+      buildCsvFromTitles(titles, 0);
+      return;
+    }
+
+    log('SQLite magic confirmed. Initialising sql.js...');
+    const SQL = await initSqlJs({
+      locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.11.0/${f}`
+    });
+    log('sql.js loaded. Opening database...');
+    const db = new SQL.Database(dbBytes);
+
+    // List all tables
+    const tableRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
+    const tables = tableRes.length ? tableRes[0].values.map(r => r[0]) : [];
+    document.getElementById('sTables').textContent = tables.length;
+    log('Tables: ' + tables.join(', '));
+
+    // Find the manga table — try common Mangayomi table names
+    const candidates = ['manga', 'Manga', 'mangas', 'MangaItem', 'library'];
+    let mangaTable = null;
+    for (const c of candidates) {
+      if (tables.map(t => t.toLowerCase()).includes(c.toLowerCase())) {
+        mangaTable = tables.find(t => t.toLowerCase() === c.toLowerCase());
+        break;
+      }
+    }
+
+    // If not found by name, look for a table with a 'name' or 'title' column
+    if (!mangaTable) {
+      log('No obvious manga table found by name — scanning columns...');
+      for (const t of tables) {
+        try {
+          const info = db.exec(`PRAGMA table_info("${t}")`);
+          if (!info.length) continue;
+          const cols = info[0].values.map(r => r[1].toLowerCase());
+          if (cols.includes('name') || cols.includes('title')) {
+            mangaTable = t;
+            log(`Found candidate table by column: ${t} (cols: ${cols.join(', ')})`);
+            break;
+          }
+        } catch(e) { /* skip */ }
+      }
+    }
+
+    if (!mangaTable) throw new Error('Could not find a manga table in the database. Tables found: ' + tables.join(', '));
+    log(`Using table: "${mangaTable}"`);
+
+    // Inspect columns
+    const pragma = db.exec(`PRAGMA table_info("${mangaTable}")`);
+    const cols = pragma[0].values.map(r => r[1].toLowerCase());
+    log('Columns: ' + cols.join(', '));
+
+    const nameCol = cols.includes('name') ? 'name' : cols.includes('title') ? 'title' : null;
+    if (!nameCol) throw new Error('No name/title column found in table ' + mangaTable);
+
+    // itemType: 0=manga, 1=anime (if present)
+    const hasItemType = cols.includes('itemtype');
+    // Use original casing for the column
+    const pragma2 = db.exec(`PRAGMA table_info("${mangaTable}")`);
+    const origCols = pragma2[0].values.map(r => r[1]);
+    const origNameCol = origCols.find(c => c.toLowerCase() === nameCol);
+    const origItemTypeCol = origCols.find(c => c.toLowerCase() === 'itemtype');
+
+    let query;
+    if (hasItemType && origItemTypeCol) {
+      query = `SELECT "${origNameCol}", "${origItemTypeCol}" FROM "${mangaTable}" WHERE "${origItemTypeCol}" = 0 OR "${origItemTypeCol}" IS NULL`;
+    } else {
+      query = `SELECT "${origNameCol}" FROM "${mangaTable}"`;
+    }
+    log('Query: ' + query);
+
+    const result = db.exec(query);
+    db.close();
+
+    if (!result.length || !result[0].values.length) {
+      // Try without filter
+      log('No rows with itemType=0. Retrying without filter...');
+      const db2 = new SQL.Database(dbBytes);
+      const r2 = db2.exec(`SELECT "${origNameCol}" FROM "${mangaTable}"`);
+      db2.close();
+      if (!r2.length || !r2[0].values.length) throw new Error('Table is empty or has no readable rows.');
+      const titles = r2[0].values.map(r => r[0]).filter(Boolean);
+      log(`Fallback (no filter): ${titles.length} rows`);
+      buildCsvFromTitles(titles, 0);
+      return;
+    }
+
+    const rows = result[0].values;
+    const mangaTitles = rows.map(r => r[0]).filter(Boolean);
+    let animeCount = 0;
+    if (hasItemType) {
+      // Count anime to report
+      const db3 = new SQL.Database(dbBytes);
+      const animeRes = db3.exec(`SELECT COUNT(*) FROM "${mangaTable}" WHERE "${origItemTypeCol}" = 1`);
+      db3.close();
+      if (animeRes.length) animeCount = animeRes[0].values[0][0];
+    }
+    document.getElementById('sAnime').textContent = animeCount;
+    buildCsvFromTitles(mangaTitles, animeCount);
+
+  } catch(e) {
+    log('ERROR: ' + e.message);
+    showStatus('Failed: ' + e.message, 'error');
+    document.getElementById('extractBtn').disabled = false;
+  }
+}
+
+function buildCsvFromTitles(titles, animeCount) {
+  const seen = new Set();
+  const unique = titles.filter(t => {
+    const k = t.trim().toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+  log(`Deduped: ${unique.length} unique titles (${titles.length - unique.length} duplicates removed)`);
+  csvData = unique.map(t => `"${t.replace(/"/g, '""')}"`).join('\n');
+  document.getElementById('sManga').textContent = unique.length;
+  document.getElementById('sAnime').textContent = animeCount;
+  document.getElementById('dlBtn').disabled = false;
+  document.getElementById('extractBtn').disabled = false;
+  showStatus(`Done! ${unique.length} manga titles extracted. Download the CSV and use it in the main converter.`, 'success');
+  log(`Ready. ${unique.length} manga titles.`);
+}
+
+function downloadCsv() {
+  if (!csvData) return;
+  const blob = new Blob([csvData], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'mangayomi_manga.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  log('Downloaded: mangayomi_manga.csv');
+}
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+</script>
+</body>
+</html>
