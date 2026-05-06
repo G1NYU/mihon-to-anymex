@@ -197,7 +197,8 @@
   </div>
   <h1>Convert your Mihon or Mangayomi library</h1>
   <p class="desc">Upload a <strong>Mihon backup JSON</strong>, a <strong>Mangayomi <code>.backup</code> file</strong>, or a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file &mdash; no Python, no install.</p>
-  <div style="background:rgba(79,152,163,0.07);border:1px solid rgba(79,152,163,0.2);border-radius:0.5rem;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:var(--color-text-muted);line-height:1.5;">&#x1F98A; <strong style="color:var(--color-text)">Mangayomi users:</strong> Upload your <code>.backup</code> file directly &mdash; no extra conversion step needed. Skip straight to the &ldquo;Mangayomi backup&rdquo; field below.</div>
+  <div style="background:rgba(79,152,163,0.07);border:1px solid rgba(79,152,163,0.2);border-radius:0.5rem;padding:0.65rem 1rem;margin-bottom:0.6rem;font-size:0.82rem;color:var(--color-text-muted);line-height:1.5;">&#x1F98A; <strong style="color:var(--color-text)">Mangayomi users:</strong> If the direct <code>.backup</code> upload below gives you 0 titles, use the <a href="./mangayomi-to-csv.html" style="color:var(--color-primary);font-weight:600;">Mangayomi &rarr; CSV extractor</a> tool first, then upload the resulting CSV here.</div>
+  <div style="background:rgba(201,148,58,0.07);border:1px solid rgba(201,148,58,0.2);border-radius:0.5rem;padding:0.65rem 1rem;margin-bottom:1rem;font-size:0.82rem;color:var(--color-text-muted);line-height:1.5;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;"><span>&#128736; <strong style="color:var(--color-text)">Mangayomi .backup &rarr; CSV:</strong> Can&apos;t parse the .backup file? Extract your titles to CSV in one click.</span><a href="./mangayomi-to-csv.html" style="display:inline-flex;align-items:center;gap:0.4rem;background:var(--color-warn);color:#1a0f00;font-weight:700;font-size:0.82rem;padding:0.45rem 0.9rem;border-radius:0.4rem;text-decoration:none;white-space:nowrap;transition:opacity .18s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Open extractor &rarr;</a></div>
   <div class="guide-wrap" id="guideWrap">
     <div class="guide-header" onclick="toggleGuide()">
       <div class="guide-header-left">
@@ -238,11 +239,11 @@
     <div class="or-divider"><span>or</span></div>
     <label for="backupFile">&#x1F98A; Mangayomi backup <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(.backup file)</span></label>
     <input type="file" id="backupFile" accept=".backup,application/json">
-    <p class="hint">Go to Mangayomi &rarr; <strong>More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup</strong>. Upload that <code>.backup</code> file here &mdash; no conversion needed. Status and chapter progress are imported automatically.</p>
+    <p class="hint">Go to Mangayomi &rarr; <strong>More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup</strong>. Upload that <code>.backup</code> file here &mdash; no conversion needed. Status and chapter progress are imported automatically. <strong style="color:var(--color-warn)">If it shows 0 titles</strong>, use the <a href="./mangayomi-to-csv.html">CSV extractor tool</a> instead.</p>
     <div class="or-divider"><span>or</span></div>
     <label for="csvFile">CSV export (Mihon &rarr; Library &rarr; Export)</label>
     <input type="file" id="csvFile" accept=".csv,text/csv">
-    <p class="hint">No header row expected. First column must be the manga title.</p>
+    <p class="hint">No header row expected. First column must be the manga title. <strong>Mangayomi users:</strong> use the <a href="./mangayomi-to-csv.html">CSV extractor</a> to generate this file.</p>
     <label for="templateFile">AnymeX backup template (.anymex)</label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
     <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Even a 1-manga backup works as template.</p>
@@ -353,7 +354,6 @@ function parseMangayomiBackup(json){
   for(const ch of chapters){if(ch.isRead)readCounts[ch.mangaId]=(readCounts[ch.mangaId]||0)+1;}
   const seen=new Set(),titles=[],meta={};
   for(const m of mangaList){
-    // itemType 0=manga, 1=anime — skip anime entries; accept if field absent
     if('itemType' in m && m.itemType!==0)continue;
     const t=(m.name||'').trim();
     if(!t||seen.has(t.toLowerCase()))continue;
@@ -393,7 +393,6 @@ async function handleParse(){
         const files=Object.keys(zip.files).filter(f=>!zip.files[f].dir);
         log('ZIP contains: '+files.join(', '));
         if(!files.length)throw new Error('ZIP archive is empty');
-        // Use Uint8Array + TextDecoder for reliable decoding of large files
         const rawBytes=await zip.files[files[0]].async('uint8array');
         log(`Extracted ${rawBytes.length} bytes from inner file`);
         jsonText=new TextDecoder('utf-8',{fatal:false}).decode(rawBytes);
@@ -401,15 +400,20 @@ async function handleParse(){
         jsonText=new TextDecoder().decode(bytes);
       }
       const json=JSON.parse(jsonText);
-      if(!json.manga)throw new Error('No manga key \u2014 is this a Mangayomi backup?');
+      if(!json.manga)throw new Error('No manga key \u2014 is this a Mangayomi backup? If your .backup is a SQLite database, use the <a href="./mangayomi-to-csv.html">CSV extractor tool</a>.');
       const{titles,meta}=parseMangayomiBackup(json);
       state.titles=titles;state.titleMeta=meta;state.sourceMode='mangayomi';
       setListOptions(['imported']); setModeBadge('mangayomi');
       $('readingStatus').value='AUTO';updateStatusBadge();
       setPill('pillSource',`Mangayomi: ${titles.length} titles`,true);
       log(`Mangayomi backup \u2014 ${titles.length} manga titles.`);
-      showStatus(`Ready \u2014 ${titles.length} titles from Mangayomi. Per-title status will be applied automatically.`,'info');
-    }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');log('Error: '+e.message);setModeBadge('none');return;}
+      if(titles.length===0){
+        showStatus('Parsed OK but found 0 manga titles. Your .backup may be a SQLite database format \u2014 use the CSV extractor tool linked above.','error');
+        log('0 titles found \u2014 this .backup is likely SQLite, not JSON. Use the CSV extractor.');
+      }else{
+        showStatus(`Ready \u2014 ${titles.length} titles from Mangayomi. Per-title status will be applied automatically.`,'info');
+      }
+    }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');log('Error: '+e.message);log('Tip: if your .backup is a SQLite .db file, use the CSV extractor tool linked at the top of the page.');setModeBadge('none');return;}
   }else{
     const text=await csvFile.text(); state.titles=parseCsv(text);state.sourceMode='csv';
     setListOptions(['new']);setModeBadge('csv');
