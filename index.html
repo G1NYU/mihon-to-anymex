@@ -28,43 +28,17 @@
     --font-body: 'DM Sans', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-body);
-    background: var(--color-bg);
-    color: var(--color-text);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2.5rem 1rem 4rem;
-  }
+  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1rem 4rem; }
   .container { width: 100%; max-width: 860px; }
-
   .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
   .logo svg { color: var(--color-primary); flex-shrink: 0; }
   .logo-text { font-size: 1.1rem; font-weight: 600; }
   .logo-sub { font-size: 0.8rem; color: var(--color-text-muted); }
   h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; }
   p.desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5; }
-
-  .guide-wrap {
-    background: linear-gradient(135deg, rgba(79,152,163,0.08) 0%, rgba(157,232,106,0.06) 100%);
-    border: 1px solid rgba(79,152,163,0.25);
-    border-radius: var(--radius-lg);
-    margin-bottom: 1rem;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
+  .guide-wrap { background: linear-gradient(135deg, rgba(79,152,163,0.08) 0%, rgba(157,232,106,0.06) 100%); border: 1px solid rgba(79,152,163,0.25); border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden; transition: border-color 0.2s; }
   .guide-wrap:hover { border-color: rgba(79,152,163,0.4); }
-  .guide-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.9rem 1.25rem;
-    cursor: pointer;
-    user-select: none;
-    gap: 0.75rem;
-  }
+  .guide-header { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.25rem; cursor: pointer; user-select: none; gap: 0.75rem; }
   .guide-header-left { display: flex; align-items: center; gap: 0.6rem; }
   .guide-title { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
   .guide-subtitle { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.25rem; }
@@ -72,14 +46,12 @@
   .guide-wrap.open .guide-chevron { transform: rotate(180deg); }
   .guide-body { display: none; padding: 0 1.25rem 1.25rem; }
   .guide-wrap.open .guide-body { display: block; }
-
   .guide-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
   .guide-tab { padding: 0.35rem 0.9rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text-muted); transition: all 0.18s; }
   .guide-tab.active { background: rgba(79,152,163,0.18); color: #7ecfd8; border-color: rgba(79,152,163,0.4); }
   .guide-tab.mangayomi-tab.active { background: rgba(224,123,57,0.18); color: #f0a070; border-color: rgba(224,123,57,0.4); }
   .guide-panel { display: none; }
   .guide-panel.active { display: block; }
-
   .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
   @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
   .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9rem 1rem; position: relative; }
@@ -99,19 +71,16 @@
   .guide-btn svg { width: 14px; height: 14px; }
   .guide-dismiss { font-size: 0.78rem; color: var(--color-text-muted); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--font-body); text-decoration: underline; }
   .guide-dismiss:hover { color: var(--color-text); }
-
   .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.75rem; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.4); margin-bottom: 1rem; }
   .card-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-muted); margin-bottom: 1.25rem; }
   .or-divider { display: flex; align-items: center; gap: 0.75rem; margin: 0.25rem 0 1.25rem; }
   .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
   .or-divider span { font-size:0.75rem; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.1em; }
-
   .mode-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid; margin-bottom: 1.25rem; transition: all 0.2s; }
-  .mode-badge.csv        { background:rgba(79,152,163,0.12);  color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
-  .mode-badge.backup     { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
-  .mode-badge.mangayomi  { background:rgba(224,123,57,0.12);  color:#f0a070; border-color:rgba(224,123,57,0.3); }
-  .mode-badge.none       { background:rgba(136,136,136,0.1);  color:#888;   border-color:rgba(136,136,136,0.2); }
-
+  .mode-badge.csv       { background:rgba(79,152,163,0.12);  color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
+  .mode-badge.backup    { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
+  .mode-badge.mangayomi { background:rgba(224,123,57,0.12);  color:#f0a070; border-color:rgba(224,123,57,0.3); }
+  .mode-badge.none      { background:rgba(136,136,136,0.1);  color:#888;   border-color:rgba(136,136,136,0.2); }
   label { display:block; font-size:0.85rem; font-weight:500; margin-bottom:0.4rem; color:var(--color-text-muted); }
   input[type="file"], input[type="number"], input[type="text"], select { width:100%; background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); color:var(--color-text); font-family:var(--font-body); font-size:0.9rem; padding:0.65rem 0.9rem; outline:none; transition:border-color 0.18s; margin-bottom:1.25rem; }
   input[type="file"] { cursor:pointer; }
@@ -123,11 +92,9 @@
   .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
   @media(max-width:600px){ .row3{grid-template-columns:1fr 1fr;} }
   @media(max-width:520px){ .row {grid-template-columns:1fr;} }
-
   .sqlite-notice { display:none; background:rgba(201,148,58,0.1); border:1px solid rgba(201,148,58,0.3); border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.82rem; color:var(--color-warn); margin-bottom:1.25rem; line-height:1.5; }
   .sqlite-notice.show { display:block; }
   .sqlite-notice strong { color:#e0b86a; }
-
   .status-preview { display:inline-flex; align-items:center; gap:0.35rem; padding:0.2rem 0.6rem; border-radius:var(--radius-full); font-size:0.75rem; font-weight:600; letter-spacing:0.05em; margin-left:0.5rem; vertical-align:middle; transition:all 0.2s; }
   .status-preview.CURRENT   { background:rgba(79,152,163,0.18);  color:#7ecfd8; border:1px solid rgba(79,152,163,0.35); }
   .status-preview.PLANNING  { background:rgba(201,148,58,0.18);  color:#e0b86a; border:1px solid rgba(201,148,58,0.35); }
@@ -136,7 +103,6 @@
   .status-preview.PAUSED    { background:rgba(136,136,136,0.15); color:#aaa;    border:1px solid rgba(136,136,136,0.25); }
   .status-preview.REPEATING { background:rgba(157,232,106,0.15); color:#b8f07a; border:1px solid rgba(157,232,106,0.3); }
   .status-preview.AUTO      { background:rgba(157,232,106,0.12); color:#b8f07a; border:1px solid rgba(157,232,106,0.25); }
-
   .btn-row { display:flex; flex-wrap:wrap; gap:0.6rem; }
   button { background:var(--color-primary); color:#fff; border:none; border-radius:var(--radius-md); font-family:var(--font-body); font-size:0.9rem; font-weight:600; padding:0.7rem 1.1rem; cursor:pointer; transition:background 0.18s; flex-shrink:0; }
   button:hover:not(:disabled) { background:var(--color-primary-hover); }
@@ -145,7 +111,6 @@
   button.secondary:hover:not(:disabled) { background:#2a2a2a; }
   button.success { background:#3d6e28; }
   button.success:hover:not(:disabled) { background:#4a8832; }
-
   .progress-wrap { margin-top:1.5rem; }
   .progress-meta { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.35rem; gap:0.5rem; flex-wrap:wrap; }
   .progress-left { display:flex; flex-direction:column; gap:0.15rem; }
@@ -162,7 +127,6 @@
   .progress-bar.done::after    { animation:none; }
   .progress-bar.stopped { background:linear-gradient(90deg,#d163a7,#e896cc); }
   .progress-bar.stopped::after { animation:none; }
-
   .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.25rem; }
   @media(max-width:400px){ .stats{grid-template-columns:1fr 1fr;} }
   .stat { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:0.9rem 1rem; transition:border-color 0.3s; }
@@ -172,134 +136,9 @@
   .stat.matched .stat-num { color:var(--color-success); }
   .stat.skipped .stat-num { color:var(--color-error); }
   .stat-label { font-size:0.78rem; color:var(--color-text-muted); }
-
   .status-row { display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1.25rem; }
   .pill { display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.75rem; border-radius:var(--radius-full); background:var(--color-surface-2); border:1px solid var(--color-border); font-size:0.8rem; color:var(--color-text-muted); }
   .pill .dot { width:7px; height:7px; border-radius:50%; background:var(--color-text-muted); flex-shrink:0; }
   .pill.ok .dot   { background:var(--color-success); }
   .pill.ok        { color:var(--color-text); }
-  .pill.warn .dot { background:var(--color-warn); }
-
-  .resume-banner { display:none; background:rgba(201,148,58,0.12); border:1px solid rgba(201,148,58,0.3); border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.85rem; color:var(--color-warn); margin-bottom:1rem; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; }
-  .resume-banner.show { display:flex; }
-  .resume-banner button { padding:0.4rem 0.9rem; font-size:0.82rem; background:var(--color-warn); color:#1a0f00; }
-  .resume-banner button:hover { background:#e0a93f; }
-
-  .log { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:0.9rem 1rem; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.78rem; color:var(--color-text-muted); height:180px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; }
-
-  .status-box { margin-top:1rem; padding:0.75rem 1rem; border-radius:var(--radius-md); font-size:0.85rem; display:none; }
-  .status-box.success { background:rgba(109,170,69,0.12); color:var(--color-success); border:1px solid rgba(109,170,69,0.25); }
-  .status-box.error   { background:rgba(209,99,167,0.12); color:var(--color-error);   border:1px solid rgba(209,99,167,0.25); }
-  .status-box.info    { background:rgba(79,152,163,0.12); color:var(--color-primary); border:1px solid rgba(79,152,163,0.25); }
-
-  #missionOverlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0); align-items:center; justify-content:center; flex-direction:column; transition:background 0.4s ease; }
-  #missionOverlay.show { display:flex; background:rgba(0,0,0,0.82); }
-  #missionOverlay canvas { position:absolute; inset:0; pointer-events:none; }
-  .mission-box { position:relative; z-index:2; text-align:center; animation:missionIn 0.5s cubic-bezier(0.22,1,0.36,1) both; }
-  @keyframes missionIn { from{opacity:0;transform:scale(0.7) translateY(40px)} to{opacity:1;transform:scale(1) translateY(0)} }
-  .slash-line { width:0; height:3px; background:linear-gradient(90deg,transparent,#fff,#4f98a3,transparent); margin:0 auto 1rem; animation:slashIn 0.35s 0.15s ease forwards; }
-  @keyframes slashIn{from{width:0;opacity:0}to{width:260px;opacity:1}}
-  .mission-title { font-family:'Bebas Neue','Impact',sans-serif; font-size:clamp(2.8rem,10vw,5.5rem); letter-spacing:0.05em; line-height:1; color:#fff; text-shadow:0 0 30px rgba(79,152,163,0.8),0 0 80px rgba(79,152,163,0.4); animation:glitch 3s infinite; }
-  @keyframes glitch { 0%,94%,100%{text-shadow:0 0 30px rgba(79,152,163,0.8),0 0 80px rgba(79,152,163,0.4);transform:none} 95%{transform:translateX(-3px);text-shadow:3px 0 #d163a7,-3px 0 #4f98a3} 97%{transform:translateX(3px);text-shadow:-3px 0 #d163a7,3px 0 #4f98a3} 99%{transform:none} }
-  .mission-sub { font-size:1rem; color:var(--color-text-muted); margin-top:0.5rem; letter-spacing:0.12em; text-transform:uppercase; animation:fadeUp 0.5s 0.4s both; }
-  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-  .mission-stats { display:flex; gap:2rem; justify-content:center; margin-top:1.5rem; animation:fadeUp 0.5s 0.55s both; }
-  .m-stat { text-align:center; }
-  .m-stat-num { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#fff; line-height:1; }
-  .m-stat-num.green { color:var(--color-success); }
-  .m-stat-num.pink  { color:var(--color-error); }
-  .m-stat-label { font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-text-muted); margin-top:0.2rem; }
-  .slash-line-2 { width:0; height:2px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); margin:1.5rem auto 0; animation:slashIn 0.35s 0.6s ease forwards; }
-  .mission-close { margin-top:1.5rem; animation:fadeUp 0.5s 0.7s both; background:transparent; border:1px solid rgba(255,255,255,0.2); color:var(--color-text-muted); font-size:0.82rem; padding:0.5rem 1.5rem; letter-spacing:0.08em; }
-  .mission-close:hover { background:rgba(255,255,255,0.07); color:var(--color-text); border-color:rgba(255,255,255,0.35); }
-</style>
-</head>
-<body>
-
-<div id="missionOverlay">
-  <canvas id="particleCanvas"></canvas>
-  <div class="mission-box">
-    <div class="slash-line"></div>
-    <div class="mission-title">MISSION COMPLETE</div>
-    <div class="mission-sub">AniList scan finished</div>
-    <div class="mission-stats">
-      <div class="m-stat"><div class="m-stat-num" id="mTotal">0</div><div class="m-stat-label">Titles</div></div>
-      <div class="m-stat"><div class="m-stat-num green" id="mMatched">0</div><div class="m-stat-label">Matched</div></div>
-      <div class="m-stat"><div class="m-stat-num pink" id="mSkipped">0</div><div class="m-stat-label">Skipped</div></div>
-    </div>
-    <div class="slash-line-2"></div>
-    <button class="mission-close" onclick="closeMission()">CONTINUE →</button>
-  </div>
-</div>
-
-<div class="container">
-
-  <div class="logo">
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="36" height="36" rx="9" fill="currentColor" fill-opacity="0.15"/>
-      <path d="M8 26L15 12l5 9 3-5 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <div>
-      <div class="logo-text">Mihon / Mangayomi → AnymeX</div>
-      <div class="logo-sub">Manga Library Converter</div>
-    </div>
-  </div>
-
-  <h1>Convert your manga library</h1>
-  <p class="desc">Upload a Mihon backup JSON, a Mangayomi <code>.backup</code> file, <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file — no Python, no install.</p>
-
-  <div class="guide-wrap" id="guideWrap">
-    <div class="guide-header" onclick="toggleGuide()">
-      <div class="guide-header-left">
-        <span style="font-size:1.1rem">📖</span>
-        <span class="guide-title">How to migrate</span>
-        <span class="guide-subtitle">pick your source app — takes about 2 min</span>
-      </div>
-      <span class="guide-chevron">▾</span>
-    </div>
-    <div class="guide-body">
-      <div class="guide-tabs">
-        <button class="guide-tab active" onclick="switchGuideTab('mihon', this)">💾 Mihon</button>
-        <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi', this)">🟠 Mangayomi</button>
-      </div>
-
-      <div class="guide-panel active" id="guide-mihon">
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="step-num">1</div>
-            <h4>Export from Mihon</h4>
-            <p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p>
-          </div>
-          <div class="guide-step">
-            <div class="step-num">2</div>
-            <h4>Convert to JSON</h4>
-            <p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p>
-          </div>
-          <div class="guide-step">
-            <div class="step-num">3</div>
-            <h4>Upload &amp; convert</h4>
-            <p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p>
-          </div>
-        </div>
-        <div class="guide-cta">
-          <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-              <polyline points="15 3 21 3 21 9"/>
-              <line x1="10" y1="14" x2="21" y2="3"/>
-            </svg>
-            Open backup.mihon.tools
-          </a>
-          <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
-        </div>
-      </div>
-
-      <div class="guide-panel" id="guide-mangayomi">
-        <div class="guide-steps">
-          <div class="guide-step">
-            <div class="step-num orange">1</div>
-            <h4>Export from Mangayomi</h4>
-            <p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file — it contains your full manga library.</p>
-          </div>
-          <div class="guide-step">
-            <div class="step-num
+  .pill.warn .dot { background:var
