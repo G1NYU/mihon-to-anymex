@@ -171,7 +171,6 @@
   .stat.matched .stat-num { color:var(--color-success); }
   .stat.skipped .stat-num { color:var(--color-error); }
   .stat-label { font-size:0.78rem; color:var(--color-text-muted); }
-  /* Split breakdown panel */
   .breakdown-panel { display:none; margin-top:1.25rem; }
   .breakdown-panel.show { display:block; }
   .breakdown-title { font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-text-muted); margin-bottom:0.6rem; }
@@ -357,7 +356,6 @@
     </div>
     <div class="btn-row"><button id="parseBtn" onclick="handleParse()">Parse source</button></div>
 
-    <!-- Split breakdown panel — shown after Parse -->
     <div class="breakdown-panel" id="breakdownPanel">
       <div class="breakdown-title">Detected in backup</div>
       <div class="breakdown-grid">
@@ -478,6 +476,30 @@ function updateSplitBreakdown(){
   else $('breakdownPanel').classList.remove('show');
 }
 
+// Detect if a Mangayomi entry is anime.
+// Mangayomi uses isManga=true for manga, isManga=false for anime.
+// Some versions use a numeric `type` field: 0=manga, 1=anime.
+// We check all known variants and log the raw field so schema mismatches are visible.
+function detectIsAnime(m, logFirst) {
+  // type field (integer): 1 = anime in some Mangayomi versions
+  if (typeof m.type === 'number') {
+    if (logFirst) log(`anime-detect: using type field. type=${m.type}`);
+    return m.type === 1;
+  }
+  // isManga field: false/0/'false'/'0' => anime
+  if ('isManga' in m) {
+    if (logFirst) log(`anime-detect: using isManga field. isManga=${JSON.stringify(m.isManga)}`);
+    return m.isManga === false || m.isManga === 0 || m.isManga === '0' || m.isManga === 'false';
+  }
+  // isAnime field: true/1 => anime
+  if ('isAnime' in m) {
+    if (logFirst) log(`anime-detect: using isAnime field. isAnime=${JSON.stringify(m.isAnime)}`);
+    return m.isAnime === true || m.isAnime === 1 || m.isAnime === '1' || m.isAnime === 'true';
+  }
+  if (logFirst) log(`anime-detect: no known type field found. Keys: ${Object.keys(m).join(', ')}`);
+  return false;
+}
+
 function parseCsvLine(line){const out=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out.map(v=>v.trim());}
 function parseCsv(text){const seen=new Set(),titles=[];for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){const t=(parseCsvLine(line)[0]||'').trim();if(!t||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());titles.push(t);}return titles;}
 function parseMihonBackupJson(json){const manga=json.backupManga||[],cats=json.backupCategories||[];const catNames=cats.map(c=>c.name).filter(Boolean);const seen=new Set(),titles=[],meta={};for(const m of manga){const t=(m.title||'').trim();if(!t||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());titles.push(t);meta[t]={status:MIHON_STATUS[m.status]||'CURRENT',chaptersRead:Array.isArray(m.chapters)?m.chapters.filter(c=>c.read===true||c.read===1).length:0,itemType:m.itemType??0};}return{titles,meta,catNames};}
@@ -582,7 +604,9 @@ async function parseMangayomiBackup(file){
     const mangaArr=json.manga||json.mangas||json.backupManga||[];
     log(`Entries found: ${mangaArr.length}`);
     if(mangaArr.length===0){for(const k of topKeys)if(Array.isArray(json[k])&&json[k].length>0)log(`Non-empty array at "${k}": ${json[k].length} items`);throw new Error(`No entries found. Keys: ${topKeys.join(', ')}`);}
-    log(`First entry: ${JSON.stringify(mangaArr[0]).slice(0,150)}`);
+    // Log first entry raw to help debug type detection
+    log(`First entry keys: ${Object.keys(mangaArr[0]).join(', ')}`);
+    log(`First entry sample: ${JSON.stringify(mangaArr[0]).slice(0,200)}`);
     const readCnt={},totCnt={};
     for(const ch of(json.chapters||json.chapter||[])){
       const mid=ch.mangaId??ch.manga_id;if(mid==null)continue;
@@ -592,8 +616,10 @@ async function parseMangayomiBackup(file){
     const catMap={};
     for(const c of(json.categories||[]))if(c.id!=null)catMap[c.id]=c.name;
     const seen=new Set(),titles=[],meta={};let animeCount=0,mangaCount=0;
+    let firstEntry=true;
     for(const m of mangaArr){
-      const isAnimeEntry=(m.isManga===false||m.isManga===0||m.isManga==='0'||m.isManga==='false');
+      const isAnimeEntry=detectIsAnime(m, firstEntry);
+      firstEntry=false;
       const itemType=isAnimeEntry?1:0;
       const t=(m.name||m.title||'').trim();
       if(!t||seen.has(t.toLowerCase()))continue;
