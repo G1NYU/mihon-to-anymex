@@ -236,7 +236,7 @@
       <div class="m-stat"><div class="m-stat-num pink" id="mSkipped">0</div><div class="m-stat-label">Skipped</div></div>
     </div>
     <div class="slash-line-2"></div>
-    <button class="mission-close" onclick="closeMission()">CONTINUE →</button>
+    <button class="mission-close" onclick="closeMission()">CONTINUE &rarr;</button>
   </div>
 </div>
 <div class="container">
@@ -246,32 +246,32 @@
       <path d="M8 26L15 12l5 9 3-5 5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
     <div>
-      <div class="logo-text">Mihon / Mangayomi → AnymeX</div>
+      <div class="logo-text">Mihon / Mangayomi &rarr; AnymeX</div>
       <div class="logo-sub">Manga Library Converter</div>
     </div>
   </div>
   <h1>Convert your manga library</h1>
-  <p class="desc">Two steps — upload your <strong style="color:var(--color-text)">backup or CSV</strong> alongside an <strong style="color:var(--color-text)">AnymeX template</strong>, then hit Build. The browser handles everything in the background and downloads a ready-to-restore <code>.anymex</code> file — no installs, no Python.</p>
+  <p class="desc">Upload your <strong style="color:var(--color-text)">backup or CSV</strong> and your <strong style="color:var(--color-text)">AnymeX template</strong>, click <strong style="color:var(--color-text)">Parse</strong>, wait for the fetch to finish, then hit <strong style="color:var(--color-text)">Build</strong> to download your converted file.</p>
 
   <div class="guide-wrap" id="guideWrap">
     <div class="guide-header" onclick="toggleGuide()">
       <div class="guide-header-left">
-        <span style="font-size:1.1rem">📖</span>
+        <span style="font-size:1.1rem">&#128214;</span>
         <span class="guide-title">How to migrate</span>
-        <span class="guide-subtitle">pick your source app — takes about 2 min</span>
+        <span class="guide-subtitle">pick your source app &mdash; takes about 2 min</span>
       </div>
-      <span class="guide-chevron">▾</span>
+      <span class="guide-chevron">&#9662;</span>
     </div>
     <div class="guide-body">
       <div class="guide-tabs">
-        <button class="guide-tab active" onclick="switchGuideTab('mihon',this)">💾 Mihon</button>
-        <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">🟠 Mangayomi</button>
+        <button class="guide-tab active" onclick="switchGuideTab('mihon',this)">&#128190; Mihon</button>
+        <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">&#128992; Mangayomi</button>
       </div>
       <div class="guide-panel active" id="guide-mihon">
         <div class="guide-steps">
-          <div class="guide-step"><div class="step-num">1</div><h4>Export from Mihon</h4><p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file.</p></div>
-          <div class="guide-step"><div class="step-num">2</div><h4>Convert to JSON</h4><p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, click <strong>Download → JSON</strong>.</p></div>
-          <div class="guide-step"><div class="step-num">3</div><h4>Upload both files below</h4><p>Upload the JSON <strong>+</strong> an AnymeX template. Click <strong>Parse → Fetch → Build</strong>.</p></div>
+          <div class="guide-step"><div class="step-num">1</div><h4>Export from Mihon</h4><p>In Mihon, go to <strong>More &rarr; Backup &amp; restore &rarr; Create backup</strong>. Save the <code>.tachibk</code> file.</p></div>
+          <div class="guide-step"><div class="step-num">2</div><h4>Convert to JSON</h4><p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, click <strong>Download &rarr; JSON</strong>.</p></div>
+          <div class="guide-step"><div class="step-num">3</div><h4>Upload both files below</h4><p>Upload the JSON <strong>+</strong> an AnymeX template. Click <strong>Parse &rarr; Fetch &rarr; Build</strong>.</p></div>
         </div>
         <div class="guide-cta">
           <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
@@ -283,9 +283,9 @@
       </div>
       <div class="guide-panel" id="guide-mangayomi">
         <div class="guide-steps">
-          <div class="guide-step"><div class="step-num orange">1</div><h4>Export from Mangayomi</h4><p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file.</p></div>
-          <div class="guide-step"><div class="step-num orange">2</div><h4>Upload both files below</h4><p>Upload your <code>.backup</code> <strong>+</strong> an AnymeX template — no conversion needed.</p></div>
-          <div class="guide-step"><div class="step-num orange">3</div><h4>Parse → Fetch → Build</h4><p>Click through the steps. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
+          <div class="guide-step"><div class="step-num orange">1</div><h4>Export from Mangayomi</h4><p>In Mangayomi, go to <strong>More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup</strong>. Save the <code>.backup</code> file.</p></div>
+          <div class="guide-step"><div class="step-num orange">2</div><h4>Upload both files below</h4><p>Upload your <code>.backup</code> <strong>+</strong> an AnymeX template. No conversion needed.</p></div>
+          <div class="guide-step"><div class="step-num orange">3</div><h4>Parse, Fetch, then Build</h4><p>Click through the three steps below. Then restore the <code>.anymex</code> file inside AnymeX under Data Management.</p></div>
         </div>
         <div class="guide-cta"><button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button></div>
       </div>
@@ -293,7 +293,7 @@
   </div>
 
   <div class="resume-banner" id="resumeBanner">
-    <span id="resumeText">Unfinished session found — resume where you left off?</span>
+    <span id="resumeText">Unfinished session found &mdash; resume where you left off?</span>
     <div style="display:flex;gap:0.5rem">
       <button onclick="handleResume()">Resume</button>
       <button onclick="clearSave()" style="background:#444;color:var(--color-text)">Discard</button>
@@ -301,14 +301,14 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Step 1 — Upload files</div>
+    <div class="card-title">Step 1 &mdash; Upload files</div>
 
     <!-- Required files callout -->
     <div class="required-callout">
-      <div class="required-callout-icon">📋</div>
+      <div class="required-callout-icon">&#128203;</div>
       <div class="required-callout-body">
         <div class="required-callout-title">You need to upload 2 files to convert</div>
-        <div class="required-callout-desc">Both files are required — one is your <strong>source library</strong> (from Mihon, Mangayomi, or CSV), the other is an <strong>AnymeX backup template</strong> to use as the output format.</div>
+        <div class="required-callout-desc">Both files are required &mdash; one is your <strong>source library</strong> (from Mihon, Mangayomi, or CSV), the other is an <strong>AnymeX backup template</strong> to use as the output format.</div>
         <div class="required-callout-files">
           <span class="req-file-tag"><span class="tag-num">1</span> Your source backup or CSV</span>
           <span style="color:var(--color-text-muted);font-size:0.8rem;align-self:center">+</span>
@@ -317,24 +317,24 @@
       </div>
     </div>
 
-    <div class="mode-badge none" id="modeBadge">○ No source loaded</div>
-    <label for="backupJsonFile">💾 Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
+    <div class="mode-badge none" id="modeBadge">&#9675; No source loaded</div>
+    <label for="backupJsonFile">&#128190; Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
     <input type="file" id="backupJsonFile" accept=".json,application/json">
-    <p class="hint">Exported from <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> → Download → JSON.</p>
+    <p class="hint">Exported from <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> &rarr; Download &rarr; JSON.</p>
     <div class="or-divider"><span>or</span></div>
-    <label for="mangayomiFile">🟠 Mangayomi backup (.backup file)</label>
+    <label for="mangayomiFile">&#128992; Mangayomi backup (.backup file)</label>
     <input type="file" id="mangayomiFile" accept=".backup">
-    <p class="hint">Go to Mangayomi → More → Settings → Backup &amp; restore → Create backup. Upload that <code>.backup</code> file here — no conversion needed.</p>
-    <div class="sqlite-notice" id="sqliteNotice">⚠️ <strong>SQLite database detected</strong> — using sql.js (WebAssembly) to read your <code>manga</code> table directly. Reading progress defaults to PLANNING.</div>
+    <p class="hint">Go to Mangayomi &rarr; More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup. Upload that <code>.backup</code> file here.</p>
+    <div class="sqlite-notice" id="sqliteNotice">&#9888;&#65039; <strong>SQLite database detected</strong> &mdash; using sql.js (WebAssembly) to read your <code>manga</code> table directly. Reading progress defaults to PLANNING.</div>
     <div class="or-divider"><span>or</span></div>
-    <label for="csvFile">CSV export (Mihon → Library → Export)</label>
+    <label for="csvFile">CSV export (Mihon &rarr; Library &rarr; Export)</label>
     <input type="file" id="csvFile" accept=".csv,text/csv">
     <p class="hint">No header row expected. First column must be the manga title.</p>
 
     <div style="border-top:1px solid var(--color-border);margin:0.25rem 0 1.5rem;"></div>
-    <label for="templateFile">📦 AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">★ also required</span></label>
+    <label for="templateFile">&#128230; AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">&#9733; also required</span></label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
-    <p class="hint">Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template. <strong>Without this file, the Build step will not work.</strong></p>
+    <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Even a 1-manga backup works as a template. <strong>Without this file the Build step will not work.</strong></p>
 
     <div class="row3">
       <div>
@@ -342,15 +342,15 @@
         <select id="listName"><option value="new">new</option></select>
       </div>
       <div>
-        <label for="readingStatus">Reading status <span class="status-preview AUTO" id="statusBadge">↻ Auto</span></label>
+        <label for="readingStatus">Reading status <span class="status-preview AUTO" id="statusBadge">&#8635; Auto</span></label>
         <select id="readingStatus" onchange="updateStatusBadge()">
-          <option value="AUTO" selected>↻ Auto (from backup)</option>
-          <option value="CURRENT">● Reading (CURRENT)</option>
-          <option value="PLANNING">○ Plan to Read (PLANNING)</option>
-          <option value="COMPLETED">✓ Completed (COMPLETED)</option>
-          <option value="DROPPED">✕ Dropped (DROPPED)</option>
-          <option value="PAUSED">⏸ On Hold (PAUSED)</option>
-          <option value="REPEATING">↻ Re-reading (REPEATING)</option>
+          <option value="AUTO" selected>&#8635; Auto (from backup)</option>
+          <option value="CURRENT">&#9679; Reading (CURRENT)</option>
+          <option value="PLANNING">&#9675; Plan to Read (PLANNING)</option>
+          <option value="COMPLETED">&#10003; Completed (COMPLETED)</option>
+          <option value="DROPPED">&#10005; Dropped (DROPPED)</option>
+          <option value="PAUSED">&#9208; On Hold (PAUSED)</option>
+          <option value="REPEATING">&#8635; Re-reading (REPEATING)</option>
         </select>
       </div>
       <div>
@@ -362,7 +362,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Step 2 — Fetch AniList metadata</div>
+    <div class="card-title">Step 2 &mdash; Fetch AniList metadata</div>
     <div class="status-row" id="stateRow">
       <span class="pill" id="pillSource"><span class="dot"></span>Source: not loaded</span>
       <span class="pill" id="pillTemplate"><span class="dot"></span>Template: not loaded</span>
@@ -374,7 +374,7 @@
     </div>
     <div class="progress-wrap">
       <div class="progress-meta">
-        <div class="progress-left"><div class="progress-title" id="progressTitle">Waiting…</div><div class="progress-sub" id="progressSub"></div></div>
+        <div class="progress-left"><div class="progress-title" id="progressTitle">Waiting&hellip;</div><div class="progress-sub" id="progressSub"></div></div>
         <div class="progress-right"><div class="progress-eta" id="progressEta"></div><div class="progress-pct" id="progressPct">0%</div></div>
       </div>
       <div class="progress-bar-bg"><div class="progress-bar" id="bar"></div></div>
@@ -387,7 +387,7 @@
   </div>
 
   <div class="card">
-    <div class="card-title">Step 3 — Build &amp; download</div>
+    <div class="card-title">Step 3 &mdash; Build &amp; download</div>
     <div class="btn-row">
       <button id="buildBtn" class="success" onclick="handleBuild()" disabled>Build .anymex &amp; download</button>
       <button id="dlMatchesBtn" class="secondary" onclick="dlMatches()" disabled>Download matches JSON</button>
@@ -412,7 +412,7 @@ const GQL_MANGA=`query($s:String){Media(search:$s,type:MANGA){id title{romaji en
 const GQL_ANIME=`query($s:String){Media(search:$s,type:ANIME){id title{romaji english native} description(asHtml:false) coverImage{large} status episodes genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
 const EMPTY_CHAPTER={link:null,title:null,releaseDate:null,scanlator:null,number:1.0,pageNumber:null,totalPages:null,lastReadTime:null,currentOffset:null,maxOffset:null,sourceName:null,localPath:null,headerKeys:null,headerValues:null};
 const MIHON_STATUS={1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'PLANNING',6:'REPEATING'};
-const STATUS_ICONS={AUTO:'↻',CURRENT:'●',PLANNING:'○',COMPLETED:'✓',DROPPED:'✕',PAUSED:'⏸',REPEATING:'↻'};
+const STATUS_ICONS={AUTO:'\u21bb',CURRENT:'\u25cf',PLANNING:'\u25cb',COMPLETED:'\u2713',DROPPED:'\u2715',PAUSED:'\u23f8',REPEATING:'\u21bb'};
 const VALID_STATUSES=new Set(['CURRENT','PLANNING','COMPLETED','DROPPED','PAUSED','REPEATING']);
 const STATUS_LABELS={AUTO:'Auto',CURRENT:'Reading',PLANNING:'Plan to Read',COMPLETED:'Completed',DROPPED:'Dropped',PAUSED:'On Hold',REPEATING:'Re-reading'};
 const state={titles:[],titleMeta:{},results:{},skipped:[],template:null,running:false,stop:false,sourceMode:'none'};
@@ -425,8 +425,8 @@ function toggleGuide(){$('guideWrap').classList.toggle('open');}
 function switchGuideTab(name,btn){document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.guide-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('guide-'+name).classList.add('active');}
 function dismissGuide(e){e.stopPropagation();$('guideWrap').style.display='none';try{localStorage.setItem(LS_GUIDE,'1');}catch(e){}}
 function initGuide(){try{if(localStorage.getItem(LS_GUIDE)==='1'){$('guideWrap').style.display='none';return;}}catch(e){}$('guideWrap').classList.add('open');}
-function updateStatusBadge(){const v=$('readingStatus').value,b=$('statusBadge');b.className='status-preview '+(VALID_STATUSES.has(v)?v:'AUTO');b.textContent=(STATUS_ICONS[v]||'↻')+' '+(v==='AUTO'?'Auto':v);}
-function setModeBadge(mode){const el=$('modeBadge');if(mode==='backup'){el.className='mode-badge backup';el.textContent='💾 Mode: Mihon Backup JSON';}else if(mode==='mangayomi'){el.className='mode-badge mangayomi';el.textContent='🟠 Mode: Mangayomi Backup';}else if(mode==='csv'){el.className='mode-badge csv';el.textContent='📄 Mode: CSV';}else{el.className='mode-badge none';el.textContent='○ No source loaded';}}
+function updateStatusBadge(){const v=$('readingStatus').value,b=$('statusBadge');b.className='status-preview '+(VALID_STATUSES.has(v)?v:'AUTO');b.textContent=(STATUS_ICONS[v]||'\u21bb')+' '+(v==='AUTO'?'Auto':v);}
+function setModeBadge(mode){const el=$('modeBadge');if(mode==='backup'){el.className='mode-badge backup';el.textContent='\ud83d\udcbe Mode: Mihon Backup JSON';}else if(mode==='mangayomi'){el.className='mode-badge mangayomi';el.textContent='\ud83d\udfe0 Mode: Mangayomi Backup';}else if(mode==='csv'){el.className='mode-badge csv';el.textContent='\ud83d\udcc4 Mode: CSV';}else{el.className='mode-badge none';el.textContent='\u25cb No source loaded';}}
 function setListOptions(names){const sel=$('listName');sel.innerHTML='';(names.length?names:['new']).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);});}
 function log(msg){const t=new Date().toLocaleTimeString();$('log').textContent+=`[${t}] ${msg}\n`;$('log').scrollTop=$('log').scrollHeight;}
 function showStatus(msg,type){const b=$('statusBox');b.textContent=msg;b.className='status-box '+type;b.style.display='block';}
@@ -434,13 +434,13 @@ function setPill(id,text,ok){const el=$(id);el.querySelector('.dot').style.backg
 function updateCounts(){$('sTitles').textContent=state.titles.length;$('sMatched').textContent=Object.keys(state.results).length;$('sSkipped').textContent=state.skipped.length;}
 function updateButtons(){const h=state.titles.length>0,r=Object.keys(state.results).length>0||state.skipped.length>0;$('fetchBtn').disabled=!h||state.running;$('stopBtn').disabled=!state.running;$('buildBtn').disabled=!(h&&state.template&&r);$('dlMatchesBtn').disabled=!r;$('dlSkippedBtn').disabled=state.skipped.length===0;}
 function download(fn,content,type){const blob=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();URL.revokeObjectURL(a.href);}
-function setProgress(done,total,title){const pct=total?Math.round(done/total*100):0,bar=$('bar');bar.style.width=pct+'%';bar.classList.remove('done','stopped');$('progressPct').textContent=pct+'%';if(title)$('progressTitle').textContent=`Scanning: ${title}`;else if(!done)$('progressTitle').textContent='Waiting…';$('progressSub').textContent=total?`${done} of ${total} titles`:'';if(fetchStartTime&&done>0&&done<total){const el=(Date.now()-fetchStartTime)/1000,rem=Math.round(el/done*(total-done));const m=Math.floor(rem/60),s=rem%60;$('progressEta').textContent=m?`~${m}m ${s}s left`:`~${s}s left`;}else $('progressEta').textContent='';}
+function setProgress(done,total,title){const pct=total?Math.round(done/total*100):0,bar=$('bar');bar.style.width=pct+'%';bar.classList.remove('done','stopped');$('progressPct').textContent=pct+'%';if(title)$('progressTitle').textContent=`Scanning: ${title}`;else if(!done)$('progressTitle').textContent='Waiting\u2026';$('progressSub').textContent=total?`${done} of ${total} titles`:'';if(fetchStartTime&&done>0&&done<total){const el=(Date.now()-fetchStartTime)/1000,rem=Math.round(el/done*(total-done));const m=Math.floor(rem/60),s=rem%60;$('progressEta').textContent=m?`~${m}m ${s}s left`:`~${s}s left`;}else $('progressEta').textContent='';}
 function setBarDone(){$('bar').style.width='100%';$('bar').classList.add('done');$('progressPct').textContent='100%';$('progressEta').textContent='';}
 function setBarStopped(){$('bar').classList.add('stopped');$('progressEta').textContent='';}
 function saveSession(){try{localStorage.setItem(LS_KEY,JSON.stringify({titles:state.titles,titleMeta:state.titleMeta,results:state.results,skipped:state.skipped,sourceMode:state.sourceMode}));}catch(e){}}
 function clearSave(){localStorage.removeItem(LS_KEY);$('resumeBanner').classList.remove('show');}
-function checkResume(){try{const raw=localStorage.getItem(LS_KEY);if(!raw)return;const sv=JSON.parse(raw);const done=Object.keys(sv.results||{}).length+(sv.skipped||[]).length,total=(sv.titles||[]).length;if(total>0&&done<total){$('resumeText').textContent=`Unfinished session — ${done}/${total} processed. Resume?`;$('resumeBanner').classList.add('show');}}catch(e){}}
-function handleResume(){try{const sv=JSON.parse(localStorage.getItem(LS_KEY));state.titles=sv.titles||[];state.titleMeta=sv.titleMeta||{};state.results=sv.results||{};state.skipped=sv.skipped||[];state.sourceMode=sv.sourceMode||'csv';setModeBadge(state.sourceMode);const done=Object.keys(state.results).length+state.skipped.length;setPill('pillSource',`Source: ${state.titles.length} titles (resumed)`,true);setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn');updateCounts();setProgress(done,state.titles.length);$('resumeBanner').classList.remove('show');updateButtons();log(`Resumed — ${done}/${state.titles.length} already done.`);showStatus(`Resumed! ${state.titles.length-done} titles remaining.`,'info');}catch(e){clearSave();}}
+function checkResume(){try{const raw=localStorage.getItem(LS_KEY);if(!raw)return;const sv=JSON.parse(raw);const done=Object.keys(sv.results||{}).length+(sv.skipped||[]).length,total=(sv.titles||[]).length;if(total>0&&done<total){$('resumeText').textContent=`Unfinished session \u2014 ${done}/${total} processed. Resume?`;$('resumeBanner').classList.add('show');}}catch(e){}}
+function handleResume(){try{const sv=JSON.parse(localStorage.getItem(LS_KEY));state.titles=sv.titles||[];state.titleMeta=sv.titleMeta||{};state.results=sv.results||{};state.skipped=sv.skipped||[];state.sourceMode=sv.sourceMode||'csv';setModeBadge(state.sourceMode);const done=Object.keys(state.results).length+state.skipped.length;setPill('pillSource',`Source: ${state.titles.length} titles (resumed)`,true);setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn');updateCounts();setProgress(done,state.titles.length);$('resumeBanner').classList.remove('show');updateButtons();log(`Resumed \u2014 ${done}/${state.titles.length} already done.`);showStatus(`Resumed! ${state.titles.length-done} titles remaining.`,'info');}catch(e){clearSave();}}
 
 function parseCsvLine(line){const out=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out.map(v=>v.trim());}
 function parseCsv(text){const seen=new Set(),titles=[];for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){const t=(parseCsvLine(line)[0]||'').trim();if(!t||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());titles.push(t);}return titles;}
@@ -448,8 +448,8 @@ function parseMihonBackupJson(json){const manga=json.backupManga||[],cats=json.b
 
 async function loadSqlJs(){
   if(_sqlJsLib)return _sqlJsLib;
-  log('Loading sql.js (WebAssembly SQLite) from CDN…');
-  await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SQLJS_CDN;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load sql.js from CDN — check your internet connection'));document.head.appendChild(s);});
+  log('Loading sql.js (WebAssembly SQLite) from CDN\u2026');
+  await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SQLJS_CDN;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load sql.js from CDN \u2014 check your internet connection'));document.head.appendChild(s);});
   _sqlJsLib=await window.initSqlJs({locateFile:()=>SQLJS_WASM});
   log('sql.js ready');
   return _sqlJsLib;
@@ -474,7 +474,7 @@ async function parseSQLiteWithSqlJs(bytes){
       const colRes=db.exec(`PRAGMA table_info(${table})`);
       const cols=colRes.length?colRes[0].values.map(v=>v[1]):[];
       log(`Table "${table}" columns: ${cols.join(', ')}`);
-      if(!cols.map(c=>c.toLowerCase()).includes(col.toLowerCase())){log(`Column "${col}" not found in "${table}" — skipping`);continue;}
+      if(!cols.map(c=>c.toLowerCase()).includes(col.toLowerCase())){log(`Column "${col}" not found in "${table}" \u2014 skipping`);continue;}
       const aC=cols.find(c=>c.toLowerCase()===col.toLowerCase());
       const aS=statusCol&&cols.find(c=>c.toLowerCase()===statusCol.toLowerCase());
       const aI=isAnimeCol&&cols.find(c=>c.toLowerCase()===isAnimeCol.toLowerCase());
@@ -505,7 +505,7 @@ async function parseSQLiteWithSqlJs(bytes){
       return{titles,meta};
     }catch(e){log(`Error on "${table}": ${e.message}`);}
   }
-  log('Known schema not matched — scanning all text columns…');
+  log('Known schema not matched \u2014 scanning all text columns\u2026');
   const allTitles=new Set();
   for(const tbl of tables){
     try{
@@ -534,7 +534,7 @@ async function parseMangayomiBackup(file){
   const entries=Object.values(zip.files).filter(f=>!f.dir);
   if(!entries.length)throw new Error('ZIP is empty.');
   const inner=entries.find(f=>f.name.endsWith('.backup.db'))||entries[0];
-  log(`Extracting ${inner.name}…`);
+  log(`Extracting ${inner.name}\u2026`);
   const bytes=await inner.async('uint8array');
   log(`Extracted ${bytes.byteLength} bytes`);
   let json=null;
@@ -573,7 +573,7 @@ async function parseMangayomiBackup(file){
   }
   const magic=String.fromCharCode(...bytes.slice(0,6));
   if(magic!=='SQLite')throw new Error('Backup is neither JSON nor SQLite.');
-  log('SQLite detected — loading sql.js…');
+  log('SQLite detected \u2014 loading sql.js\u2026');
   $('sqliteNotice').classList.add('show');
   const{titles,meta}=await parseSQLiteWithSqlJs(bytes);
   log(`sql.js: ${titles.length} titles`);
@@ -608,7 +608,7 @@ async function handleParse(){
       $('readingStatus').value='AUTO';updateStatusBadge();
       setPill('pillSource',`Backup JSON: ${titles.length} titles`,true);
       log(`Mihon JSON: ${titles.length} titles`);
-      showStatus(`Ready — ${titles.length} titles.`,'info');
+      showStatus(`Ready \u2014 ${titles.length} titles loaded. Now click Fetch AniList metadata below.`,'info');
     }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;}
   }else if(myFile){
     try{
@@ -618,17 +618,17 @@ async function handleParse(){
       $('readingStatus').value='AUTO';updateStatusBadge();
       setPill('pillSource',`Mangayomi: ${titles.length} titles`,true);
       log(`Mangayomi: ${titles.length} titles`);
-      showStatus(`Ready — ${titles.length} titles.`,'info');
+      showStatus(`Ready \u2014 ${titles.length} titles loaded. Now click Fetch AniList metadata below.`,'info');
     }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');setModeBadge('none');return;}
   }else{
     const text=await csvFile.text();state.titles=parseCsv(text);state.sourceMode='csv';
     setListOptions(['new']);setModeBadge('csv');
     setPill('pillSource',`CSV: ${state.titles.length} titles`,true);
     log(`CSV: ${state.titles.length} titles`);
-    showStatus(`Ready — ${state.titles.length} titles.`,'info');
+    showStatus(`Ready \u2014 ${state.titles.length} titles loaded. Now click Fetch AniList metadata below.`,'info');
   }
   if(tplFile){try{state.template=JSON.parse(await tplFile.text());setPill('pillTemplate',`Template: ${tplFile.name}`,true);log(`Template: ${tplFile.name}`);}catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);showStatus('Template is not valid JSON.','error');}}
-  else{showStatus('⚠️ Don\'t forget to upload your AnymeX template (.anymex) below the divider — it\'s required to build the output!','info');}
+  else{showStatus('\u26a0\ufe0f Don\'t forget to upload your AnymeX template (.anymex) below the divider \u2014 it is required to build the output file!','info');}
   setProgress(0,state.titles.length);updateCounts();updateButtons();
 }
 
@@ -638,11 +638,11 @@ async function handleFetch(){
   const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]);
   const remaining=state.titles.filter(t=>!alreadyDone.has(t));
   if(!remaining.length){showStatus('All titles already processed!','info');state.running=false;updateButtons();return;}
-  setPill('pillAnilist','AniList: fetching…','warn');
+  setPill('pillAnilist','AniList: fetching\u2026','warn');
   $('statusBox').style.display='none';updateButtons();
   const delay=Math.max(500,Number($('delayMs').value)||2100);
   fetchStartTime=Date.now();
-  log(`Fetching ${remaining.length} titles at ${delay}ms delay…`);
+  log(`Fetching ${remaining.length} titles at ${delay}ms delay\u2026`);
   for(let i=0;i<remaining.length;i++){
     if(state.stop){log('Stopped.');setBarStopped();break;}
     const title=remaining[i];
@@ -651,21 +651,21 @@ async function handleFetch(){
       const res=await fetch(ANILIST_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:(state.titleMeta[title]?.itemType===1?GQL_ANIME:GQL_MANGA),variables:{s:title}})});
       if(!res.ok)throw new Error(`HTTP ${res.status}`);
       const data=await res.json(),media=data?.data?.Media;
-      if(media){state.results[title]=media;log(`✓ ${title} → ${media.title?.english||media.title?.romaji||media.id}`);}else{state.skipped.push(title);log(`✗ ${title}`);}
-    }catch(e){state.skipped.push(title);log(`! ${title} — ${e.message}`);}
+      if(media){state.results[title]=media;log(`\u2713 ${title} \u2192 ${media.title?.english||media.title?.romaji||media.id}`);}else{state.skipped.push(title);log(`\u2717 ${title}`);}
+    }catch(e){state.skipped.push(title);log(`! ${title} \u2014 ${e.message}`);}
     updateCounts();saveSession();
     if(i<remaining.length-1&&!state.stop)await sleep(delay);
   }
   state.running=false;
   const matched=Object.keys(state.results).length;
-  if(!state.stop){setBarDone();$('progressTitle').textContent='Scan complete!';$('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`;setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0);log(`Done. ${matched} matched, ${state.skipped.length} skipped`);showStatus(`Done — ${matched} matched, ${state.skipped.length} skipped.`,matched?'success':'error');clearSave();triggerMissionComplete(matched,state.skipped.length,state.titles.length);}else{setPill('pillAnilist',`AniList: ${matched}/${state.skipped.length} (stopped)`,'warn');showStatus(`Stopped — ${matched} matched.`,'info');}
+  if(!state.stop){setBarDone();$('progressTitle').textContent='Scan complete!';$('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`;setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0);log(`Done. ${matched} matched, ${state.skipped.length} skipped`);showStatus(`Done \u2014 ${matched} matched, ${state.skipped.length} skipped. Now click Build below!`,matched?'success':'error');clearSave();triggerMissionComplete(matched,state.skipped.length,state.titles.length);}else{setPill('pillAnilist',`AniList: ${matched}/${state.skipped.length} (stopped)`,'warn');showStatus(`Stopped \u2014 ${matched} matched.`,'info');}
   updateButtons();
 }
 
 function handleStop(){state.stop=true;}
 
 function handleBuild(){
-  if(!state.template){showStatus('⚠️ Upload your AnymeX template (.anymex) first — scroll up to the template input.','error');return;}
+  if(!state.template){showStatus('\u26a0\ufe0f Upload your AnymeX template (.anymex) first \u2014 scroll up to Step 1.','error');return;}
   const dropStatus=$('readingStatus').value;
   const animeLib=state.titles.filter(t=>state.results[t]&&state.titleMeta[t]?.itemType===1).map(t=>buildEntry(t,state.results[t],dropStatus));
   const mangaLib=state.titles.filter(t=>state.results[t]&&(state.titleMeta[t]?.itemType??0)!==1).map(t=>buildEntry(t,state.results[t],dropStatus));
@@ -674,8 +674,8 @@ function handleBuild(){
   const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:animeLib.length,mangaCount:mangaLib.length,novelCount:0,animeLibrary:animeLib,mangaLibrary:mangaLib,novelLibrary:[],animeCustomLists:animeLib.length?[{listName,mediaIds:animeLib.map(e=>e.id),mediaTypeIndex:1}]:(tpl.animeCustomLists||[]),mangaCustomLists:mangaLib.length?[{listName,mediaIds:mangaLib.map(e=>e.id),mediaTypeIndex:0}]:(tpl.mangaCustomLists||[]),novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]};
   const fn=`mihon_to_anymex_${stamp()}.anymex`;
   download(fn,JSON.stringify(backup,null,2),'application/json');
-  log(`Built ${fn} — ${animeLib.length} anime + ${mangaLib.length} manga`);
-  showStatus(`✓ ${animeLib.length} anime + ${mangaLib.length} manga exported!`,'success');
+  log(`Built ${fn} \u2014 ${animeLib.length} anime + ${mangaLib.length} manga`);
+  showStatus(`\u2713 ${animeLib.length} anime + ${mangaLib.length} manga exported! Restore the file in AnymeX under Data Management.`,'success');
 }
 
 function dlMatches(){download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json');}
