@@ -340,10 +340,10 @@
 
     <label for="mangayomiFile">🟠 Mangayomi backup (.backup file)</label>
     <input type="file" id="mangayomiFile" accept=".backup">
-    <p class="hint">Go to Mangayomi → More → Settings → Backup &amp; restore → Create backup. Upload that <code>.backup</code> file here — no conversion needed. Status and chapter progress are imported automatically.</p>
+    <p class="hint">Go to Mangayomi → More → Settings → Backup &amp; restore → Create backup. Upload that <code>.backup</code> file here — no conversion needed.</p>
 
     <div class="sqlite-notice" id="sqliteNotice">
-      ⚠️ <strong>SQLite database detected</strong> inside this backup. Mangayomi versions ≥ 1.5 store backups as a SQLite file instead of JSON. The converter will scan the raw database pages to extract manga titles — reading progress and status will default to PLANNING (SQLite reader cannot decode chapter data reliably). If you get 0 titles, please <a href="https://github.com/G1NYU/mihon-to-anymex/issues" target="_blank" rel="noopener" style="color:var(--color-warn)">open an issue</a> with your Mangayomi version number.
+      ⚠️ <strong>SQLite database detected</strong> inside this backup. Using sql.js (WebAssembly SQLite) to read directly from the <code>manga</code> table. Reading progress defaults to PLANNING since chapter data is not easily decoded from SQLite.
     </div>
 
     <div class="or-divider"><span>or</span></div>
@@ -435,6 +435,8 @@
 const ANILIST_URL='https://graphql.anilist.co';
 const LS_KEY='mihon_anymex_session';
 const LS_GUIDE='mihon_anymex_guide_dismissed';
+const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js';
+const SQLJS_WASM='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.wasm';
 const GQL_MANGA=`query($s:String){Media(search:$s,type:MANGA){id title{romaji english native} description(asHtml:false) coverImage{large} status chapters genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
 const GQL_ANIME=`query($s:String){Media(search:$s,type:ANIME){id title{romaji english native} description(asHtml:false) coverImage{large} status episodes genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
 
@@ -447,6 +449,7 @@ const VALID_STATUSES=new Set(['CURRENT','PLANNING','COMPLETED','DROPPED','PAUSED
 
 const state={titles:[],titleMeta:{},results:{},skipped:[],template:null,running:false,stop:false,sourceMode:'none'};
 let fetchStartTime=null;
+let _sqlJsLib=null;
 
 function $(id){return document.getElementById(id);}
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
@@ -492,83 +495,131 @@ function parseCsvLine(line){ const out=[];let cur='',inQ=false; for(let i=0;i<li
 function parseCsv(text){ const seen=new Set(),titles=[]; for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){ const t=(parseCsvLine(line)[0]||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); } return titles; }
 function parseMihonBackupJson(json){ const manga=json.backupManga||[],cats=json.backupCategories||[]; const catNames=cats.map(c=>c.name).filter(Boolean); const seen=new Set(),titles=[],meta={}; for(const m of manga){ const t=(m.title||'').trim(); if(!t||seen.has(t.toLowerCase()))continue; seen.add(t.toLowerCase());titles.push(t); meta[t]={status:MIHON_STATUS[m.status]||'CURRENT',chaptersRead:Array.isArray(m.chapters)?m.chapters.filter(c=>c.read===true||c.read===1).length:0,itemType:m.itemType??0}; } return{titles,meta,catNames}; }
 
-// ─── SQLite binary reader ────────────────────────────────────────────────────
-function parseSQLiteForTitles(bytes) {
-  const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-  const magic = String.fromCharCode(...bytes.slice(0, 6));
-  if (magic !== 'SQLite') throw new Error('Not a valid SQLite file');
-  const pageSize = dv.getUint16(16) || 4096;
-  const numPages = Math.floor(bytes.length / pageSize);
+// ─── sql.js loader ───────────────────────────────────────────────────────────
+async function loadSqlJs() {
+  if (_sqlJsLib) return _sqlJsLib;
+  log('Loading sql.js (WebAssembly SQLite engine) from CDN…');
+  await new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = SQLJS_CDN;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Failed to load sql.js from CDN'));
+    document.head.appendChild(s);
+  });
+  _sqlJsLib = await window.initSqlJs({ locateFile: () => SQLJS_WASM });
+  log('sql.js loaded OK');
+  return _sqlJsLib;
+}
 
-  function readVarint(buf, off) {
-    let val = 0, i = 0;
-    for (; i < 9 && off + i < buf.length; i++) {
-      const b = buf[off + i];
-      if (i < 8) { val |= (b & 0x7f) << (7 * i); if (!(b & 0x80)) break; }
-      else val = (val | b) >>> 0;
-    }
-    return [val, i + 1];
-  }
+async function parseSQLiteWithSqlJs(bytes) {
+  const SQL = await loadSqlJs();
+  const db = new SQL.Database(bytes);
 
-  function readText(buf, off, len) {
-    try { return new TextDecoder('utf-8').decode(buf.slice(off, off + len)); }
-    catch(e) { return null; }
-  }
+  // List all tables for diagnostics
+  let tables = [];
+  try {
+    const r = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+    if (r.length && r[0].values) tables = r[0].values.map(v => v[0]);
+  } catch(e) {}
+  log(`SQLite tables: ${tables.join(', ') || '(none found)'}`);
 
-  const titleSet = new Set();
-  for (let p = 0; p < numPages; p++) {
-    const pageOff = p * pageSize;
-    if (bytes[pageOff] !== 0x0d) continue;
-    const cellCount = dv.getUint16(pageOff + 3);
-    for (let ci = 0; ci < cellCount && ci < 2000; ci++) {
-      const ptrOff = pageOff + 8 + ci * 2;
-      if (ptrOff + 2 > pageOff + pageSize) break;
-      const cellOff = pageOff + dv.getUint16(ptrOff);
-      if (cellOff + 4 >= bytes.length) continue;
-      try {
-        const [, ps1] = readVarint(bytes, cellOff);
-        const [, ps2] = readVarint(bytes, cellOff + ps1);
-        const payloadOff = cellOff + ps1 + ps2;
-        if (payloadOff >= bytes.length) continue;
-        const [headerSize, hs] = readVarint(bytes, payloadOff);
-        if (headerSize < 1 || headerSize > 200) continue;
-        let hOff = payloadOff + hs;
-        const serialTypes = [];
-        while (hOff < payloadOff + headerSize) {
-          const [st, stLen] = readVarint(bytes, hOff);
-          serialTypes.push(st); hOff += stLen;
+  // Try known Mangayomi table/column combos
+  const candidates = [
+    { table: 'manga',        col: 'title',   statusCol: 'status', isMangaCol: 'isAnime' },
+    { table: 'manga',        col: 'name',    statusCol: 'status', isMangaCol: 'isAnime' },
+    { table: 'Manga',        col: 'title',   statusCol: 'status', isMangaCol: 'isAnime' },
+    { table: 'mangas',       col: 'title',   statusCol: 'status', isMangaCol: null },
+    { table: 'library',      col: 'title',   statusCol: null,     isMangaCol: null },
+  ];
+
+  for (const { table, col, statusCol, isMangaCol } of candidates) {
+    if (!tables.map(t=>t.toLowerCase()).includes(table.toLowerCase())) continue;
+    try {
+      // Get actual columns
+      const colRes = db.exec(`PRAGMA table_info(${table})`);
+      const cols = colRes.length ? colRes[0].values.map(v => v[1]) : [];
+      log(`Table "${table}" columns: ${cols.join(', ')}`);
+
+      if (!cols.map(c=>c.toLowerCase()).includes(col.toLowerCase())) {
+        log(`Column "${col}" not in table "${table}" — trying next`);
+        continue;
+      }
+
+      const actualCol = cols.find(c => c.toLowerCase() === col.toLowerCase());
+      const actualStatus = statusCol && cols.find(c => c.toLowerCase() === statusCol.toLowerCase());
+      const actualIsManga = isMangaCol && cols.find(c => c.toLowerCase() === isMangaCol.toLowerCase());
+
+      let query = `SELECT ${actualCol}`;
+      if (actualStatus) query += `, ${actualStatus}`;
+      if (actualIsManga) query += `, ${actualIsManga}`;
+      query += ` FROM ${table} WHERE ${actualCol} IS NOT NULL AND ${actualCol} != ''`;
+
+      log(`Running: ${query}`);
+      const res = db.exec(query);
+      if (!res.length || !res[0].values.length) {
+        log(`Query returned 0 rows from "${table}"`);
+        continue;
+      }
+
+      const rows = res[0].values;
+      log(`Got ${rows.length} rows from "${table}"."${actualCol}"`);
+
+      const seen = new Set(), titles = [], meta = {};
+      for (const row of rows) {
+        const t = String(row[0] || '').trim();
+        if (!t || seen.has(t.toLowerCase())) continue;
+        // Skip if isAnime == 1 (true)
+        if (actualIsManga) {
+          const isAnimeVal = row[actualIsManga ? (actualStatus ? 2 : 1) : -1];
+          if (isAnimeVal === 1 || isAnimeVal === true || isAnimeVal === '1') continue;
         }
-        let dOff = payloadOff + headerSize;
-        for (const st of serialTypes) {
-          let fieldLen = 0;
-          if (st === 0) {}
-          else if (st <= 4) fieldLen = st;
-          else if (st === 5) fieldLen = 6;
-          else if (st === 6 || st === 7) fieldLen = 8;
-          else if (st === 8 || st === 9) fieldLen = 0;
-          else if (st >= 12 && st % 2 === 0) fieldLen = (st - 12) / 2;
-          else if (st >= 13 && st % 2 === 1) {
-            fieldLen = (st - 13) / 2;
-            if (fieldLen >= 2 && fieldLen <= 300) {
-              const txt = readText(bytes, dOff, fieldLen);
-              if (txt) {
-                const trimmed = txt.trim();
-                if (trimmed.length >= 2 && /[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(trimmed) &&
-                    !trimmed.startsWith('http') && !trimmed.startsWith('{') &&
-                    !trimmed.startsWith('[') && !/^\d+$/.test(trimmed) &&
-                    trimmed.split('\n').length <= 3) {
-                  titleSet.add(trimmed);
-                }
-              }
-            }
+        seen.add(t.toLowerCase());
+        titles.push(t);
+        const statusVal = actualStatus ? row[1] : null;
+        let status = 'PLANNING';
+        if (statusVal === 1 || statusVal === 'CURRENT') status = 'CURRENT';
+        else if (statusVal === 2 || statusVal === 'COMPLETED') status = 'COMPLETED';
+        else if (statusVal === 3 || statusVal === 'PAUSED') status = 'PAUSED';
+        else if (statusVal === 4 || statusVal === 'DROPPED') status = 'DROPPED';
+        meta[t] = { status, chaptersRead: 0, itemType: 0 };
+      }
+
+      db.close();
+      return { titles, meta };
+    } catch(e) {
+      log(`Error querying "${table}": ${e.message}`);
+    }
+  }
+
+  // Last resort: scan ALL text columns in ALL tables
+  log('Known schema not matched — scanning all text columns for title-like strings…');
+  const allTitles = new Set();
+  for (const tbl of tables) {
+    try {
+      const colRes = db.exec(`PRAGMA table_info(${tbl})`);
+      if (!colRes.length) continue;
+      const textCols = colRes[0].values.filter(v => /text|char|clob/i.test(v[2])).map(v=>v[1]);
+      for (const col of textCols) {
+        const r = db.exec(`SELECT DISTINCT ${col} FROM ${tbl} WHERE ${col} IS NOT NULL AND length(${col}) > 1 AND length(${col}) < 300 LIMIT 2000`);
+        if (!r.length) continue;
+        for (const [val] of r[0].values) {
+          const s = String(val||'').trim();
+          if (s.length >= 2 && /[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(s) && !s.startsWith('http') && !s.startsWith('{') && !/^\d+$/.test(s) && s.split('\n').length <= 2) {
+            allTitles.add(s);
           }
-          dOff += fieldLen;
-          if (dOff > pageOff + pageSize) break;
         }
-      } catch(e) {}
-    }
+      }
+    } catch(e) {}
   }
-  return [...titleSet];
+
+  db.close();
+  if (allTitles.size === 0) throw new Error('sql.js found 0 titles across all tables. Please open an issue at github.com/G1NYU/mihon-to-anymex with your Mangayomi version.');
+
+  const SKIP = new Set(['manga','anime','novel','chapters','categories','sources','name','title','true','false','null']);
+  const titles = [...allTitles].filter(t => !SKIP.has(t.toLowerCase()));
+  const meta = Object.fromEntries(titles.map(t => [t, { status: 'PLANNING', chaptersRead: 0, itemType: 0 }]));
+  log(`Fallback scan found ${titles.length} candidate strings`);
+  return { titles, meta };
 }
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -629,20 +680,16 @@ async function parseMangayomiBackup(file) {
     for (const c of (json.categories || [])) { if (c.id != null) catMap[c.id] = c.name; }
 
     const seen = new Set(), titles = [], meta = {};
-    let skippedAnime = 0, skippedNovel = 0;
+    let skippedAnime = 0;
 
     for (const m of mangaArr) {
-      // For Mangayomi, itemType semantics vary by version — do NOT filter on it.
-      // Only skip if isManga is explicitly false.
       if (m.isManga === false || m.isManga === 0 || m.isManga === '0' || m.isManga === 'false') {
         skippedAnime++; continue;
       }
-
       const t = (m.name || m.title || '').trim();
       if (!t || seen.has(t.toLowerCase())) continue;
       seen.add(t.toLowerCase());
       titles.push(t);
-
       const chapRead  = readCountMap[m.id]  || 0;
       const chapTotal = totalCountMap[m.id] || 0;
       let status = 'PLANNING';
@@ -651,7 +698,7 @@ async function parseMangayomiBackup(file) {
       meta[t] = { status, chaptersRead: chapRead, itemType: 0 };
     }
 
-    log(`Mangayomi parse — ${titles.length} manga kept, ${skippedAnime} anime skipped, ${skippedNovel} novels skipped`);
+    log(`Mangayomi parse — ${titles.length} manga kept, ${skippedAnime} anime skipped`);
 
     if (titles.length === 0) {
       log(`⚠ 0 titles kept. Raw sample of first 3 entries:`);
@@ -667,41 +714,21 @@ async function parseMangayomiBackup(file) {
     return { titles, meta, catNames: [...catNamesSet] };
   }
 
-  // ── Fallback: SQLite binary reader ──────────────────────────────────────
+  // ── Fallback: sql.js WASM SQLite reader ─────────────────────────────────
   const magic = String.fromCharCode(...bytes.slice(0, 6));
   if (magic !== 'SQLite') {
     throw new Error('Backup is neither valid JSON nor a SQLite database. The file may be corrupt or an unsupported format.');
   }
 
-  log('SQLite database detected — switching to binary page scanner…');
+  log('SQLite database detected — loading sql.js WASM engine…');
   $('sqliteNotice').classList.add('show');
 
-  let rawTitles;
-  try { rawTitles = parseSQLiteForTitles(bytes); }
-  catch(e) { throw new Error('SQLite parse failed: ' + e.message); }
+  const { titles, meta } = await parseSQLiteWithSqlJs(bytes);
 
-  log(`SQLite scan — ${rawTitles.length} text strings extracted from database pages`);
-
-  const INTERNAL = new Set(['manga','anime','novel','chapters','categories','sources','name','title','true','false','null','id']);
-  const seen = new Set(), titles = [], meta = {};
-  for (const t of rawTitles) {
-    const low = t.toLowerCase();
-    if (INTERNAL.has(low)) continue;
-    if (seen.has(low)) continue;
-    if (!/[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(t)) continue;
-    seen.add(low);
-    titles.push(t);
-    meta[t] = { status: 'PLANNING', chaptersRead: 0 };
-  }
-
-  log(`SQLite filter — ${titles.length} likely manga titles after filtering`);
+  log(`SQLite sql.js — ${titles.length} manga titles extracted`);
 
   if (titles.length === 0) {
-    throw new Error(
-      'SQLite reader found 0 titles after filtering. ' +
-      'Your Mangayomi version may use an unknown schema. ' +
-      'Please open an issue at github.com/G1NYU/mihon-to-anymex with your Mangayomi version number.'
-    );
+    throw new Error('sql.js found 0 manga titles in the database. Please open an issue at github.com/G1NYU/mihon-to-anymex with your Mangayomi version.');
   }
 
   return { titles, meta, catNames: [] };
@@ -799,7 +826,6 @@ function handleBuild(){
   const mangaLibrary=state.titles.filter(t=>state.results[t]&&(state.titleMeta[t]?.itemType??0)!==1).map(t=>buildEntry(t,state.results[t],dropStatus));
   const allAnimeIds=animeLibrary.map(e=>e.id);
   const allMangaIds=mangaLibrary.map(e=>e.id);
-  const allIds=[...allAnimeIds,...allMangaIds];
   const listName=($('listName').value||'new').trim()||'new';
   const tpl=state.template;
   const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:animeLibrary.length,mangaCount:mangaLibrary.length,novelCount:0,animeLibrary,mangaLibrary,novelLibrary:[],animeCustomLists:animeLibrary.length?[{listName,mediaIds:allAnimeIds,mediaTypeIndex:1}]:(tpl.animeCustomLists||[]),mangaCustomLists:mangaLibrary.length?[{listName,mediaIds:allMangaIds,mediaTypeIndex:0}]:(tpl.mangaCustomLists||[]),novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]};
