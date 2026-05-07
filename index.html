@@ -108,9 +108,9 @@
   .required-callout-desc { font-size:0.8rem; color:var(--color-text-muted); line-height:1.5; }
   .required-callout-files { display:flex; gap:0.5rem; margin-top:0.6rem; flex-wrap:wrap; }
   .req-file-tag { display:inline-flex; align-items:center; gap:0.35rem; background:rgba(79,152,163,0.15); border:1px solid rgba(79,152,163,0.3); border-radius:var(--radius-full); padding:0.2rem 0.65rem; font-size:0.75rem; font-weight:600; color:#7ecfd8; }
-  .req-file-tag.template { background:rgba(157,232,106,0.12); border-color:rgba(157,232,106,0.3); color:#b8f07a; }
+  .req-file-tag.template { background:rgba(136,136,136,0.1); border-color:rgba(136,136,136,0.25); color:#aaa; }
   .req-file-tag .tag-num { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:rgba(79,152,163,0.4); font-size:0.65rem; font-weight:800; }
-  .req-file-tag.template .tag-num { background:rgba(157,232,106,0.4); }
+  .req-file-tag.template .tag-num { background:rgba(136,136,136,0.35); }
   .mode-badge { display:inline-flex; align-items:center; gap:0.4rem; padding:0.25rem 0.75rem; border-radius:var(--radius-full); font-size:0.78rem; font-weight:600; letter-spacing:0.05em; border:1px solid; margin-bottom:1.25rem; transition:all 0.2s; }
   .mode-badge.csv       { background:rgba(79,152,163,0.12);  color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
   .mode-badge.backup    { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
@@ -252,14 +252,14 @@
     </div>
   </div>
   <h1>Convert your manga library</h1>
-  <p class="desc">Drop your <strong style="color:var(--color-text)">backup file</strong> and your <strong style="color:var(--color-text)">AnymeX template</strong>, hit <strong style="color:var(--color-text)">Parse</strong>, wait for the fetch, then <strong style="color:var(--color-text)">Build</strong>. That&rsquo;s it.</p>
+  <p class="desc">Drop your <strong style="color:var(--color-text)">backup file</strong>, hit <strong style="color:var(--color-text)">Parse</strong>, wait for the fetch, then <strong style="color:var(--color-text)">Build</strong>. That&rsquo;s it. AnymeX template is optional.</p>
 
   <div class="guide-wrap" id="guideWrap">
     <div class="guide-header" onclick="toggleGuide()">
       <div class="guide-header-left">
         <span style="font-size:1.1rem">&#128214;</span>
         <span class="guide-title">How to migrate</span>
-        <span class="guide-subtitle">backup file + AnymeX template &mdash; done in minutes</span>
+        <span class="guide-subtitle">just your backup file &mdash; done in minutes</span>
       </div>
       <span class="guide-chevron">&#9662;</span>
     </div>
@@ -279,7 +279,7 @@
           <div class="guide-step">
             <div class="step-num">2</div>
             <h4>Upload, parse &amp; build</h4>
-            <p>Drop the JSON and your AnymeX template below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
+            <p>Drop the JSON below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
           </div>
         </div>
         <div class="guide-cta">
@@ -301,7 +301,7 @@
           <div class="guide-step">
             <div class="step-num orange">2</div>
             <h4>Upload, parse &amp; build</h4>
-            <p>Drop the <code>.backup</code> and your AnymeX template below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
+            <p>Drop the <code>.backup</code> below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
           </div>
         </div>
         <div class="guide-cta"><button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button></div>
@@ -322,12 +322,12 @@
     <div class="required-callout">
       <div class="required-callout-icon">&#128203;</div>
       <div class="required-callout-body">
-        <div class="required-callout-title">You need to upload 2 files to convert</div>
-        <div class="required-callout-desc">Your <strong>backup file</strong> (from Mihon, Mangayomi, or a CSV export) + your own <strong>AnymeX backup template</strong>. Both are required.</div>
+        <div class="required-callout-title">Only your backup file is required</div>
+        <div class="required-callout-desc">Your <strong>backup file</strong> (from Mihon, Mangayomi, or a CSV export) is all you need. The AnymeX template is optional &mdash; if provided it will be used as a base, otherwise a clean file is generated.</div>
         <div class="required-callout-files">
           <span class="req-file-tag"><span class="tag-num">1</span> Your backup or CSV</span>
           <span style="color:var(--color-text-muted);font-size:0.8rem;align-self:center">+</span>
-          <span class="req-file-tag template"><span class="tag-num">2</span> AnymeX template (.anymex)</span>
+          <span class="req-file-tag template"><span class="tag-num">2</span> AnymeX template (optional)</span>
         </div>
       </div>
     </div>
@@ -345,9 +345,9 @@
     <input type="file" id="csvFile" accept=".csv,text/csv">
     <p class="hint">No header row expected. First column must be the manga title.</p>
     <div style="border-top:1px solid var(--color-border);margin:0.25rem 0 1.5rem;"></div>
-    <label for="templateFile">&#128230; AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">&#9733; also required</span></label>
+    <label for="templateFile">&#128230; AnymeX backup template (.anymex) <span style="color:var(--color-text-muted);font-size:0.78rem;margin-left:0.35rem">(optional)</span></label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
-    <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Use <strong>your own</strong> backup as the template &mdash; never use someone else's file. <strong>Without this the Build step will not work.</strong></p>
+    <p class="hint">If you have an existing AnymeX backup, drop it here to use it as the base file. Your converted library will be merged into it. Skip this and a fresh file is built automatically.</p>
     <div class="row3">
       <div>
         <label for="listName">Custom list name</label>
@@ -385,7 +385,7 @@
     <div class="card-title">Step 2 &mdash; Fetch AniList metadata</div>
     <div class="status-row" id="stateRow">
       <span class="pill" id="pillSource"><span class="dot"></span>Source: not loaded</span>
-      <span class="pill" id="pillTemplate"><span class="dot"></span>Template: not loaded</span>
+      <span class="pill" id="pillTemplate"><span class="dot"></span>Template: not provided</span>
       <span class="pill" id="pillAnilist"><span class="dot"></span>AniList: not fetched</span>
     </div>
     <div class="btn-row" style="margin-bottom:1.25rem">
@@ -426,4 +426,515 @@
 const ANILIST_URL='https://graphql.anilist.co';
 const LS_KEY='mihon_anymex_session';
 const LS_GUIDE='mihon_anymex_guide_dismissed';
-const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10
+const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js';
+
+let sourceEntries=[];
+let templateData=null;
+let anilistResults=[];
+let skippedTitles=[];
+let stopRequested=false;
+let isFetching=false;
+let sessionSaved=false;
+
+function log(msg){const el=document.getElementById('log');el.textContent+=msg+'\n';el.scrollTop=el.scrollHeight;}
+function setStatus(msg,type='info'){const b=document.getElementById('statusBox');b.textContent=msg;b.className='status-box '+type;b.style.display='block';}
+function clearStatus(){const b=document.getElementById('statusBox');b.style.display='none';}
+
+function updateStatusBadge(){
+  const v=document.getElementById('readingStatus').value;
+  const b=document.getElementById('statusBadge');
+  const map={AUTO:'&#8635; Auto',CURRENT:'&#9679; Reading',PLANNING:'&#9675; Planning',COMPLETED:'&#10003; Completed',DROPPED:'&#10005; Dropped',PAUSED:'&#9208; Paused',REPEATING:'&#8635; Re-reading'};
+  b.innerHTML=map[v]||v;
+  b.className='status-preview '+v;
+}
+
+function setPill(id,text,state){
+  const p=document.getElementById(id);
+  p.className='pill'+(state==='ok'?' ok':state==='warn'?' warn':'');
+  p.innerHTML='<span class="dot"></span>'+text;
+}
+
+function updatePillTemplate(){
+  if(templateData) setPill('pillTemplate','Template: loaded',  'ok');
+  else             setPill('pillTemplate','Template: not provided','');
+}
+
+function setBadge(mode,text){
+  const b=document.getElementById('modeBadge');
+  b.className='mode-badge '+mode;
+  b.innerHTML=text;
+}
+
+function toggleGuide(){
+  const w=document.getElementById('guideWrap');
+  w.classList.toggle('open');
+}
+function switchGuideTab(tab,btn){
+  document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.guide-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('guide-'+tab).classList.add('active');
+}
+function dismissGuide(e){
+  e.stopPropagation();
+  localStorage.setItem(LS_GUIDE,'1');
+  document.getElementById('guideWrap').style.display='none';
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  if(localStorage.getItem(LS_GUIDE)) document.getElementById('guideWrap').style.display='none';
+  checkResume();
+  document.getElementById('templateFile').addEventListener('change',onTemplateChange);
+  document.getElementById('backupJsonFile').addEventListener('change',()=>{ templateData=null; updatePillTemplate(); });
+  document.getElementById('mangayomiFile').addEventListener('change',()=>{ templateData=null; updatePillTemplate(); });
+  document.getElementById('csvFile').addEventListener('change',()=>{ templateData=null; updatePillTemplate(); });
+});
+
+async function onTemplateChange(){
+  const file=document.getElementById('templateFile').files[0];
+  if(!file){ templateData=null; updatePillTemplate(); return; }
+  try{
+    const txt=await file.text();
+    templateData=JSON.parse(txt);
+    log('Template loaded: '+file.name);
+    updatePillTemplate();
+    const lists=(templateData.mangaCustomLists||[]).concat(templateData.animeCustomLists||[]).concat(templateData.novelCustomLists||[]);
+    const sel=document.getElementById('listName');
+    sel.innerHTML='';
+    const names=[...new Set(lists.map(l=>l.name).filter(Boolean))];
+    if(!names.length) names.push('new');
+    names.forEach(n=>{ const o=document.createElement('option'); o.value=n; o.textContent=n; sel.appendChild(o); });
+  }catch(e){
+    log('Error reading template: '+e.message);
+    templateData=null;
+    updatePillTemplate();
+  }
+}
+
+function mapStatus(raw){
+  const s=(raw||'').toUpperCase();
+  if(s==='READING'||s==='CURRENT') return 'CURRENT';
+  if(s==='COMPLETED') return 'COMPLETED';
+  if(s==='DROPPED') return 'DROPPED';
+  if(s==='PAUSED'||s==='ON_HOLD') return 'PAUSED';
+  if(s==='REPEATING') return 'REPEATING';
+  return 'PLANNING';
+}
+
+function parseMihonJson(data){
+  const entries=[];
+  const library=data.backupManga||data.library||[];
+  for(const m of library){
+    if(!m.title) continue;
+    const url=(m.url||'').toLowerCase();
+    const isAnime=url.includes('anime')||url.includes('/episode')||(m.source||'').toLowerCase().includes('anime');
+    let rawStatus='PLANNING';
+    const sc=m.status??m.readingStatus??0;
+    const statusMap={1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'REPEATING',6:'PLANNING'};
+    rawStatus=statusMap[sc]||'PLANNING';
+    entries.push({title:m.title.trim(),mediaType:isAnime?'anime':'manga',status:rawStatus,chaptersRead:m.lastChapterRead??m.chaptersRead??0});
+  }
+  return entries;
+}
+
+function parseMangayomiJson(data){
+  const entries=[];
+  const library=data.manga||data.library||[];
+  for(const m of library){
+    if(!m.name&&!m.title) continue;
+    const title=(m.name||m.title||'').trim();
+    const isAnime=m.isManga===false||m.isAnime===true||m.itemType===1;
+    const sc=m.favorite===false?0:(m.status??m.readingStatus??0);
+    const statusMap={0:'PLANNING',1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'REPEATING'};
+    entries.push({title,mediaType:isAnime?'anime':'manga',status:statusMap[sc]||'PLANNING',chaptersRead:m.lastChapterRead??0});
+  }
+  return entries;
+}
+
+function parseCsv(text){
+  return text.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+    const cols=l.split(',');
+    return {title:cols[0].replace(/^"|"$/g,'').trim(),mediaType:'manga',status:'PLANNING',chaptersRead:0};
+  }).filter(e=>e.title);
+}
+
+async function readSqlite(file){
+  return new Promise(async(resolve,reject)=>{
+    try{
+      await new Promise((res,rej)=>{
+        const s=document.createElement('script');
+        s.src=SQLJS_CDN;
+        s.onload=res; s.onerror=rej;
+        document.head.appendChild(s);
+      });
+      const buf=await file.arrayBuffer();
+      const SQL=await initSqlJs({locateFile:f=>'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/'+f});
+      const db=new SQL.Database(new Uint8Array(buf));
+      const res=db.exec('SELECT title,url FROM manga');
+      if(!res.length){resolve([]);return;}
+      const entries=res[0].values.map(([title,url])=>({
+        title:(title||'').trim(),
+        mediaType:'manga',
+        status:'PLANNING',
+        chaptersRead:0
+      })).filter(e=>e.title);
+      resolve(entries);
+    }catch(e){reject(e);}
+  });
+}
+
+async function handleParse(){
+  clearStatus();
+  sourceEntries=[];
+  anilistResults=[];
+  skippedTitles=[];
+  document.getElementById('breakdownPanel').classList.remove('show');
+
+  const jsonFile=document.getElementById('backupJsonFile').files[0];
+  const mangayomiFile=document.getElementById('mangayomiFile').files[0];
+  const csvFile=document.getElementById('csvFile').files[0];
+
+  if(!jsonFile&&!mangayomiFile&&!csvFile){
+    setStatus('Please upload a backup or CSV file first.','error');
+    return;
+  }
+
+  try{
+    if(jsonFile){
+      const txt=await jsonFile.text();
+      let data;
+      try{ data=JSON.parse(txt); }catch(e){ setStatus('Invalid JSON file.','error'); return; }
+      if(data.backupManga||data.library){ sourceEntries=parseMihonJson(data); setBadge('backup','&#128190; Mihon JSON'); }
+      else if(data.manga){ sourceEntries=parseMangayomiJson(data); setBadge('mangayomi','&#128992; Mangayomi'); }
+      else{ setStatus('Could not detect backup format.','error'); return; }
+    } else if(mangayomiFile){
+      const ext=mangayomiFile.name.split('.').pop().toLowerCase();
+      if(ext==='backup'){
+        const txt=await mangayomiFile.text();
+        let data;
+        try{ data=JSON.parse(txt); }catch(e){
+          document.getElementById('sqliteNotice').classList.add('show');
+          try{ sourceEntries=await readSqlite(mangayomiFile); setBadge('mangayomi','&#128992; Mangayomi (SQLite)'); }
+          catch(se){ setStatus('Could not read .backup file: '+se.message,'error'); return; }
+          data=null;
+        }
+        if(data){ sourceEntries=parseMangayomiJson(data); setBadge('mangayomi','&#128992; Mangayomi'); }
+      } else {
+        setStatus('Please upload a .backup file for Mangayomi.','error'); return;
+      }
+    } else if(csvFile){
+      const txt=await csvFile.text();
+      sourceEntries=parseCsv(txt);
+      setBadge('csv','&#9776; CSV');
+    }
+
+    if(!sourceEntries.length){ setStatus('No titles found in the uploaded file.','error'); return; }
+
+    const animeCount=sourceEntries.filter(e=>e.mediaType==='anime').length;
+    const mangaCount=sourceEntries.filter(e=>e.mediaType==='manga').length;
+    document.getElementById('bdAnime').textContent=animeCount;
+    document.getElementById('bdManga').textContent=mangaCount;
+    document.getElementById('bdTotal').textContent=sourceEntries.length;
+    document.getElementById('breakdownPanel').classList.add('show');
+
+    setPill('pillSource','Source: '+sourceEntries.length+' titles','ok');
+    updatePillTemplate();
+    document.getElementById('fetchBtn').disabled=false;
+    log('Parsed '+sourceEntries.length+' titles ('+animeCount+' anime, '+mangaCount+' manga).');
+    setStatus('Parsed '+sourceEntries.length+' titles. Click “Fetch AniList metadata” to continue.','info');
+  }catch(e){
+    setStatus('Parse error: '+e.message,'error');
+    log('Parse error: '+e.message);
+  }
+}
+
+async function queryAniList(title,type){
+  const query=`
+    query($search:String,$type:MediaType){
+      Media(search:$search,type:$type,format_not_in:[NOVEL]){
+        id title{romaji english native} format
+      }
+    }`;
+  const res=await fetch(ANILIST_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({query,variables:{search:title,type:type.toUpperCase()}})
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const json=await res.json();
+  if(json.errors) return null;
+  return json.data?.Media||null;
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function handleFetch(){
+  if(isFetching) return;
+  if(!sourceEntries.length){ setStatus('Parse a source file first.','error'); return; }
+  isFetching=true; stopRequested=false;
+  document.getElementById('fetchBtn').disabled=true;
+  document.getElementById('stopBtn').disabled=false;
+  document.getElementById('buildBtn').disabled=true;
+  anilistResults=[]; skippedTitles=[];
+  const delay=parseInt(document.getElementById('delayMs').value)||2500;
+  const bar=document.getElementById('bar');
+  const total=sourceEntries.length;
+  let matched=0,skipped=0;
+  clearStatus();
+
+  for(let i=0;i<total;i++){
+    if(stopRequested) break;
+    const entry=sourceEntries[i];
+    const pct=Math.round((i+1)/total*100);
+    bar.style.width=pct+'%';
+    document.getElementById('progressPct').textContent=pct+'%';
+    document.getElementById('progressTitle').textContent=entry.title;
+    document.getElementById('progressSub').textContent=(i+1)+' / '+total;
+    const remaining=(total-i-1)*delay/1000;
+    document.getElementById('progressEta').textContent=remaining>0?'~'+Math.ceil(remaining)+'s left':'';
+    document.getElementById('sTitles').textContent=i+1;
+
+    try{
+      const media=await queryAniList(entry.title,entry.mediaType);
+      if(media){
+        anilistResults.push({entry,media});
+        matched++;
+        document.getElementById('sMatched').textContent=matched;
+        log('[OK] '+entry.title+' → '+media.id+' ('+( media.title.english||media.title.romaji)+')' );
+      } else {
+        skippedTitles.push(entry.title);
+        skipped++;
+        document.getElementById('sSkipped').textContent=skipped;
+        log('[SKIP] '+entry.title);
+      }
+    }catch(e){
+      skippedTitles.push(entry.title);
+      skipped++;
+      document.getElementById('sSkipped').textContent=skipped;
+      log('[ERR] '+entry.title+': '+e.message);
+    }
+    if(i<total-1) await sleep(delay);
+  }
+
+  isFetching=false;
+  document.getElementById('stopBtn').disabled=true;
+  if(stopRequested){
+    bar.classList.add('stopped');
+    setStatus('Stopped at '+matched+' matched, '+skipped+' skipped.','info');
+    document.getElementById('progressTitle').textContent='Stopped';
+  } else {
+    bar.classList.add('done');
+    document.getElementById('progressTitle').textContent='Done';
+    setPill('pillAnilist','AniList: '+matched+' matched','ok');
+    showMission(total,matched,skipped);
+  }
+  if(anilistResults.length){
+    document.getElementById('buildBtn').disabled=false;
+    document.getElementById('dlMatchesBtn').disabled=false;
+  }
+  if(skippedTitles.length) document.getElementById('dlSkippedBtn').disabled=false;
+  saveSession();
+}
+
+function handleStop(){ stopRequested=true; }
+
+function buildEntry(media,entry,listName,overrideStatus){
+  const status=overrideStatus==='AUTO'?entry.status:overrideStatus;
+  const type=media.format==='MANGA'||media.format==='ONE_SHOT'||media.format==='MANHWA'||media.format==='MANHUA'?'manga':'anime';
+  return {
+    mediaId:String(media.id),
+    mediaType:type,
+    title:media.title.english||media.title.romaji||media.title.native||entry.title,
+    imageUrl:'',
+    score:0,
+    chaptersRead:entry.chaptersRead||0,
+    totalChapters:0,
+    status:status,
+    customListName:listName,
+    isFavorite:false,
+    startDate:null,
+    endDate:null,
+    notes:'',
+    updatedAt:new Date().toISOString()
+  };
+}
+
+function buildFreshOutput(){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const dateStr=pad(now.getDate())+' '+pad(now.getMonth()+1)+' '+now.getFullYear()+' '+pad(now.getHours())+':'+pad(now.getMinutes())+' '+(now.getHours()<12?'AM':'PM');
+  return {
+    date:dateStr,
+    appVersion:'',
+    username:'',
+    avatar:'',
+    animeCount:0,
+    mangaCount:0,
+    novelCount:0,
+    animeLibrary:[],
+    mangaLibrary:[],
+    novelLibrary:[],
+    animeCustomLists:[],
+    mangaCustomLists:[],
+    novelCustomLists:[],
+    settings:[]
+  };
+}
+
+function handleBuild(){
+  if(!anilistResults.length){ setStatus('Nothing to build. Run the fetch step first.','error'); return; }
+
+  const listName=document.getElementById('listName').value||'new';
+  const overrideStatus=document.getElementById('readingStatus').value;
+
+  const output=templateData?JSON.parse(JSON.stringify(templateData)):buildFreshOutput();
+
+  if(!output.animeCustomLists) output.animeCustomLists=[];
+  if(!output.mangaCustomLists) output.mangaCustomLists=[];
+  if(!output.novelCustomLists) output.novelCustomLists=[];
+  if(!output.animeLibrary)     output.animeLibrary=[];
+  if(!output.mangaLibrary)     output.mangaLibrary=[];
+  if(!output.novelLibrary)     output.novelLibrary=[];
+
+  let animeList=output.animeCustomLists.find(l=>l.name===listName);
+  if(!animeList){ animeList={name:listName,mediaTypeIndex:1,mediaIds:[]}; output.animeCustomLists.push(animeList); }
+  if(!animeList.mediaIds) animeList.mediaIds=[];
+
+  let mangaList=output.mangaCustomLists.find(l=>l.name===listName);
+  if(!mangaList){ mangaList={name:listName,mediaTypeIndex:0,mediaIds:[]}; output.mangaCustomLists.push(mangaList); }
+  if(!mangaList.mediaIds) mangaList.mediaIds=[];
+
+  let addedAnime=0,addedManga=0;
+  for(const {media,entry} of anilistResults){
+    const e=buildEntry(media,entry,listName,overrideStatus);
+    const isAnime=e.mediaType==='anime';
+    const lib=isAnime?output.animeLibrary:output.mangaLibrary;
+    const list=isAnime?animeList:mangaList;
+    const exists=lib.find(x=>x.mediaId===e.mediaId);
+    if(!exists){
+      lib.push(e);
+      if(!list.mediaIds.includes(e.mediaId)) list.mediaIds.push(e.mediaId);
+      isAnime?addedAnime++:addedManga++;
+    }
+  }
+
+  output.animeCount=output.animeLibrary.length;
+  output.mangaCount=output.mangaLibrary.length;
+
+  if(templateData) log('Built using provided template as base.');
+  else log('Built fresh output (no template provided).');
+
+  const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='anymex_converted_'+Date.now()+'.anymex';
+  a.click();
+  URL.revokeObjectURL(url);
+  setStatus('Built and downloaded! Added '+addedAnime+' anime + '+addedManga+' manga entries.','success');
+  log('Download triggered: '+addedAnime+' anime, '+addedManga+' manga added.');
+}
+
+function dlMatches(){
+  const blob=new Blob([JSON.stringify(anilistResults,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='anymex_matches.json'; a.click(); URL.revokeObjectURL(url);
+}
+function dlSkipped(){
+  const blob=new Blob([skippedTitles.join('\n')],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='anymex_skipped.txt'; a.click(); URL.revokeObjectURL(url);
+}
+
+function saveSession(){
+  try{
+    const data={sourceEntries,anilistResults,skippedTitles,ts:Date.now()};
+    localStorage.setItem(LS_KEY,JSON.stringify(data));
+    sessionSaved=true;
+  }catch(e){}
+}
+function checkResume(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw) return;
+    const data=JSON.parse(raw);
+    if(!data.anilistResults?.length) return;
+    const age=Math.round((Date.now()-data.ts)/60000);
+    document.getElementById('resumeText').textContent='Unfinished session found ('+age+' min ago, '+data.anilistResults.length+' matched) — resume?';
+    document.getElementById('resumeBanner').classList.add('show');
+  }catch(e){}
+}
+function handleResume(){
+  try{
+    const data=JSON.parse(localStorage.getItem(LS_KEY));
+    sourceEntries=data.sourceEntries||[];
+    anilistResults=data.anilistResults||[];
+    skippedTitles=data.skippedTitles||[];
+    document.getElementById('resumeBanner').classList.remove('show');
+    setPill('pillSource','Source: '+sourceEntries.length+' titles','ok');
+    setPill('pillAnilist','AniList: '+anilistResults.length+' matched (resumed)','ok');
+    updatePillTemplate();
+    document.getElementById('buildBtn').disabled=false;
+    document.getElementById('dlMatchesBtn').disabled=false;
+    if(skippedTitles.length) document.getElementById('dlSkippedBtn').disabled=false;
+    document.getElementById('sTitles').textContent=sourceEntries.length;
+    document.getElementById('sMatched').textContent=anilistResults.length;
+    document.getElementById('sSkipped').textContent=skippedTitles.length;
+    log('Session resumed: '+anilistResults.length+' matched titles restored.');
+  }catch(e){ log('Resume failed: '+e.message); }
+}
+function clearSave(){
+  localStorage.removeItem(LS_KEY);
+  document.getElementById('resumeBanner').classList.remove('show');
+}
+
+function showMission(total,matched,skipped){
+  document.getElementById('mTotal').textContent=total;
+  document.getElementById('mMatched').textContent=matched;
+  document.getElementById('mSkipped').textContent=skipped;
+  const overlay=document.getElementById('missionOverlay');
+  overlay.classList.add('show');
+  startParticles();
+}
+function closeMission(){
+  document.getElementById('missionOverlay').classList.remove('show');
+  stopParticles();
+}
+
+let particleRAF=null;
+function startParticles(){
+  const canvas=document.getElementById('particleCanvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const particles=Array.from({length:80},()=>({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    vx:(Math.random()-0.5)*1.2,
+    vy:(Math.random()-0.5)*1.2,
+    r:Math.random()*2.5+0.5,
+    alpha:Math.random()*0.6+0.2,
+    color:Math.random()<0.5?'79,152,163':'209,99,167'
+  }));
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(const p of particles){
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.color+','+p.alpha+')';
+      ctx.fill();
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0) p.x=canvas.width;
+      if(p.x>canvas.width) p.x=0;
+      if(p.y<0) p.y=canvas.height;
+      if(p.y>canvas.height) p.y=0;
+    }
+    particleRAF=requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopParticles(){
+  if(particleRAF) cancelAnimationFrame(particleRAF);
+}
+</script>
+</body>
+</html>
