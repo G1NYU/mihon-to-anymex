@@ -101,7 +101,6 @@
   .or-divider { display: flex; align-items: center; gap: 0.75rem; margin: 0.25rem 0 1.25rem; }
   .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
   .or-divider span { font-size:0.75rem; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.1em; }
-  /* Required files callout */
   .required-callout {
     display: flex;
     align-items: flex-start;
@@ -302,8 +301,6 @@
 
   <div class="card">
     <div class="card-title">Step 1 &mdash; Upload files</div>
-
-    <!-- Required files callout -->
     <div class="required-callout">
       <div class="required-callout-icon">&#128203;</div>
       <div class="required-callout-body">
@@ -316,7 +313,6 @@
         </div>
       </div>
     </div>
-
     <div class="mode-badge none" id="modeBadge">&#9675; No source loaded</div>
     <label for="backupJsonFile">&#128190; Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
     <input type="file" id="backupJsonFile" accept=".json,application/json">
@@ -330,12 +326,10 @@
     <label for="csvFile">CSV export (Mihon &rarr; Library &rarr; Export)</label>
     <input type="file" id="csvFile" accept=".csv,text/csv">
     <p class="hint">No header row expected. First column must be the manga title.</p>
-
     <div style="border-top:1px solid var(--color-border);margin:0.25rem 0 1.5rem;"></div>
     <label for="templateFile">&#128230; AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">&#9733; also required</span></label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
     <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Even a 1-manga backup works as a template. <strong>Without this file the Build step will not work.</strong></p>
-
     <div class="row3">
       <div>
         <label for="listName">Custom list name</label>
@@ -491,7 +485,9 @@ async function parseSQLiteWithSqlJs(bytes){
       for(const row of rows){
         const t=String(row[0]||'').trim();
         if(!t||seen.has(t.toLowerCase()))continue;
-        if(aI){const idx=aS?2:1;const v=row[idx];if(v===1||v===true||v==='1')continue;}
+        // Read isAnime flag to set itemType: 1=anime, 0=manga
+        let itemType=0;
+        if(aI){const idx=aS?2:1;const v=row[idx];if(v===1||v===true||v==='1')itemType=1;}
         seen.add(t.toLowerCase());titles.push(t);
         const sv=aS?row[1]:null;
         let status='PLANNING';
@@ -499,7 +495,7 @@ async function parseSQLiteWithSqlJs(bytes){
         else if(sv===2||sv==='COMPLETED')status='COMPLETED';
         else if(sv===3||sv==='PAUSED')status='PAUSED';
         else if(sv===4||sv==='DROPPED')status='DROPPED';
-        meta[t]={status,chaptersRead:0,itemType:0};
+        meta[t]={status,chaptersRead:0,itemType};
       }
       db.close();
       return{titles,meta};
@@ -554,9 +550,11 @@ async function parseMangayomiBackup(file){
     }
     const catMap={};
     for(const c of(json.categories||[]))if(c.id!=null)catMap[c.id]=c.name;
-    const seen=new Set(),titles=[],meta={};let skippedAnime=0;
+    const seen=new Set(),titles=[],meta={};let animeCount=0,mangaCount=0;
     for(const m of mangaArr){
-      if(m.isManga===false||m.isManga===0||m.isManga==='0'||m.isManga==='false'){skippedAnime++;continue;}
+      // isManga===false means it is an anime entry — include it with itemType:1
+      const isAnimeEntry=(m.isManga===false||m.isManga===0||m.isManga==='0'||m.isManga==='false');
+      const itemType=isAnimeEntry?1:0;
       const t=(m.name||m.title||'').trim();
       if(!t||seen.has(t.toLowerCase()))continue;
       seen.add(t.toLowerCase());titles.push(t);
@@ -564,9 +562,10 @@ async function parseMangayomiBackup(file){
       let status='PLANNING';
       if(cr>0&&ct>0&&cr>=ct)status='COMPLETED';
       else if(cr>0)status='CURRENT';
-      meta[t]={status,chaptersRead:cr,itemType:0};
+      meta[t]={status,chaptersRead:cr,itemType};
+      if(isAnimeEntry)animeCount++;else mangaCount++;
     }
-    log(`${titles.length} manga, ${skippedAnime} anime skipped`);
+    log(`${mangaCount} manga + ${animeCount} anime parsed`);
     const catNamesSet=new Set();
     for(const m of mangaArr)for(const cid of(m.categories||[]))if(catMap[cid])catNamesSet.add(catMap[cid]);
     return{titles,meta,catNames:[...catNamesSet]};
@@ -585,12 +584,44 @@ function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d
 function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
 function buildEntry(title,a,fallbackStatus){
   const isAnime=(state.titleMeta[title]?.itemType===1);
+  const mediaType=isAnime?'ANIME':'MANGA';
   const perTitle=state.titleMeta[title]?.status,drop=fallbackStatus;
   const status=(drop==='AUTO')?(perTitle||'CURRENT'):(VALID_STATUSES.has(drop)?drop:(perTitle||'CURRENT'));
   const chapRead=state.titleMeta[title]?.chaptersRead||0;
-  const readChapters=chapRead>0?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[];
+  const readChapters=(!isAnime&&chapRead>0)?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[];
+  const watchedEpisodes=(isAnime&&chapRead>0)?Array.from({length:chapRead},(_,i)=>({number:i+1})):[];
   const displayName=a.title?.english||title||a.title?.romaji;
-  return{id:String(a.id),jname:a.title?.native||title,name:displayName,english:displayName,japanese:a.title?.native||title,description:cleanDesc(a.description),poster:a.coverImage?.large||null,cover:null,totalEpisodes:'?',type:'MANGA',season:'?',premiered:'?',duration:'?',status,rating:String(Math.round((a.averageScore||0)/10*10)/10),popularity:String(a.popularity||'?'),format:'MANGA',aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,totalChapters:String(a.chapters||'?'),genres:a.genres||[],studios:null,chapters:null,episodes:null,currentEpisode:null,currentChapter:structuredClone(EMPTY_CHAPTER),watchedEpisodes:[],readChapters,serviceIndex:0,mediaTypeIndex:isAnime?0:1};
+  return{
+    id:String(a.id),
+    jname:a.title?.native||title,
+    name:displayName,
+    english:displayName,
+    japanese:a.title?.native||title,
+    description:cleanDesc(a.description),
+    poster:a.coverImage?.large||null,
+    cover:null,
+    totalEpisodes:isAnime?String(a.episodes||'?'):'?',
+    type:mediaType,
+    season:'?',
+    premiered:'?',
+    duration:'?',
+    status,
+    rating:String(Math.round((a.averageScore||0)/10*10)/10),
+    popularity:String(a.popularity||'?'),
+    format:mediaType,
+    aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,
+    totalChapters:isAnime?'?':String(a.chapters||'?'),
+    genres:a.genres||[],
+    studios:null,
+    chapters:null,
+    episodes:null,
+    currentEpisode:null,
+    currentChapter:structuredClone(EMPTY_CHAPTER),
+    watchedEpisodes,
+    readChapters,
+    serviceIndex:0,
+    mediaTypeIndex:isAnime?0:1
+  };
 }
 
 async function handleParse(){
