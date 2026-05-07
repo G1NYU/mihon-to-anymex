@@ -594,7 +594,6 @@ async function parseMangayomiBackup(file) {
     log(`Total entries in manga array: ${mangaArr.length}`);
 
     if (mangaArr.length === 0) {
-      // Try to find any array in the JSON that might hold manga
       for (const k of topKeys) {
         if (Array.isArray(json[k]) && json[k].length > 0) {
           log(`Found non-empty array at key "${k}" with ${json[k].length} items — sample: ${JSON.stringify(json[k][0]).slice(0,120)}`);
@@ -607,7 +606,6 @@ async function parseMangayomiBackup(file) {
     log(`First entry keys: ${Object.keys(s0).join(', ')}`);
     log(`First entry sample — name:"${s0.name||s0.title||'?'}" itemType:${s0.itemType} isManga:${s0.isManga}`);
 
-    // Tally all type values to understand the schema
     const typeDist = {};
     for (const m of mangaArr) {
       let key;
@@ -618,7 +616,6 @@ async function parseMangayomiBackup(file) {
     }
     log(`Type distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}×${v}`).join(', ')}`);
 
-    // Build chapter read/total counts
     const readCountMap = {}, totalCountMap = {};
     const chapArr = json.chapters || json.chapter || [];
     for (const ch of chapArr) {
@@ -635,20 +632,11 @@ async function parseMangayomiBackup(file) {
     let skippedAnime = 0, skippedNovel = 0;
 
     for (const m of mangaArr) {
-      // ── Type filtering ──────────────────────────────────────────────────
-      // itemType: 0=manga(keep), 1=anime(skip), 2=novel(skip)
-      // isManga: true/1=keep, false/0=skip
-      // No type field → keep (treat as manga)
-      if (m.itemType != null) {
-        // itemType=1 is anime — keep it (was incorrectly skipped before)
-        if (m.itemType === 2 || m.itemType === '2') { skippedNovel++; continue; }
-        // itemType 0 or unknown numeric → keep
-      } else if (m.isManga != null) {
-        if (m.isManga === false || m.isManga === 0 || m.isManga === '0' || m.isManga === 'false') {
-          skippedAnime++; continue;
-        }
+      // For Mangayomi, itemType semantics vary by version — do NOT filter on it.
+      // Only skip if isManga is explicitly false.
+      if (m.isManga === false || m.isManga === 0 || m.isManga === '0' || m.isManga === 'false') {
+        skippedAnime++; continue;
       }
-      // ── End type filter ─────────────────────────────────────────────────
 
       const t = (m.name || m.title || '').trim();
       if (!t || seen.has(t.toLowerCase())) continue;
@@ -660,13 +648,12 @@ async function parseMangayomiBackup(file) {
       let status = 'PLANNING';
       if (chapRead > 0 && chapTotal > 0 && chapRead >= chapTotal) status = 'COMPLETED';
       else if (chapRead > 0) status = 'CURRENT';
-      meta[t] = { status, chaptersRead: chapRead, itemType: m.itemType ?? 0 };
+      meta[t] = { status, chaptersRead: chapRead, itemType: 0 };
     }
 
     log(`Mangayomi parse — ${titles.length} manga kept, ${skippedAnime} anime skipped, ${skippedNovel} novels skipped`);
 
     if (titles.length === 0) {
-      // Extra diagnostics: show first 3 raw entries so user can report exact schema
       log(`⚠ 0 titles kept. Raw sample of first 3 entries:`);
       for (let i = 0; i < Math.min(3, mangaArr.length); i++) {
         log(`  [${i}] ${JSON.stringify(mangaArr[i]).slice(0, 200)}`);
