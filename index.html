@@ -593,14 +593,12 @@ async function parseMangayomiBackup(file) {
 
     if (!json.manga) throw new Error(`No "manga" key in backup. Keys found: ${topKeys.join(', ')}`);
 
-    // Log first entry's keys and raw values for diagnosis
     if ((json.manga||[]).length > 0) {
       const s = json.manga[0];
       log(`First entry keys: ${Object.keys(s).join(', ')}`);
       log(`First entry — name: "${s.name||s.title||'?'}", itemType: ${s.itemType}, isManga: ${s.isManga}, id: ${s.id}`);
     }
 
-    // Count every value of itemType and isManga across all entries
     const typeDist = {};
     for (const m of json.manga) {
       let key;
@@ -609,7 +607,7 @@ async function parseMangayomiBackup(file) {
       else                        key = 'noTypeField';
       typeDist[key] = (typeDist[key] || 0) + 1;
     }
-    log(`Type distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}×${v}`).join(', ')}`);
+    log(`Type distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}x${v}`).join(', ')}`);
 
     const readCountMap = {}, totalCountMap = {};
     for (const ch of json.chapters || []) {
@@ -629,18 +627,17 @@ async function parseMangayomiBackup(file) {
       const hasItemType = m.itemType != null;
       const hasIsManga  = m.isManga  != null;
 
-      // Only skip if a type field EXISTS and explicitly marks it as non-manga:
-      // itemType: 0=manga, 1=anime, 2=novel (Mangayomi convention)
-      // isManga:  true/1=manga, false/0=anime
+      // itemType: 0=manga (KEEP), 1=anime (skip), 2=novel (skip)
+      // isManga: true/1=manga (KEEP), false/0=anime (skip)
       if (hasItemType) {
         if (m.itemType === 1) { skippedAnime++; continue; }
         if (m.itemType === 2) { skippedNovel++; continue; }
-        // itemType === 0 → manga, fall through
+        // itemType === 0 → manga, fall through and keep
       } else if (hasIsManga) {
         if (m.isManga === false || m.isManga === 0) { skippedAnime++; continue; }
-        // isManga === true/1 → manga, fall through
+        // isManga === true/1 → manga, fall through and keep
       }
-      // No type field at all → treat as manga (do NOT skip)
+      // No type field at all → treat as manga
 
       const t = (m.name || m.title || '').trim();
       if (!t || seen.has(t.toLowerCase())) continue;
