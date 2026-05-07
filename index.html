@@ -671,7 +671,22 @@ function handleBuild(){
   const mangaLib=state.titles.filter(t=>state.results[t]&&(state.titleMeta[t]?.itemType??0)!==1).map(t=>buildEntry(t,state.results[t],dropStatus));
   const listName=($('listName').value||'new').trim()||'new';
   const tpl=state.template;
-  const backup={date:tpl.date,appVersion:tpl.appVersion,username:tpl.username,avatar:tpl.avatar,animeCount:animeLib.length,mangaCount:mangaLib.length,novelCount:0,animeLibrary:animeLib,mangaLibrary:mangaLib,novelLibrary:[],animeCustomLists:animeLib.length?[{listName,mediaIds:animeLib.map(e=>e.id),mediaTypeIndex:1}]:(tpl.animeCustomLists||[]),mangaCustomLists:mangaLib.length?[{listName,mediaIds:mangaLib.map(e=>e.id),mediaTypeIndex:0}]:(tpl.mangaCustomLists||[]),novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]};
+  const backup={
+    date:tpl.date,
+    appVersion:tpl.appVersion,
+    username:null,
+    avatar:null,
+    animeCount:animeLib.length,
+    mangaCount:mangaLib.length,
+    novelCount:0,
+    animeLibrary:animeLib,
+    mangaLibrary:mangaLib,
+    novelLibrary:[],
+    animeCustomLists:animeLib.length?[{listName,mediaIds:animeLib.map(e=>e.id),mediaTypeIndex:1}]:(tpl.animeCustomLists||[]),
+    mangaCustomLists:mangaLib.length?[{listName,mediaIds:mangaLib.map(e=>e.id),mediaTypeIndex:0}]:(tpl.mangaCustomLists||[]),
+    novelCustomLists:tpl.novelCustomLists||[],
+    settings:tpl.settings||[]
+  };
   const fn=`mihon_to_anymex_${stamp()}.anymex`;
   download(fn,JSON.stringify(backup,null,2),'application/json');
   log(`Built ${fn} \u2014 ${animeLib.length} anime + ${mangaLib.length} manga`);
