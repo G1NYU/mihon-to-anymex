@@ -488,70 +488,89 @@ async function parseMangayomiBackup(file) {
   const zip = await JSZip.loadAsync(await file.arrayBuffer());
   const entries = Object.values(zip.files).filter(f => !f.dir);
   if(!entries.length) throw new Error('ZIP is empty or could not be read.');
-  // Find the .backup.db entry (first file, as per Mangayomi source)
+
   const dbEntry = entries.find(f => f.name.endsWith('.backup.db')) || entries[0];
   log(`Mangayomi backup is zipped — extracting ${dbEntry.name}…`);
   const bytes = await dbEntry.async('uint8array');
-  log(`Extracted ${bytes.byteLength} bytes from ${dbEntry.name}`);
+  log(`Extracted ${bytes.byteLength} bytes from inner file`);
+
   let json;
   try {
     json = JSON.parse(new TextDecoder('utf-8').decode(bytes));
   } catch(e) {
-    throw new Error('Could not parse backup JSON: ' + e.message + '. The .backup.db may be corrupt or an unsupported format.');
+    throw new Error('Could not parse backup as JSON: ' + e.message + '. The file may be a SQLite database or corrupt.');
   }
-  if(!json.manga) throw new Error(`No "manga" key found in backup (version: ${json.version||'unknown'}). Make sure this is a Mangayomi backup, not a Mihon/Tachiyomi backup.`);
 
-  log(`Mangayomi backup version: ${json.version||'?'}, manga entries: ${(json.manga||[]).length}, chapters: ${(json.chapters||[]).length}`);
+  if(!json.manga) throw new Error(`No "manga" key in backup (version: ${json.version||'unknown'}). Keys found: ${Object.keys(json).join(', ')}`);
 
-  // Build per-manga read chapter count (chapters are SEPARATE from manga in Mangayomi)
+  const totalEntries = (json.manga||[]).length;
+  const totalChapters = (json.chapters||[]).length;
+  log(`Mangayomi backup — version: ${json.version||'?'}, manga entries: ${totalEntries}, chapters: ${totalChapters}`);
+
+  // Debug: log a sample entry's keys to understand the schema
+  if(totalEntries > 0) {
+    const sample = json.manga[0];
+    log(`Sample manga keys: ${Object.keys(sample).join(', ')}`);
+    log(`Sample manga[0]: favorite=${sample.favorite}, itemType=${sample.itemType}, isManga=${sample.isManga}, name="${sample.name}"`);
+  }
+
+  // Build per-manga chapter counts from the separate chapters array
   const readCountMap = {};
   const totalCountMap = {};
   for(const ch of json.chapters || []) {
     const mid = ch.mangaId;
     if(mid == null) continue;
     totalCountMap[mid] = (totalCountMap[mid] || 0) + 1;
-    if(ch.isRead === true) readCountMap[mid] = (readCountMap[mid] || 0) + 1;
+    if(ch.isRead === true || ch.isRead === 1) readCountMap[mid] = (readCountMap[mid] || 0) + 1;
   }
 
-  // Build category id -> name map
+  // Category id -> name
   const catMap = {};
   for(const c of json.categories || []) {
-    // forItemType: 0 = manga; also support legacy forManga bool
-    if(c.id != null && (c.forItemType === 0 || c.forManga === true || c.forItemType == null)) {
-      catMap[c.id] = c.name;
-    }
+    if(c.id != null) catMap[c.id] = c.name;
   }
 
   const seen = new Set(), titles = [], meta = {};
+  let skippedNotFav = 0, skippedNotManga = 0;
+
   for(const m of json.manga) {
-    // itemType: 0=manga, 1=anime, 2=novel; also support legacy isManga bool
-    const isManga = m.itemType === 0 || m.isManga === true || (m.itemType == null && m.isManga == null);
-    if(!isManga) continue;
-    if(m.favorite !== true) continue;
+    // favorite: accept true, 1, or missing/null (include all if field absent)
+    const isFav = m.favorite === true || m.favorite === 1 || m.favorite == null;
+    if(!isFav) { skippedNotFav++; continue; }
+
+    // itemType: 0=manga, 1=anime, 2=novel. Also support legacy isManga bool.
+    // If neither field exists, assume manga.
+    const hasItemType = m.itemType != null;
+    const hasIsManga  = m.isManga != null;
+    let isManga = true;
+    if(hasItemType)      isManga = (m.itemType === 0);
+    else if(hasIsManga)  isManga = (m.isManga === true || m.isManga === 1);
+    if(!isManga) { skippedNotManga++; continue; }
+
     const t = (m.name || '').trim();
     if(!t || seen.has(t.toLowerCase())) continue;
     seen.add(t.toLowerCase());
     titles.push(t);
-    const chapRead = readCountMap[m.id] || 0;
+
+    const chapRead  = readCountMap[m.id] || 0;
     const chapTotal = totalCountMap[m.id] || 0;
-    // Infer reading status from chapter progress
     let status = 'PLANNING';
     if(chapRead > 0 && chapTotal > 0 && chapRead >= chapTotal) status = 'COMPLETED';
     else if(chapRead > 0) status = 'CURRENT';
     meta[t] = { status, chaptersRead: chapRead };
   }
 
-  // Gather category names used by manga in the library
+  log(`Mangayomi parse — ${titles.length} manga titles kept, ${skippedNotFav} skipped (not favourite), ${skippedNotManga} skipped (not manga type)`);
+
+  // Gather category names
   const catNamesSet = new Set();
   for(const m of json.manga) {
-    if(m.favorite !== true) continue;
     for(const cid of m.categories || []) {
       if(catMap[cid]) catNamesSet.add(catMap[cid]);
     }
   }
-  const catNames = [...catNamesSet];
 
-  return { titles, meta, catNames };
+  return { titles, meta, catNames: [...catNamesSet] };
 }
 
 function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
