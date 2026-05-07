@@ -589,55 +589,65 @@ async function parseMangayomiBackup(file) {
   if (json) {
     const topKeys = Object.keys(json);
     log(`Backup JSON top-level keys: ${topKeys.join(', ')}`);
-    log(`Backup version: ${json.version || 'unknown'}, total manga entries: ${(json.manga||[]).length}`);
+    const mangaArr = json.manga || json.mangas || json.backupManga || [];
+    log(`Total entries in manga array: ${mangaArr.length}`);
 
-    if (!json.manga) throw new Error(`No "manga" key in backup. Keys found: ${topKeys.join(', ')}`);
-
-    if ((json.manga||[]).length > 0) {
-      const s = json.manga[0];
-      log(`First entry keys: ${Object.keys(s).join(', ')}`);
-      log(`First entry — name: "${s.name||s.title||'?'}", itemType: ${s.itemType}, isManga: ${s.isManga}, id: ${s.id}`);
+    if (mangaArr.length === 0) {
+      // Try to find any array in the JSON that might hold manga
+      for (const k of topKeys) {
+        if (Array.isArray(json[k]) && json[k].length > 0) {
+          log(`Found non-empty array at key "${k}" with ${json[k].length} items — sample: ${JSON.stringify(json[k][0]).slice(0,120)}`);
+        }
+      }
+      throw new Error(`No manga entries found. Top-level keys: ${topKeys.join(', ')}`);
     }
 
+    const s0 = mangaArr[0];
+    log(`First entry keys: ${Object.keys(s0).join(', ')}`);
+    log(`First entry sample — name:"${s0.name||s0.title||'?'}" itemType:${s0.itemType} isManga:${s0.isManga}`);
+
+    // Tally all type values to understand the schema
     const typeDist = {};
-    for (const m of json.manga) {
+    for (const m of mangaArr) {
       let key;
-      if (m.itemType != null)     key = `itemType=${m.itemType}`;
-      else if (m.isManga != null) key = `isManga=${m.isManga}`;
-      else                        key = 'noTypeField';
+      if      (m.itemType != null) key = `itemType=${m.itemType}`;
+      else if (m.isManga  != null) key = `isManga=${m.isManga}`;
+      else                         key = 'noTypeField';
       typeDist[key] = (typeDist[key] || 0) + 1;
     }
-    log(`Type distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}x${v}`).join(', ')}`);
+    log(`Type distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}×${v}`).join(', ')}`);
 
+    // Build chapter read/total counts
     const readCountMap = {}, totalCountMap = {};
-    for (const ch of json.chapters || []) {
-      const mid = ch.mangaId;
+    const chapArr = json.chapters || json.chapter || [];
+    for (const ch of chapArr) {
+      const mid = ch.mangaId ?? ch.manga_id;
       if (mid == null) continue;
       totalCountMap[mid] = (totalCountMap[mid] || 0) + 1;
       if (ch.isRead === true || ch.isRead === 1) readCountMap[mid] = (readCountMap[mid] || 0) + 1;
     }
 
     const catMap = {};
-    for (const c of json.categories || []) { if (c.id != null) catMap[c.id] = c.name; }
+    for (const c of (json.categories || [])) { if (c.id != null) catMap[c.id] = c.name; }
 
     const seen = new Set(), titles = [], meta = {};
     let skippedAnime = 0, skippedNovel = 0;
 
-    for (const m of json.manga) {
-      const hasItemType = m.itemType != null;
-      const hasIsManga  = m.isManga  != null;
-
-      // itemType: 0=manga (KEEP), 1=anime (skip), 2=novel (skip)
-      // isManga: true/1=manga (KEEP), false/0=anime (skip)
-      if (hasItemType) {
-        if (m.itemType === 1) { skippedAnime++; continue; }
-        if (m.itemType === 2) { skippedNovel++; continue; }
-        // itemType === 0 → manga, fall through and keep
-      } else if (hasIsManga) {
-        if (m.isManga === false || m.isManga === 0) { skippedAnime++; continue; }
-        // isManga === true/1 → manga, fall through and keep
+    for (const m of mangaArr) {
+      // ── Type filtering ──────────────────────────────────────────────────
+      // itemType: 0=manga(keep), 1=anime(skip), 2=novel(skip)
+      // isManga: true/1=keep, false/0=skip
+      // No type field → keep (treat as manga)
+      if (m.itemType != null) {
+        if (m.itemType === 1 || m.itemType === '1') { skippedAnime++; continue; }
+        if (m.itemType === 2 || m.itemType === '2') { skippedNovel++; continue; }
+        // itemType 0 or unknown numeric → keep
+      } else if (m.isManga != null) {
+        if (m.isManga === false || m.isManga === 0 || m.isManga === '0' || m.isManga === 'false') {
+          skippedAnime++; continue;
+        }
       }
-      // No type field at all → treat as manga
+      // ── End type filter ─────────────────────────────────────────────────
 
       const t = (m.name || m.title || '').trim();
       if (!t || seen.has(t.toLowerCase())) continue;
@@ -654,9 +664,17 @@ async function parseMangayomiBackup(file) {
 
     log(`Mangayomi parse — ${titles.length} manga kept, ${skippedAnime} anime skipped, ${skippedNovel} novels skipped`);
 
+    if (titles.length === 0) {
+      // Extra diagnostics: show first 3 raw entries so user can report exact schema
+      log(`⚠ 0 titles kept. Raw sample of first 3 entries:`);
+      for (let i = 0; i < Math.min(3, mangaArr.length); i++) {
+        log(`  [${i}] ${JSON.stringify(mangaArr[i]).slice(0, 200)}`);
+      }
+    }
+
     const catNamesSet = new Set();
-    for (const m of json.manga) {
-      for (const cid of m.categories || []) { if (catMap[cid]) catNamesSet.add(catMap[cid]); }
+    for (const m of mangaArr) {
+      for (const cid of (m.categories || [])) { if (catMap[cid]) catNamesSet.add(catMap[cid]); }
     }
     return { titles, meta, catNames: [...catNamesSet] };
   }
