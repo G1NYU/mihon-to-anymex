@@ -28,8 +28,33 @@
     --font-body: 'DM Sans', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-body); background: var(--color-bg); color: var(--color-text); min-height: 100dvh; display: flex; flex-direction: column; align-items: center; padding: 2.5rem 1rem 4rem; }
-  .container { width: 100%; max-width: 860px; }
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-bg);
+    background-image: url('https://i.ibb.co/hxh7zGJt/soft-white-foam.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-blend-mode: overlay;
+    color: var(--color-text);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.5rem 1rem 4rem;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('https://i.ibb.co/hxh7zGJt/soft-white-foam.jpg');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.045;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .container { width: 100%; max-width: 860px; position: relative; z-index: 1; }
   .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
   .logo svg { color: var(--color-primary); flex-shrink: 0; }
   .logo-text { font-size: 1.1rem; font-weight: 600; }
@@ -76,6 +101,31 @@
   .or-divider { display: flex; align-items: center; gap: 0.75rem; margin: 0.25rem 0 1.25rem; }
   .or-divider::before,.or-divider::after { content:''; flex:1; height:1px; background:var(--color-border); }
   .or-divider span { font-size:0.75rem; font-weight:600; color:var(--color-text-muted); text-transform:uppercase; letter-spacing:0.1em; }
+  /* Required files callout */
+  .required-callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    background: linear-gradient(135deg, rgba(79,152,163,0.1), rgba(79,152,163,0.05));
+    border: 1px solid rgba(79,152,163,0.35);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 1.25rem;
+  }
+  .required-callout-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; margin-top: 0.1rem; }
+  .required-callout-body { flex: 1; }
+  .required-callout-title { font-size: 0.85rem; font-weight: 700; color: var(--color-text); margin-bottom: 0.3rem; }
+  .required-callout-desc { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.5; }
+  .required-callout-files { display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap; }
+  .req-file-tag {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    background: rgba(79,152,163,0.15); border: 1px solid rgba(79,152,163,0.3);
+    border-radius: var(--radius-full); padding: 0.2rem 0.65rem;
+    font-size: 0.75rem; font-weight: 600; color: #7ecfd8;
+  }
+  .req-file-tag.template { background: rgba(157,232,106,0.12); border-color: rgba(157,232,106,0.3); color: #b8f07a; }
+  .req-file-tag .tag-num { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: rgba(79,152,163,0.4); font-size: 0.65rem; font-weight: 800; }
+  .req-file-tag.template .tag-num { background: rgba(157,232,106,0.4); }
   .mode-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid; margin-bottom: 1.25rem; transition: all 0.2s; }
   .mode-badge.csv        { background:rgba(79,152,163,0.12);  color:#7ecfd8; border-color:rgba(79,152,163,0.3); }
   .mode-badge.backup     { background:rgba(157,232,106,0.12); color:#b8f07a; border-color:rgba(157,232,106,0.3); }
@@ -221,7 +271,7 @@
         <div class="guide-steps">
           <div class="guide-step"><div class="step-num">1</div><h4>Export from Mihon</h4><p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file.</p></div>
           <div class="guide-step"><div class="step-num">2</div><h4>Convert to JSON</h4><p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, click <strong>Download → JSON</strong>.</p></div>
-          <div class="guide-step"><div class="step-num">3</div><h4>Upload &amp; convert</h4><p>Upload the JSON below + your AnymeX template. Click <strong>Parse → Fetch → Build</strong>.</p></div>
+          <div class="guide-step"><div class="step-num">3</div><h4>Upload both files below</h4><p>Upload the JSON <strong>+</strong> an AnymeX template. Click <strong>Parse → Fetch → Build</strong>.</p></div>
         </div>
         <div class="guide-cta">
           <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
@@ -234,8 +284,8 @@
       <div class="guide-panel" id="guide-mangayomi">
         <div class="guide-steps">
           <div class="guide-step"><div class="step-num orange">1</div><h4>Export from Mangayomi</h4><p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file.</p></div>
-          <div class="guide-step"><div class="step-num orange">2</div><h4>Upload the .backup file</h4><p>Use the <strong>Mangayomi backup</strong> input below — no conversion needed.</p></div>
-          <div class="guide-step"><div class="step-num orange">3</div><h4>Parse → Fetch → Build</h4><p>Add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
+          <div class="guide-step"><div class="step-num orange">2</div><h4>Upload both files below</h4><p>Upload your <code>.backup</code> <strong>+</strong> an AnymeX template — no conversion needed.</p></div>
+          <div class="guide-step"><div class="step-num orange">3</div><h4>Parse → Fetch → Build</h4><p>Click through the steps. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
         </div>
         <div class="guide-cta"><button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button></div>
       </div>
@@ -252,6 +302,21 @@
 
   <div class="card">
     <div class="card-title">Step 1 — Upload files</div>
+
+    <!-- Required files callout -->
+    <div class="required-callout">
+      <div class="required-callout-icon">📋</div>
+      <div class="required-callout-body">
+        <div class="required-callout-title">You need to upload 2 files to convert</div>
+        <div class="required-callout-desc">Both files are required — one is your <strong>source library</strong> (from Mihon, Mangayomi, or CSV), the other is an <strong>AnymeX backup template</strong> to use as the output format.</div>
+        <div class="required-callout-files">
+          <span class="req-file-tag"><span class="tag-num">1</span> Your source backup or CSV</span>
+          <span style="color:var(--color-text-muted);font-size:0.8rem;align-self:center">+</span>
+          <span class="req-file-tag template"><span class="tag-num">2</span> AnymeX template (.anymex)</span>
+        </div>
+      </div>
+    </div>
+
     <div class="mode-badge none" id="modeBadge">○ No source loaded</div>
     <label for="backupJsonFile">💾 Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
     <input type="file" id="backupJsonFile" accept=".json,application/json">
@@ -265,9 +330,12 @@
     <label for="csvFile">CSV export (Mihon → Library → Export)</label>
     <input type="file" id="csvFile" accept=".csv,text/csv">
     <p class="hint">No header row expected. First column must be the manga title.</p>
-    <label for="templateFile">AnymeX backup template (.anymex)</label>
+
+    <div style="border-top:1px solid var(--color-border);margin:0.25rem 0 1.5rem;"></div>
+    <label for="templateFile">📦 AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">★ also required</span></label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
-    <p class="hint">Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template.</p>
+    <p class="hint">Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template. <strong>Without this file, the Build step will not work.</strong></p>
+
     <div class="row3">
       <div>
         <label for="listName">Custom list name</label>
@@ -393,7 +461,6 @@ async function parseSQLiteWithSqlJs(bytes){
   let tables=[];
   try{const r=db.exec("SELECT name FROM sqlite_master WHERE type='table'");if(r.length&&r[0].values)tables=r[0].values.map(v=>v[0]);}catch(e){}
   log(`SQLite tables: ${tables.join(', ')||'(none)'}`);
-
   const candidates=[
     {table:'manga',col:'title',statusCol:'status',isAnimeCol:'isAnime'},
     {table:'manga',col:'name', statusCol:'status',isAnimeCol:'isAnime'},
@@ -401,7 +468,6 @@ async function parseSQLiteWithSqlJs(bytes){
     {table:'mangas',col:'title',statusCol:'status',isAnimeCol:null},
     {table:'library',col:'title',statusCol:null,isAnimeCol:null},
   ];
-
   for(const{table,col,statusCol,isAnimeCol}of candidates){
     if(!tables.map(t=>t.toLowerCase()).includes(table.toLowerCase()))continue;
     try{
@@ -439,7 +505,6 @@ async function parseSQLiteWithSqlJs(bytes){
       return{titles,meta};
     }catch(e){log(`Error on "${table}": ${e.message}`);}
   }
-
   log('Known schema not matched — scanning all text columns…');
   const allTitles=new Set();
   for(const tbl of tables){
@@ -450,10 +515,7 @@ async function parseSQLiteWithSqlJs(bytes){
       for(const col of textCols){
         const r=db.exec(`SELECT DISTINCT ${col} FROM ${tbl} WHERE ${col} IS NOT NULL AND length(${col})>1 AND length(${col})<300 LIMIT 2000`);
         if(!r.length)continue;
-        for(const[val]of r[0].values){
-          const s=String(val||'').trim();
-          if(s.length>=2&&/[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(s)&&!s.startsWith('http')&&!s.startsWith('{')&&!/^\d+$/.test(s)&&s.split('\n').length<=2)allTitles.add(s);
-        }
+        for(const[val]of r[0].values){const s=String(val||'').trim();if(s.length>=2&&/[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(s)&&!s.startsWith('http')&&!s.startsWith('{')&&!/^\d+$/.test(s)&&s.split('\n').length<=2)allTitles.add(s);}
       }
     }catch(e){}
   }
@@ -475,8 +537,6 @@ async function parseMangayomiBackup(file){
   log(`Extracting ${inner.name}…`);
   const bytes=await inner.async('uint8array');
   log(`Extracted ${bytes.byteLength} bytes`);
-
-  // Try JSON
   let json=null;
   try{json=JSON.parse(new TextDecoder('utf-8').decode(bytes));}catch(e){json=null;}
   if(json){
@@ -485,12 +545,10 @@ async function parseMangayomiBackup(file){
     const mangaArr=json.manga||json.mangas||json.backupManga||[];
     log(`Manga entries: ${mangaArr.length}`);
     if(mangaArr.length===0){for(const k of topKeys)if(Array.isArray(json[k])&&json[k].length>0)log(`Non-empty array at "${k}": ${json[k].length} items`);throw new Error(`No manga entries. Keys: ${topKeys.join(', ')}`);}
-    const s0=mangaArr[0];
-    log(`First entry: ${JSON.stringify(s0).slice(0,150)}`);
+    log(`First entry: ${JSON.stringify(mangaArr[0]).slice(0,150)}`);
     const readCnt={},totCnt={};
     for(const ch of(json.chapters||json.chapter||[])){
-      const mid=ch.mangaId??ch.manga_id;
-      if(mid==null)continue;
+      const mid=ch.mangaId??ch.manga_id;if(mid==null)continue;
       totCnt[mid]=(totCnt[mid]||0)+1;
       if(ch.isRead===true||ch.isRead===1)readCnt[mid]=(readCnt[mid]||0)+1;
     }
@@ -509,13 +567,10 @@ async function parseMangayomiBackup(file){
       meta[t]={status,chaptersRead:cr,itemType:0};
     }
     log(`${titles.length} manga, ${skippedAnime} anime skipped`);
-    if(titles.length===0){log('0 titles. Raw first 3:');for(let i=0;i<Math.min(3,mangaArr.length);i++)log(`[${i}] ${JSON.stringify(mangaArr[i]).slice(0,200)}`);}
     const catNamesSet=new Set();
     for(const m of mangaArr)for(const cid of(m.categories||[]))if(catMap[cid])catNamesSet.add(catMap[cid]);
     return{titles,meta,catNames:[...catNamesSet]};
   }
-
-  // SQLite fallback
   const magic=String.fromCharCode(...bytes.slice(0,6));
   if(magic!=='SQLite')throw new Error('Backup is neither JSON nor SQLite.');
   log('SQLite detected — loading sql.js…');
@@ -573,6 +628,7 @@ async function handleParse(){
     showStatus(`Ready — ${state.titles.length} titles.`,'info');
   }
   if(tplFile){try{state.template=JSON.parse(await tplFile.text());setPill('pillTemplate',`Template: ${tplFile.name}`,true);log(`Template: ${tplFile.name}`);}catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);showStatus('Template is not valid JSON.','error');}}
+  else{showStatus('⚠️ Don\'t forget to upload your AnymeX template (.anymex) below the divider — it\'s required to build the output!','info');}
   setProgress(0,state.titles.length);updateCounts();updateButtons();
 }
 
@@ -609,7 +665,7 @@ async function handleFetch(){
 function handleStop(){state.stop=true;}
 
 function handleBuild(){
-  if(!state.template){showStatus('Upload an AnymeX template first.','error');return;}
+  if(!state.template){showStatus('⚠️ Upload your AnymeX template (.anymex) first — scroll up to the template input.','error');return;}
   const dropStatus=$('readingStatus').value;
   const animeLib=state.titles.filter(t=>state.results[t]&&state.titleMeta[t]?.itemType===1).map(t=>buildEntry(t,state.results[t],dropStatus));
   const mangaLib=state.titles.filter(t=>state.results[t]&&(state.titleMeta[t]?.itemType??0)!==1).map(t=>buildEntry(t,state.results[t],dropStatus));
