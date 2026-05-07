@@ -477,10 +477,17 @@ function updateSplitBreakdown(){
 }
 
 // Detect if a Mangayomi entry is anime.
-// Mangayomi uses isManga=true for manga, isManga=false for anime.
-// Some versions use a numeric `type` field: 0=manga, 1=anime.
-// We check all known variants and log the raw field so schema mismatches are visible.
+// Mangayomi's toJson() serialises `itemType` as an integer index of the ItemType enum:
+//   ItemType { manga=0, anime=1, novel=2 }
+// NOTE: `isManga` is NOT exported by Mangayomi's toJson() — only itemType is.
+// We also support legacy/custom variants just in case.
 function detectIsAnime(m, logFirst) {
+  // PRIMARY: itemType is what Mangayomi actually exports (integer, enum index)
+  // ItemType.manga=0, ItemType.anime=1, ItemType.novel=2
+  if (typeof m.itemType === 'number') {
+    if (logFirst) log(`anime-detect: using itemType field. itemType=${m.itemType} (1=anime)`);
+    return m.itemType === 1;
+  }
   // type field (integer): 1 = anime in some Mangayomi versions
   if (typeof m.type === 'number') {
     if (logFirst) log(`anime-detect: using type field. type=${m.type}`);
@@ -604,9 +611,8 @@ async function parseMangayomiBackup(file){
     const mangaArr=json.manga||json.mangas||json.backupManga||[];
     log(`Entries found: ${mangaArr.length}`);
     if(mangaArr.length===0){for(const k of topKeys)if(Array.isArray(json[k])&&json[k].length>0)log(`Non-empty array at "${k}": ${json[k].length} items`);throw new Error(`No entries found. Keys: ${topKeys.join(', ')}`);}
-    // Log first entry raw to help debug type detection
     log(`First entry keys: ${Object.keys(mangaArr[0]).join(', ')}`);
-    log(`First entry sample: ${JSON.stringify(mangaArr[0]).slice(0,200)}`);
+    log(`First entry sample: ${JSON.stringify(mangaArr[0]).slice(0,300)}`);
     const readCnt={},totCnt={};
     for(const ch of(json.chapters||json.chapter||[])){
       const mid=ch.mangaId??ch.manga_id;if(mid==null)continue;
