@@ -503,18 +503,22 @@ async function parseMangayomiBackup(file) {
 
   if(!json.manga) throw new Error(`No "manga" key in backup (version: ${json.version||'unknown'}). Keys found: ${Object.keys(json).join(', ')}`);
 
-  const totalEntries = (json.manga||[]).length;
-  const totalChapters = (json.chapters||[]).length;
-  log(`Mangayomi backup — version: ${json.version||'?'}, manga entries: ${totalEntries}, chapters: ${totalChapters}`);
+  const totalRaw = (json.manga||[]).length;
+  log(`Mangayomi backup — version: ${json.version||'?'}, total entries: ${totalRaw}, chapters: ${(json.chapters||[]).length}`);
 
-  // Debug: log a sample entry's keys to understand the schema
-  if(totalEntries > 0) {
+  // Debug: show itemType distribution so we can diagnose zero-title issues
+  if(totalRaw > 0) {
     const sample = json.manga[0];
-    log(`Sample manga keys: ${Object.keys(sample).join(', ')}`);
-    log(`Sample manga[0]: favorite=${sample.favorite}, itemType=${sample.itemType}, isManga=${sample.isManga}, name="${sample.name}"`);
+    log(`Sample keys: ${Object.keys(sample).join(', ')}`);
+    const typeDist = {};
+    for(const m of json.manga) {
+      const k = m.itemType != null ? `itemType=${m.itemType}` : m.isManga != null ? `isManga=${m.isManga}` : 'noTypeField';
+      typeDist[k] = (typeDist[k]||0) + 1;
+    }
+    log(`itemType distribution: ${Object.entries(typeDist).map(([k,v])=>`${k}×${v}`).join(', ')}`);
   }
 
-  // Build per-manga chapter counts from the separate chapters array
+  // Build per-manga chapter read counts from the separate chapters array
   const readCountMap = {};
   const totalCountMap = {};
   for(const ch of json.chapters || []) {
@@ -531,21 +535,31 @@ async function parseMangayomiBackup(file) {
   }
 
   const seen = new Set(), titles = [], meta = {};
-  let skippedNotFav = 0, skippedNotManga = 0;
+  let skippedAnime = 0, skippedNovel = 0;
 
   for(const m of json.manga) {
-    // favorite: accept true, 1, or missing/null (include all if field absent)
-    const isFav = m.favorite === true || m.favorite === 1 || m.favorite == null;
-    if(!isFav) { skippedNotFav++; continue; }
-
-    // itemType: 0=manga, 1=anime, 2=novel. Also support legacy isManga bool.
-    // If neither field exists, assume manga.
+    // ── Content-type filter ──────────────────────────────────────────────────
+    // itemType: 0=manga, 1=anime, 2=novel  (present in newer Mangayomi builds)
+    // isManga:  true/false bool             (present in some older builds)
+    // If neither field exists → assume manga (legacy / manga-only builds)
+    //
+    // NOTE: we intentionally do NOT filter on `favorite` here.
+    // Mangayomi versions are inconsistent: some set favorite=false for all
+    // library entries, others set it only for "favourited" items. Filtering
+    // on it causes anime-only or mixed-library users to get 0 results.
+    // ────────────────────────────────────────────────────────────────────────
     const hasItemType = m.itemType != null;
-    const hasIsManga  = m.isManga != null;
-    let isManga = true;
-    if(hasItemType)      isManga = (m.itemType === 0);
-    else if(hasIsManga)  isManga = (m.isManga === true || m.isManga === 1);
-    if(!isManga) { skippedNotManga++; continue; }
+    const hasIsManga  = m.isManga  != null;
+
+    if(hasItemType) {
+      if(m.itemType === 1) { skippedAnime++;  continue; }
+      if(m.itemType === 2) { skippedNovel++;  continue; }
+      // itemType === 0 → manga, fall through
+    } else if(hasIsManga) {
+      if(m.isManga === false || m.isManga === 0) { skippedAnime++; continue; }
+      // isManga === true → manga, fall through
+    }
+    // else: no type field at all → treat as manga
 
     const t = (m.name || '').trim();
     if(!t || seen.has(t.toLowerCase())) continue;
@@ -560,7 +574,7 @@ async function parseMangayomiBackup(file) {
     meta[t] = { status, chaptersRead: chapRead };
   }
 
-  log(`Mangayomi parse — ${titles.length} manga titles kept, ${skippedNotFav} skipped (not favourite), ${skippedNotManga} skipped (not manga type)`);
+  log(`Mangayomi parse — ${titles.length} manga kept, ${skippedAnime} anime skipped, ${skippedNovel} novels skipped`);
 
   // Gather category names
   const catNamesSet = new Set();
