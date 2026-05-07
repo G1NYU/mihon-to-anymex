@@ -77,7 +77,7 @@
   .guide-tab.mangayomi-tab.active { background: rgba(224,123,57,0.18); color: #f0a070; border-color: rgba(224,123,57,0.4); }
   .guide-panel { display: none; }
   .guide-panel.active { display: block; }
-  .guide-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
+  .guide-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
   @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
   .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.9rem 1rem; position: relative; }
   .step-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--color-primary); color: #fff; font-size: 0.7rem; font-weight: 700; margin-bottom: 0.5rem; flex-shrink: 0; }
@@ -252,14 +252,14 @@
     </div>
   </div>
   <h1>Convert your manga library</h1>
-  <p class="desc">Upload your <strong style="color:var(--color-text)">backup or CSV</strong> and your <strong style="color:var(--color-text)">AnymeX template</strong>, click <strong style="color:var(--color-text)">Parse</strong>, wait for the fetch to finish, then hit <strong style="color:var(--color-text)">Build</strong> to download your converted file.</p>
+  <p class="desc">Drop your <strong style="color:var(--color-text)">backup file</strong> and your <strong style="color:var(--color-text)">AnymeX template</strong>, hit <strong style="color:var(--color-text)">Parse</strong>, wait for the fetch, then <strong style="color:var(--color-text)">Build</strong>. That&rsquo;s it.</p>
 
   <div class="guide-wrap" id="guideWrap">
     <div class="guide-header" onclick="toggleGuide()">
       <div class="guide-header-left">
         <span style="font-size:1.1rem">&#128214;</span>
         <span class="guide-title">How to migrate</span>
-        <span class="guide-subtitle">pick your source app &mdash; takes about 2 min</span>
+        <span class="guide-subtitle">backup file + AnymeX template &mdash; done in minutes</span>
       </div>
       <span class="guide-chevron">&#9662;</span>
     </div>
@@ -268,11 +268,19 @@
         <button class="guide-tab active" onclick="switchGuideTab('mihon',this)">&#128190; Mihon</button>
         <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">&#128992; Mangayomi</button>
       </div>
+
       <div class="guide-panel active" id="guide-mihon">
         <div class="guide-steps">
-          <div class="guide-step"><div class="step-num">1</div><h4>Export from Mihon</h4><p>In Mihon, go to <strong>More &rarr; Backup &amp; restore &rarr; Create backup</strong>. Save the <code>.tachibk</code> file.</p></div>
-          <div class="guide-step"><div class="step-num">2</div><h4>Convert to JSON</h4><p>Open <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a>, load your <code>.tachibk</code>, click <strong>Download &rarr; JSON</strong>.</p></div>
-          <div class="guide-step"><div class="step-num">3</div><h4>Upload both files below</h4><p>Upload the JSON <strong>+</strong> an AnymeX template. Click <strong>Parse &rarr; Fetch &rarr; Build</strong>.</p></div>
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <h4>Export your backup</h4>
+            <p>In Mihon (or your fork), go to <strong>More &rarr; Backup &amp; restore &rarr; Create backup</strong>. This gives you a <code>.mihon</code> file. Then convert it to JSON at <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> &rarr; Download &rarr; JSON.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <h4>Upload, parse &amp; build</h4>
+            <p>Drop the JSON and your AnymeX template below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
+          </div>
         </div>
         <div class="guide-cta">
           <a class="guide-btn" href="https://backup.mihon.tools" target="_blank" rel="noopener">
@@ -282,11 +290,19 @@
           <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
         </div>
       </div>
+
       <div class="guide-panel" id="guide-mangayomi">
         <div class="guide-steps">
-          <div class="guide-step"><div class="step-num orange">1</div><h4>Export from Mangayomi</h4><p>In Mangayomi, go to <strong>More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup</strong>. Save the <code>.backup</code> file.</p></div>
-          <div class="guide-step"><div class="step-num orange">2</div><h4>Upload both files below</h4><p>Upload your <code>.backup</code> <strong>+</strong> an AnymeX template. No conversion needed.</p></div>
-          <div class="guide-step"><div class="step-num orange">3</div><h4>Parse, Fetch, then Build</h4><p>Click through the three steps below. Then restore the <code>.anymex</code> file inside AnymeX under Data Management.</p></div>
+          <div class="guide-step">
+            <div class="step-num orange">1</div>
+            <h4>Export your backup</h4>
+            <p>In Mangayomi, go to <strong>More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup</strong>. Save the <code>.backup</code> file. No conversion needed &mdash; upload it directly.</p>
+          </div>
+          <div class="guide-step">
+            <div class="step-num orange">2</div>
+            <h4>Upload, parse &amp; build</h4>
+            <p>Drop the <code>.backup</code> and your AnymeX template below, hit <strong>Parse</strong>, let it fetch from AniList, then click <strong>Build</strong> to download your <code>.anymex</code> file. Restore it in AnymeX under <strong>Data Management</strong>.</p>
+          </div>
         </div>
         <div class="guide-cta"><button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button></div>
       </div>
@@ -307,9 +323,9 @@
       <div class="required-callout-icon">&#128203;</div>
       <div class="required-callout-body">
         <div class="required-callout-title">You need to upload 2 files to convert</div>
-        <div class="required-callout-desc">Both files are required &mdash; one is your <strong>source library</strong> (from Mihon, Mangayomi, or CSV), the other is an <strong>AnymeX backup template</strong> to use as the output format.</div>
+        <div class="required-callout-desc">Your <strong>backup file</strong> (from Mihon, Mangayomi, or a CSV export) + your own <strong>AnymeX backup template</strong>. Both are required.</div>
         <div class="required-callout-files">
-          <span class="req-file-tag"><span class="tag-num">1</span> Your source backup or CSV</span>
+          <span class="req-file-tag"><span class="tag-num">1</span> Your backup or CSV</span>
           <span style="color:var(--color-text-muted);font-size:0.8rem;align-self:center">+</span>
           <span class="req-file-tag template"><span class="tag-num">2</span> AnymeX template (.anymex)</span>
         </div>
@@ -318,11 +334,11 @@
     <div class="mode-badge none" id="modeBadge">&#9675; No source loaded</div>
     <label for="backupJsonFile">&#128190; Mihon backup JSON <span style="color:var(--color-success);font-size:0.75rem;margin-left:0.35rem">(recommended)</span></label>
     <input type="file" id="backupJsonFile" accept=".json,application/json">
-    <p class="hint">Exported from <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> &rarr; Download &rarr; JSON.</p>
+    <p class="hint">Export a backup from Mihon or your fork, then convert it at <a href="https://backup.mihon.tools" target="_blank" rel="noopener">backup.mihon.tools</a> &rarr; Download &rarr; JSON.</p>
     <div class="or-divider"><span>or</span></div>
     <label for="mangayomiFile">&#128992; Mangayomi backup (.backup file)</label>
     <input type="file" id="mangayomiFile" accept=".backup">
-    <p class="hint">Go to Mangayomi &rarr; More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup. Upload that <code>.backup</code> file here.</p>
+    <p class="hint">Go to Mangayomi &rarr; More &rarr; Settings &rarr; Backup &amp; restore &rarr; Create backup. Upload that <code>.backup</code> file directly here.</p>
     <div class="sqlite-notice" id="sqliteNotice">&#9888;&#65039; <strong>SQLite database detected</strong> &mdash; using sql.js (WebAssembly) to read your <code>manga</code> table directly. Reading progress defaults to PLANNING.</div>
     <div class="or-divider"><span>or</span></div>
     <label for="csvFile">CSV export (Mihon &rarr; Library &rarr; Export)</label>
@@ -331,7 +347,7 @@
     <div style="border-top:1px solid var(--color-border);margin:0.25rem 0 1.5rem;"></div>
     <label for="templateFile">&#128230; AnymeX backup template (.anymex) <span style="color:var(--color-error);font-size:0.78rem;margin-left:0.35rem">&#9733; also required</span></label>
     <input type="file" id="templateFile" accept=".anymex,.json,application/json">
-    <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Use <strong>your own</strong> backup as the template &mdash; never use someone else's file or the imported library will be wrong. <strong>Without this file the Build step will not work.</strong></p>
+    <p class="hint">Open AnymeX &rarr; Data Management &rarr; Backup Data. Use <strong>your own</strong> backup as the template &mdash; never use someone else's file. <strong>Without this the Build step will not work.</strong></p>
     <div class="row3">
       <div>
         <label for="listName">Custom list name</label>
@@ -410,357 +426,4 @@
 const ANILIST_URL='https://graphql.anilist.co';
 const LS_KEY='mihon_anymex_session';
 const LS_GUIDE='mihon_anymex_guide_dismissed';
-const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js';
-const SQLJS_WASM='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.wasm';
-const GQL_MANGA=`query($s:String){Media(search:$s,type:MANGA){id title{romaji english native} description(asHtml:false) coverImage{large} status chapters genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
-const GQL_ANIME=`query($s:String){Media(search:$s,type:ANIME){id title{romaji english native} description(asHtml:false) coverImage{large} status episodes genres averageScore popularity format startDate{year month day} endDate{year month day}}}`;
-const EMPTY_CHAPTER={link:null,title:null,releaseDate:null,scanlator:null,number:1.0,pageNumber:null,totalPages:null,lastReadTime:null,currentOffset:null,maxOffset:null,sourceName:null,localPath:null,headerKeys:null,headerValues:null};
-const MIHON_STATUS={1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'PLANNING',6:'REPEATING'};
-const STATUS_ICONS={AUTO:'\u21bb',CURRENT:'\u25cf',PLANNING:'\u25cb',COMPLETED:'\u2713',DROPPED:'\u2715',PAUSED:'\u23f8',REPEATING:'\u21bb'};
-const VALID_STATUSES=new Set(['CURRENT','PLANNING','COMPLETED','DROPPED','PAUSED','REPEATING']);
-const STATUS_LABELS={AUTO:'Auto',CURRENT:'Reading',PLANNING:'Plan to Read',COMPLETED:'Completed',DROPPED:'Dropped',PAUSED:'On Hold',REPEATING:'Re-reading'};
-const state={titles:[],titleMeta:{},results:{},skipped:[],template:null,running:false,stop:false,sourceMode:'none'};
-let fetchStartTime=null,_sqlJsLib=null;
-
-function $(id){return document.getElementById(id);}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-function stamp(){return new Date().toISOString().replace(/[:.]/g,'-');}
-function toggleGuide(){$('guideWrap').classList.toggle('open');}
-function switchGuideTab(name,btn){document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.guide-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');$('guide-'+name).classList.add('active');}
-function dismissGuide(e){e.stopPropagation();$('guideWrap').style.display='none';try{localStorage.setItem(LS_GUIDE,'1');}catch(e){}}
-function initGuide(){try{if(localStorage.getItem(LS_GUIDE)==='1'){$('guideWrap').style.display='none';return;}}catch(e){}$('guideWrap').classList.add('open');}
-function updateStatusBadge(){const v=$('readingStatus').value,b=$('statusBadge');b.className='status-preview '+(VALID_STATUSES.has(v)?v:'AUTO');b.textContent=(STATUS_ICONS[v]||'\u21bb')+' '+(v==='AUTO'?'Auto':v);}
-function setModeBadge(mode){const el=$('modeBadge');if(mode==='backup'){el.className='mode-badge backup';el.textContent='\ud83d\udcbe Mode: Mihon Backup JSON';}else if(mode==='mangayomi'){el.className='mode-badge mangayomi';el.textContent='\ud83d\udfe0 Mode: Mangayomi Backup';}else if(mode==='csv'){el.className='mode-badge csv';el.textContent='\ud83d\udcc4 Mode: CSV';}else{el.className='mode-badge none';el.textContent='\u25cb No source loaded';}}
-function setListOptions(names){const sel=$('listName');sel.innerHTML='';(names.length?names:['new']).forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;sel.appendChild(o);});}
-function log(msg){const t=new Date().toLocaleTimeString();$('log').textContent+=`[${t}] ${msg}\n`;$('log').scrollTop=$('log').scrollHeight;}
-function showStatus(msg,type){const b=$('statusBox');b.textContent=msg;b.className='status-box '+type;b.style.display='block';}
-function setPill(id,text,ok){const el=$(id);el.querySelector('.dot').style.background=ok?'#6daa45':ok===false?'#d163a7':'#888';el.className='pill'+(ok===true?' ok':ok==='warn'?' warn':'');el.querySelector('.dot').nextSibling.textContent=text;}
-function updateCounts(){$('sTitles').textContent=state.titles.length;$('sMatched').textContent=Object.keys(state.results).length;$('sSkipped').textContent=state.skipped.length;}
-function updateButtons(){const h=state.titles.length>0,r=Object.keys(state.results).length>0||state.skipped.length>0;$('fetchBtn').disabled=!h||state.running;$('stopBtn').disabled=!state.running;$('buildBtn').disabled=!(h&&state.template&&r);$('dlMatchesBtn').disabled=!r;$('dlSkippedBtn').disabled=state.skipped.length===0;}
-function download(fn,content,type){const blob=new Blob([content],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fn;a.click();URL.revokeObjectURL(a.href);}
-function setProgress(done,total,title){const pct=total?Math.round(done/total*100):0,bar=$('bar');bar.style.width=pct+'%';bar.classList.remove('done','stopped');$('progressPct').textContent=pct+'%';if(title)$('progressTitle').textContent=`Scanning: ${title}`;else if(!done)$('progressTitle').textContent='Waiting\u2026';$('progressSub').textContent=total?`${done} of ${total} titles`:'';if(fetchStartTime&&done>0&&done<total){const el=(Date.now()-fetchStartTime)/1000,rem=Math.round(el/done*(total-done));const m=Math.floor(rem/60),s=rem%60;$('progressEta').textContent=m?`~${m}m ${s}s left`:`~${s}s left`;}else $('progressEta').textContent='';}
-function setBarDone(){$('bar').style.width='100%';$('bar').classList.add('done');$('progressPct').textContent='100%';$('progressEta').textContent='';}
-function setBarStopped(){$('bar').classList.add('stopped');$('progressEta').textContent='';}
-function saveSession(){try{localStorage.setItem(LS_KEY,JSON.stringify({titles:state.titles,titleMeta:state.titleMeta,results:state.results,skipped:state.skipped,sourceMode:state.sourceMode}));}catch(e){}}
-function clearSave(){localStorage.removeItem(LS_KEY);$('resumeBanner').classList.remove('show');}
-function checkResume(){try{const raw=localStorage.getItem(LS_KEY);if(!raw)return;const sv=JSON.parse(raw);const done=Object.keys(sv.results||{}).length+(sv.skipped||[]).length,total=(sv.titles||[]).length;if(total>0&&done<total){$('resumeText').textContent=`Unfinished session \u2014 ${done}/${total} processed. Resume?`;$('resumeBanner').classList.add('show');}}catch(e){}}
-function handleResume(){try{const sv=JSON.parse(localStorage.getItem(LS_KEY));state.titles=sv.titles||[];state.titleMeta=sv.titleMeta||{};state.results=sv.results||{};state.skipped=sv.skipped||[];state.sourceMode=sv.sourceMode||'csv';setModeBadge(state.sourceMode);const done=Object.keys(state.results).length+state.skipped.length;setPill('pillSource',`Source: ${state.titles.length} titles (resumed)`,true);setPill('pillAnilist',`AniList: ${Object.keys(state.results).length} matched / ${state.skipped.length} skipped (partial)`,'warn');updateCounts();setProgress(done,state.titles.length);updateSplitBreakdown();$('resumeBanner').classList.remove('show');updateButtons();log(`Resumed \u2014 ${done}/${state.titles.length} already done.`);showStatus(`Resumed! ${state.titles.length-done} titles remaining.`,'info');}catch(e){clearSave();}}
-
-function updateSplitBreakdown(){
-  const animeCount=Object.values(state.titleMeta).filter(m=>m.itemType===1).length;
-  const mangaCount=Object.values(state.titleMeta).filter(m=>m.itemType!==1).length;
-  const total=state.titles.length;
-  $('bdAnime').textContent=animeCount;
-  $('bdManga').textContent=mangaCount;
-  $('bdTotal').textContent=total;
-  if(total>0)$('breakdownPanel').classList.add('show');
-  else $('breakdownPanel').classList.remove('show');
-}
-
-function detectIsAnime(m,logFirst){
-  if(typeof m.itemType==='number'){if(logFirst)log(`anime-detect: itemType=${m.itemType}`);return m.itemType===1;}
-  if(typeof m.type==='number'){if(logFirst)log(`anime-detect: type=${m.type}`);return m.type===1;}
-  if('isManga' in m){if(logFirst)log(`anime-detect: isManga=${JSON.stringify(m.isManga)}`);return m.isManga===false||m.isManga===0||m.isManga==='0'||m.isManga==='false';}
-  if('isAnime' in m){if(logFirst)log(`anime-detect: isAnime=${JSON.stringify(m.isAnime)}`);return m.isAnime===true||m.isAnime===1||m.isAnime==='1'||m.isAnime==='true';}
-  if(logFirst)log(`anime-detect: no known type field. Keys: ${Object.keys(m).join(', ')}`);
-  return false;
-}
-
-function parseCsvLine(line){const out=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}else if(c===','&&!inQ){out.push(cur);cur='';}else cur+=c;}out.push(cur);return out.map(v=>v.trim());}
-function parseCsv(text){const seen=new Set(),titles=[];for(const line of text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)){const t=(parseCsvLine(line)[0]||'').trim();if(!t||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());titles.push(t);}return titles;}
-function parseMihonBackupJson(json){const manga=json.backupManga||[],cats=json.backupCategories||[];const catNames=cats.map(c=>c.name).filter(Boolean);const seen=new Set(),titles=[],meta={};for(const m of manga){const t=(m.title||'').trim();if(!t||seen.has(t.toLowerCase()))continue;seen.add(t.toLowerCase());titles.push(t);meta[t]={status:MIHON_STATUS[m.status]||'CURRENT',chaptersRead:Array.isArray(m.chapters)?m.chapters.filter(c=>c.read===true||c.read===1).length:0,itemType:m.itemType??0};}return{titles,meta,catNames};}
-
-async function loadSqlJs(){
-  if(_sqlJsLib)return _sqlJsLib;
-  log('Loading sql.js (WebAssembly SQLite)\u2026');
-  await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=SQLJS_CDN;s.onload=resolve;s.onerror=()=>reject(new Error('Failed to load sql.js'));document.head.appendChild(s);});
-  _sqlJsLib=await window.initSqlJs({locateFile:()=>SQLJS_WASM});
-  log('sql.js ready');
-  return _sqlJsLib;
-}
-
-async function parseSQLiteWithSqlJs(bytes){
-  const SQL=await loadSqlJs();
-  const db=new SQL.Database(bytes);
-  let tables=[];
-  try{const r=db.exec("SELECT name FROM sqlite_master WHERE type='table'");if(r.length&&r[0].values)tables=r[0].values.map(v=>v[0]);}catch(e){}
-  log(`SQLite tables: ${tables.join(', ')||'(none)'}`);
-  const candidates=[
-    {table:'manga',col:'title',statusCol:'status',isAnimeCol:'isAnime'},
-    {table:'manga',col:'name',statusCol:'status',isAnimeCol:'isAnime'},
-    {table:'Manga',col:'title',statusCol:'status',isAnimeCol:'isAnime'},
-    {table:'mangas',col:'title',statusCol:'status',isAnimeCol:null},
-    {table:'library',col:'title',statusCol:null,isAnimeCol:null},
-  ];
-  for(const{table,col,statusCol,isAnimeCol}of candidates){
-    if(!tables.map(t=>t.toLowerCase()).includes(table.toLowerCase()))continue;
-    try{
-      const colRes=db.exec(`PRAGMA table_info(${table})`);
-      const cols=colRes.length?colRes[0].values.map(v=>v[1]):[];
-      log(`Table "${table}" columns: ${cols.join(', ')}`);
-      if(!cols.map(c=>c.toLowerCase()).includes(col.toLowerCase())){log(`Column "${col}" not found \u2014 skipping`);continue;}
-      const aC=cols.find(c=>c.toLowerCase()===col.toLowerCase());
-      const aS=statusCol&&cols.find(c=>c.toLowerCase()===statusCol.toLowerCase());
-      const aI=isAnimeCol&&cols.find(c=>c.toLowerCase()===isAnimeCol.toLowerCase());
-      let q=`SELECT ${aC}`;if(aS)q+=`,${aS}`;if(aI)q+=`,${aI}`;
-      q+=` FROM ${table} WHERE ${aC} IS NOT NULL AND ${aC}!=''`;
-      const res=db.exec(q);
-      if(!res.length||!res[0].values.length){log(`0 rows from "${table}"`);continue;}
-      const rows=res[0].values;
-      log(`${rows.length} rows from "${table}"."${aC}"`);
-      const seen=new Set(),titles=[],meta={};
-      for(const row of rows){
-        const t=String(row[0]||'').trim();
-        if(!t||seen.has(t.toLowerCase()))continue;
-        let itemType=0;
-        if(aI){const idx=aS?2:1;const v=row[idx];if(v===1||v===true||v==='1')itemType=1;}
-        seen.add(t.toLowerCase());titles.push(t);
-        const sv=aS?row[1]:null;
-        let status='PLANNING';
-        if(sv===1||sv==='CURRENT')status='CURRENT';
-        else if(sv===2||sv==='COMPLETED')status='COMPLETED';
-        else if(sv===3||sv==='PAUSED')status='PAUSED';
-        else if(sv===4||sv==='DROPPED')status='DROPPED';
-        meta[t]={status,chaptersRead:0,itemType};
-      }
-      db.close();
-      return{titles,meta};
-    }catch(e){log(`Error on "${table}": ${e.message}`);}
-  }
-  log('Known schema not matched \u2014 scanning all text columns\u2026');
-  const allTitles=new Set();
-  for(const tbl of tables){
-    try{
-      const cr=db.exec(`PRAGMA table_info(${tbl})`);
-      if(!cr.length)continue;
-      const textCols=cr[0].values.filter(v=>/text|char|clob/i.test(v[2])).map(v=>v[1]);
-      for(const col of textCols){
-        const r=db.exec(`SELECT DISTINCT ${col} FROM ${tbl} WHERE ${col} IS NOT NULL AND length(${col})>1 AND length(${col})<300 LIMIT 2000`);
-        if(!r.length)continue;
-        for(const[val]of r[0].values){const s=String(val||'').trim();if(s.length>=2&&/[a-zA-Z\u3040-\u9fff\uac00-\ud7af]/.test(s)&&!s.startsWith('http')&&!s.startsWith('{')&&!/^\d+$/.test(s)&&s.split('\n').length<=2)allTitles.add(s);}
-      }
-    }catch(e){}
-  }
-  db.close();
-  if(allTitles.size===0)throw new Error('sql.js found 0 titles. Please open an issue.');
-  const SKIP=new Set(['manga','anime','novel','chapters','categories','name','title','true','false','null']);
-  const titles=[...allTitles].filter(t=>!SKIP.has(t.toLowerCase()));
-  const meta=Object.fromEntries(titles.map(t=>[t,{status:'PLANNING',chaptersRead:0,itemType:0}]));
-  log(`Fallback scan: ${titles.length} candidates`);
-  return{titles,meta};
-}
-
-async function parseMangayomiBackup(file){
-  if(typeof JSZip==='undefined')throw new Error('JSZip not loaded.');
-  const zip=await JSZip.loadAsync(await file.arrayBuffer());
-  const entries=Object.values(zip.files).filter(f=>!f.dir);
-  if(!entries.length)throw new Error('ZIP is empty.');
-  const inner=entries.find(f=>f.name.endsWith('.backup.db'))||entries[0];
-  log(`Extracting ${inner.name}\u2026`);
-  const bytes=await inner.async('uint8array');
-  log(`Extracted ${bytes.byteLength} bytes`);
-  let json=null;
-  try{json=JSON.parse(new TextDecoder('utf-8').decode(bytes));}catch(e){json=null;}
-  if(json){
-    const topKeys=Object.keys(json);
-    log(`JSON keys: ${topKeys.join(', ')}`);
-    const mangaArr=json.manga||json.mangas||json.backupManga||[];
-    log(`Entries found: ${mangaArr.length}`);
-    if(mangaArr.length===0){for(const k of topKeys)if(Array.isArray(json[k])&&json[k].length>0)log(`Non-empty array at "${k}": ${json[k].length}`);throw new Error(`No entries found. Keys: ${topKeys.join(', ')}`);}
-    log(`First entry keys: ${Object.keys(mangaArr[0]).join(', ')}`);
-    log(`First entry sample: ${JSON.stringify(mangaArr[0]).slice(0,300)}`);
-    const readCnt={},totCnt={};
-    for(const ch of(json.chapters||json.chapter||[])){
-      const mid=ch.mangaId??ch.manga_id;if(mid==null)continue;
-      totCnt[mid]=(totCnt[mid]||0)+1;
-      if(ch.isRead===true||ch.isRead===1)readCnt[mid]=(readCnt[mid]||0)+1;
-    }
-    const catMap={};
-    for(const c of(json.categories||[]))if(c.id!=null)catMap[c.id]=c.name;
-    const seen=new Set(),titles=[],meta={};let animeCount=0,mangaCount=0,firstEntry=true;
-    for(const m of mangaArr){
-      const isAnimeEntry=detectIsAnime(m,firstEntry);firstEntry=false;
-      const itemType=isAnimeEntry?1:0;
-      const t=(m.name||m.title||'').trim();
-      if(!t||seen.has(t.toLowerCase()))continue;
-      seen.add(t.toLowerCase());titles.push(t);
-      const cr=readCnt[m.id]||0,ct=totCnt[m.id]||0;
-      let status='PLANNING';
-      if(cr>0&&ct>0&&cr>=ct)status='COMPLETED';
-      else if(cr>0)status='CURRENT';
-      meta[t]={status,chaptersRead:cr,itemType};
-      if(isAnimeEntry)animeCount++;else mangaCount++;
-    }
-    log(`Parsed: ${animeCount} anime + ${mangaCount} manga`);
-    const catNamesSet=new Set();
-    for(const m of mangaArr)for(const cid of(m.categories||[]))if(catMap[cid])catNamesSet.add(catMap[cid]);
-    return{titles,meta,catNames:[...catNamesSet]};
-  }
-  const magic=String.fromCharCode(...bytes.slice(0,6));
-  if(magic!=='SQLite')throw new Error('Backup is neither JSON nor SQLite.');
-  log('SQLite detected \u2014 loading sql.js\u2026');
-  $('sqliteNotice').classList.add('show');
-  const{titles,meta}=await parseSQLiteWithSqlJs(bytes);
-  log(`sql.js: ${titles.length} titles`);
-  if(titles.length===0)throw new Error('sql.js found 0 titles.');
-  return{titles,meta,catNames:[]};
-}
-
-function fmtDate(d){if(!d||!d.year)return'?';return`${d.year}-${d.month?String(d.month).padStart(2,'0'):'?'}`;}
-function cleanDesc(s){if(!s)return'?';return s.replace(/<br\s*\/?>/gi,'\n').replace(/<\/?(i|b|em|strong)>/gi,'');}
-function buildEntry(title,a,fallbackStatus){
-  const isAnime=(state.titleMeta[title]?.itemType===1);
-  const mediaType=isAnime?'ANIME':'MANGA';
-  const perTitle=state.titleMeta[title]?.status,drop=fallbackStatus;
-  const status=(drop==='AUTO')?(perTitle||'CURRENT'):(VALID_STATUSES.has(drop)?drop:(perTitle||'CURRENT'));
-  const chapRead=state.titleMeta[title]?.chaptersRead||0;
-  const readChapters=(!isAnime&&chapRead>0)?Array.from({length:chapRead},(_,i)=>({number:i+1,page:0})):[];
-  const watchedEpisodes=(isAnime&&chapRead>0)?Array.from({length:chapRead},(_,i)=>({number:i+1})):[];
-  const displayName=a.title?.english||title||a.title?.romaji;
-  return{
-    id:String(a.id),jname:a.title?.native||title,name:displayName,english:displayName,japanese:a.title?.native||title,
-    description:cleanDesc(a.description),poster:a.coverImage?.large||null,cover:null,
-    totalEpisodes:isAnime?String(a.episodes||'?'):'?',type:mediaType,season:'?',premiered:'?',duration:'?',status,
-    rating:String(Math.round((a.averageScore||0)/10*10)/10),popularity:String(a.popularity||'?'),format:mediaType,
-    aired:`${fmtDate(a.startDate)} to ${fmtDate(a.endDate)}`,totalChapters:isAnime?'?':String(a.chapters||'?'),
-    genres:a.genres||[],studios:null,chapters:null,episodes:null,currentEpisode:null,
-    currentChapter:structuredClone(EMPTY_CHAPTER),watchedEpisodes,readChapters,serviceIndex:0,mediaTypeIndex:isAnime?0:1
-  };
-}
-
-async function handleParse(){
-  const bjFile=$('backupJsonFile').files[0],myFile=$('mangayomiFile').files[0],csvFile=$('csvFile').files[0],tplFile=$('templateFile').files[0];
-  if(!bjFile&&!myFile&&!csvFile){showStatus('Upload a source file first.','error');return;}
-  state.results={};state.skipped=[];state.titles=[];state.titleMeta={};
-  $('sqliteNotice').classList.remove('show');
-  $('breakdownPanel').classList.remove('show');
-  if(bjFile){
-    try{
-      const json=JSON.parse(await bjFile.text());
-      if(!json.backupManga)throw new Error('No backupManga key');
-      const{titles,meta,catNames}=parseMihonBackupJson(json);
-      state.titles=titles;state.titleMeta=meta;state.sourceMode='backup';
-      setListOptions(catNames.length?catNames:['imported']);setModeBadge('backup');
-      $('readingStatus').value='AUTO';updateStatusBadge();
-      const aC=titles.filter(t=>meta[t]?.itemType===1).length;
-      const mC=titles.filter(t=>meta[t]?.itemType!==1).length;
-      setPill('pillSource',`Backup JSON: ${aC} anime + ${mC} manga`,true);
-      log(`Mihon JSON: ${aC} anime + ${mC} manga (${titles.length} total)`);
-      showStatus(`Ready \u2014 ${aC} anime + ${mC} manga loaded. Now click Fetch AniList metadata below.`,'info');
-    }catch(e){showStatus('Could not parse backup JSON: '+e.message,'error');setModeBadge('none');return;}
-  }else if(myFile){
-    try{
-      const{titles,meta,catNames}=await parseMangayomiBackup(myFile);
-      state.titles=titles;state.titleMeta=meta;state.sourceMode='mangayomi';
-      setListOptions(catNames.length?catNames:['imported']);setModeBadge('mangayomi');
-      $('readingStatus').value='AUTO';updateStatusBadge();
-      const aC=titles.filter(t=>meta[t]?.itemType===1).length;
-      const mC=titles.filter(t=>meta[t]?.itemType!==1).length;
-      setPill('pillSource',`Mangayomi: ${aC} anime + ${mC} manga`,true);
-      log(`Mangayomi: ${aC} anime + ${mC} manga (${titles.length} total)`);
-      showStatus(`Ready \u2014 ${aC} anime + ${mC} manga loaded. Now click Fetch AniList metadata below.`,'info');
-    }catch(e){showStatus('Could not parse Mangayomi backup: '+e.message,'error');setModeBadge('none');return;}
-  }else{
-    const text=await csvFile.text();state.titles=parseCsv(text);state.sourceMode='csv';
-    setListOptions(['new']);setModeBadge('csv');
-    setPill('pillSource',`CSV: ${state.titles.length} titles`,true);
-    log(`CSV: ${state.titles.length} titles`);
-    showStatus(`Ready \u2014 ${state.titles.length} titles loaded. Now click Fetch AniList metadata below.`,'info');
-  }
-  if(tplFile){try{state.template=JSON.parse(await tplFile.text());setPill('pillTemplate',`Template: ${tplFile.name}`,true);log(`Template: ${tplFile.name}`);}catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);showStatus('Template is not valid JSON.','error');}}
-  else{showStatus('\u26a0\ufe0f Don\'t forget to upload your AnymeX template (.anymex) \u2014 required to build the output!','info');}
-  updateSplitBreakdown();
-  setProgress(0,state.titles.length);updateCounts();updateButtons();
-}
-
-async function handleFetch(){
-  if(!state.titles.length){showStatus('Parse a source file first.','error');return;}
-  state.running=true;state.stop=false;
-  const alreadyDone=new Set([...Object.keys(state.results),...state.skipped]);
-  const remaining=state.titles.filter(t=>!alreadyDone.has(t));
-  if(!remaining.length){showStatus('All titles already processed!','info');state.running=false;updateButtons();return;}
-  setPill('pillAnilist','AniList: fetching\u2026','warn');
-  $('statusBox').style.display='none';updateButtons();
-  const delay=Math.max(500,Number($('delayMs').value)||2500);
-  fetchStartTime=Date.now();
-  log(`Fetching ${remaining.length} titles at ${delay}ms delay\u2026`);
-  for(let i=0;i<remaining.length;i++){
-    if(state.stop){log('Stopped.');setBarStopped();break;}
-    const title=remaining[i];
-    setProgress(Object.keys(state.results).length+state.skipped.length,state.titles.length,title);
-    let matched=false;
-    for(let attempt=0;attempt<4;attempt++){
-      if(state.stop)break;
-      try{
-        const res=await fetch(ANILIST_URL,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({query:(state.titleMeta[title]?.itemType===1?GQL_ANIME:GQL_MANGA),variables:{s:title}})});
-        if(res.status===429){
-          const wait=[60000,75000,90000][attempt]||90000;
-          log(`\u29d0 429 rate-limited on "${title}" \u2014 waiting ${wait/1000}s (attempt ${attempt+1}/3)\u2026`);
-          await sleep(wait);
-          continue;
-        }
-        if(!res.ok)throw new Error(`HTTP ${res.status}`);
-        const data=await res.json(),media=data?.data?.Media;
-        if(media){state.results[title]=media;log(`\u2713 ${title} \u2192 ${media.title?.english||media.title?.romaji||media.id}`);}
-        else{state.skipped.push(title);log(`\u2717 ${title}`);}
-        matched=true;
-        break;
-      }catch(e){
-        if(attempt===3){state.skipped.push(title);log(`! ${title} \u2014 ${e.message}`);}
-        else{log(`! ${title} \u2014 ${e.message}, retrying\u2026`);await sleep(2000);}
-      }
-    }
-    updateCounts();saveSession();
-    if(i<remaining.length-1&&!state.stop)await sleep(delay);
-  }
-  state.running=false;
-  const matched=Object.keys(state.results).length;
-  if(!state.stop){
-    setBarDone();$('progressTitle').textContent='Scan complete!';
-    $('progressSub').textContent=`${matched} matched, ${state.skipped.length} skipped`;
-    setPill('pillAnilist',`AniList: ${matched} matched / ${state.skipped.length} skipped`,matched>0);
-    log(`Done. ${matched} matched, ${state.skipped.length} skipped`);
-    showStatus(`Done \u2014 ${matched} matched, ${state.skipped.length} skipped. Now click Build below!`,matched?'success':'error');
-    clearSave();triggerMissionComplete(matched,state.skipped.length,state.titles.length);
-  }else{
-    setPill('pillAnilist',`AniList: ${matched}/${state.skipped.length} (stopped)`,'warn');
-    showStatus(`Stopped \u2014 ${matched} matched.`,'info');
-  }
-  updateButtons();
-}
-
-function handleStop(){state.stop=true;}
-
-function handleBuild(){
-  if(!state.template){showStatus('\u26a0\ufe0f Upload your AnymeX template (.anymex) first.','error');return;}
-  const dropStatus=$('readingStatus').value;
-  const animeLib=state.titles.filter(t=>state.results[t]&&state.titleMeta[t]?.itemType===1).map(t=>buildEntry(t,state.results[t],dropStatus));
-  const mangaLib=state.titles.filter(t=>state.results[t]&&(state.titleMeta[t]?.itemType??0)!==1).map(t=>buildEntry(t,state.results[t],dropStatus));
-  const listName=($('listName').value||'new').trim()||'new';
-  const tpl=state.template;
-  const backup={
-    date:tpl.date,appVersion:tpl.appVersion,username:null,avatar:null,
-    animeCount:animeLib.length,mangaCount:mangaLib.length,novelCount:0,
-    animeLibrary:animeLib,mangaLibrary:mangaLib,novelLibrary:[],
-    animeCustomLists:animeLib.length?[{listName,mediaIds:animeLib.map(e=>e.id),mediaTypeIndex:1}]:(tpl.animeCustomLists||[]),
-    mangaCustomLists:mangaLib.length?[{listName,mediaIds:mangaLib.map(e=>e.id),mediaTypeIndex:0}]:(tpl.mangaCustomLists||[]),
-    novelCustomLists:tpl.novelCustomLists||[],settings:tpl.settings||[]
-  };
-  const fn=`mihon_to_anymex_${stamp()}.anymex`;
-  download(fn,JSON.stringify(backup,null,2),'application/json');
-  log(`Built ${fn} \u2014 ${animeLib.length} anime + ${mangaLib.length} manga`);
-  showStatus(`\u2713 ${animeLib.length} anime + ${mangaLib.length} manga exported! Restore in AnymeX under Data Management.`,'success');
-}
-
-function dlMatches(){download(`anilist_results_${stamp()}.json`,JSON.stringify(state.results,null,2),'application/json');}
-function dlSkipped(){download(`skipped_titles_${stamp()}.txt`,state.skipped.join('\n'),'text/plain;charset=utf-8');}
-$('templateFile').addEventListener('change',async()=>{const f=$('templateFile').files[0];if(!f){state.template=null;setPill('pillTemplate','Template: not loaded',null);updateButtons();return;}try{state.template=JSON.parse(await f.text());setPill('pillTemplate',`Template: ${f.name}`,true);log(`Template: ${f.name}`);}catch(e){state.template=null;setPill('pillTemplate','Template: invalid',false);}updateButtons();});
-
-let particleAnim=null;
-function triggerMissionComplete(m,s,t){$('mTotal').textContent=t;$('mMatched').textContent=m;$('mSkipped').textContent=s;const o=$('missionOverlay');o.style.display='flex';requestAnimationFrame(()=>o.classList.add('show'));startParticles();}
-function closeMission(){const o=$('missionOverlay');o.classList.remove('show');setTimeout(()=>o.style.display='none',400);if(particleAnim){cancelAnimationFrame(particleAnim);particleAnim=null;}}
-function startParticles(){const cv=$('particleCanvas'),ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;const C=['#4f98a3','#7ecfd8','#6daa45','#d163a7','#fff','#c9943a','#9de86a'];const p=Array.from({length:120},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height*0.6,vx:(Math.random()-0.5)*6,vy:(Math.random()-0.5)*6-3,r:3+Math.random()*5,c:C[0|Math.random()*C.length],a:1,s:Math.random()>.5?'c':'r',rot:Math.random()*Math.PI*2,rs:(Math.random()-0.5)*0.2}));function frame(){ctx.clearRect(0,0,cv.width,cv.height);let alive=false;for(const q of p){q.x+=q.vx;q.y+=q.vy;q.vy+=0.12;q.a-=0.008;q.rot+=q.rs;if(q.a<=0)continue;alive=true;ctx.save();ctx.globalAlpha=q.a;ctx.fillStyle=q.c;ctx.translate(q.x,q.y);ctx.rotate(q.rot);if(q.s==='r')ctx.fillRect(-q.r,-q.r/2,q.r*2,q.r);else{ctx.beginPath();ctx.arc(0,0,q.r,0,Math.PI*2);ctx.fill();}ctx.restore();}if(alive)particleAnim=requestAnimationFrame(frame);}particleAnim=requestAnimationFrame(frame);}
-initGuide();checkResume();updateButtons();
-</script>
-</body>
-</html>
+const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10
