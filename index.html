@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mihon / Mangayomi → AnymeX</title>
+
+<!-- Favicon -->
+<link rel="icon" href="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png" type="image/png">
+<link rel="apple-touch-icon" href="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png">
+
+<!-- OG / Social -->
+<meta property="og:title" content="Mihon / Mangayomi → AnymeX Converter">
+<meta property="og:description" content="Browser-based tool to migrate your manga/anime library from Mihon or Mangayomi to AnymeX. Batch add titles, share lists with friends — all in-browser, no server.">
+<meta property="og:image" content="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png">
+<meta property="og:url" content="https://g1nyu.github.io/mihon-to-anymex/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Mihon / Mangayomi → AnymeX Converter">
+<meta name="twitter:description" content="Migrate your manga/anime library in-browser. Batch add, share lists — no server needed.">
+<meta name="twitter:image" content="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png">
+<meta name="description" content="Browser-based tool to migrate your manga/anime library from Mihon or Mangayomi to AnymeX. Batch add titles, share lists with friends — all in-browser, no server.">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -41,12 +58,10 @@ html{scroll-behavior:smooth}
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
-  /* heavy dark overlay — keeps the image felt, not seen */
   filter: brightness(0.18) saturate(0.6);
   opacity: 0.55;
   pointer-events: none;
 }
-/* vignette so edges fade into pure black */
 #bg-wallpaper::after {
   content: '';
   position: absolute;
@@ -88,7 +103,6 @@ body::after {
   z-index: 100;
 }
 
-/* ensure all content sits above the wallpaper layer */
 .site-header, .container, .site-footer {
   position: relative;
   z-index: 1;
@@ -218,7 +232,7 @@ body::after {
   letter-spacing: 0.15em;
 }
 
-/* ── GUIDE ACCORDION ─────────────────────────── */
+/* ── ACCORDION — smooth open/close ───────────── */
 .accordion {
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -257,19 +271,28 @@ body::after {
 .accordion-icon {
   font-size: 0.75rem;
   color: var(--muted);
-  transition: transform 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   flex-shrink: 0;
 }
 .accordion.open .accordion-icon { transform: rotate(180deg); }
+
+/* smooth height animation */
 .accordion-body {
-  display: none;
-  padding: 0 2rem 2rem;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1),
+              padding 0.25s ease;
+  padding: 0 2rem;
   background: rgba(17,17,17,0.88);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border-top: 1px solid var(--border);
+  border-top: 0px solid var(--border);
 }
-.accordion.open .accordion-body { display: block; }
+.accordion.open .accordion-body {
+  max-height: 800px;
+  padding: 0 2rem 2rem;
+  border-top-width: 1px;
+}
 
 .guide-tabs {
   display: flex;
@@ -392,16 +415,25 @@ body::after {
 .batch-chevron {
   font-size: 0.75rem;
   color: var(--muted);
-  transition: transform 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   flex-shrink: 0;
 }
 .batch-card.open .batch-chevron { transform: rotate(180deg); }
+
+/* smooth batch body */
 .batch-body {
-  display: none;
-  padding: 0 2rem 2rem;
-  border-top: 1px solid rgba(200,245,58,0.15);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1),
+              padding 0.25s ease;
+  padding: 0 2rem;
+  border-top: 0px solid rgba(200,245,58,0.15);
 }
-.batch-card.open .batch-body { display: block; }
+.batch-card.open .batch-body {
+  max-height: 2000px;
+  padding: 0 2rem 2rem;
+  border-top-width: 1px;
+}
 
 .batch-result-row {
   display: flex;
@@ -436,6 +468,82 @@ body::after {
   font-size: 0.72rem;
   color: var(--muted-hi);
   min-height: 1.2em;
+}
+
+/* ── SHARE LIST BLOCK ───────────────────────── */
+.share-block {
+  display: none;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: rgba(200,245,58,0.04);
+  border: 1px solid rgba(200,245,58,0.2);
+  border-radius: var(--radius);
+  animation: fadeUp 0.3s ease both;
+}
+.share-block.show { display: block; }
+.share-block-title {
+  font-family: var(--font-head);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 0.75rem;
+}
+.share-url-wrap {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.share-url-input {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted-hi);
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+.share-hint {
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── TOAST ───────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(2rem);
+  background: rgba(17,17,17,0.95);
+  border: 1px solid var(--lime);
+  color: var(--lime);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 16px var(--lime-glow);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10000;
+  transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  white-space: nowrap;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 /* ── FORM ELEMENTS ───────────────────────────── */
@@ -558,6 +666,18 @@ button.btn-success {
 button.btn-success:hover:not(:disabled) {
   background: #d9ff4a;
   box-shadow: 0 0 20px var(--lime-glow);
+}
+
+button.btn-share {
+  background: transparent;
+  color: var(--lime);
+  border-color: rgba(200,245,58,0.4);
+  font-size: 0.68rem;
+  padding: 0.55rem 1rem;
+}
+button.btn-share:hover:not(:disabled) {
+  background: var(--lime-dim);
+  border-color: var(--lime);
 }
 
 /* ── PROGRESS ────────────────────────────────── */
@@ -751,6 +871,9 @@ tr:hover td { background: rgba(255,255,255,0.015); }
 </head>
 <body>
 
+<!-- TOAST -->
+<div id="toast"></div>
+
 <!-- WALLPAPER LAYER -->
 <div id="bg-wallpaper"></div>
 
@@ -834,7 +957,7 @@ tr:hover td { background: rgba(255,255,255,0.015); }
       <span class="batch-chevron">&#9662;</span>
     </div>
     <div class="batch-body">
-      <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-hi);line-height:1.7;margin-bottom:1.25rem">Found titles online you want to add without migrating a full backup? Paste one per line, pick your settings, optionally drop an existing <code style="color:var(--lime);background:var(--lime-dim);padding:.1em .35em;border-radius:2px;font-size:.72rem">.anymex</code> as a base (new titles merge in), then hit <strong style="color:var(--text)">Fetch &amp; Build</strong>.</p>
+      <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-hi);line-height:1.7;margin-top:1.25rem;margin-bottom:1.25rem">Found titles online you want to add without migrating a full backup? Paste one per line, pick your settings, optionally drop an existing <code style="color:var(--lime);background:var(--lime-dim);padding:.1em .35em;border-radius:2px;font-size:.72rem">.anymex</code> as a base (new titles merge in), then hit <strong style="color:var(--text)">Fetch &amp; Build</strong>. You can also <strong style="color:var(--lime)">share your list</strong> as a link for other otaku to import directly.</p>
       <div class="field">
         <label for="batchInput">Titles — one per line</label>
         <textarea class="batch-input" id="batchInput" placeholder="Solo Leveling&#10;Omniscient Reader&#10;The Beginning After the End"></textarea>
@@ -866,6 +989,21 @@ tr:hover td { background: rgba(255,255,255,0.015); }
         <label for="batchBaseFile">Base .anymex <span style="color:var(--muted)">(optional — merge into existing backup)</span></label>
         <input type="file" id="batchBaseFile" accept=".anymex,.json,application/json">
       </div>
+
+      <!-- Share List -->
+      <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.5rem">
+        <button class="btn-share" onclick="handleShareList()">⬆ Share List</button>
+        <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--muted)">Generate a shareable URL from the titles above</span>
+      </div>
+      <div class="share-block" id="shareBlock">
+        <div class="share-block-title">🔗 Shareable Link</div>
+        <div class="share-url-wrap">
+          <input class="share-url-input" id="shareUrlInput" type="text" readonly>
+          <button class="btn-share" onclick="copyShareUrl()">Copy</button>
+        </div>
+        <p class="share-hint">Send this link to a friend — when they open it, the titles, media type, and status will auto-fill in Batch Add.</p>
+      </div>
+
       <div class="btn-row">
         <button class="btn-success" id="batchFetchBtn" onclick="handleBatchFetch()">⚡ Fetch &amp; Build</button>
         <button class="btn-secondary" id="batchStopBtn" onclick="batchStop=true" disabled>■ Stop</button>
@@ -972,6 +1110,18 @@ let pillAnilist    = null;
 const MAX_RETRIES  = 3;
 
 /* ============================================================
+   TOAST
+   ============================================================ */
+let _toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ============================================================
    ACCORDION / TABS
    ============================================================ */
 function toggleAccordion(id) {
@@ -985,6 +1135,54 @@ function switchTab(id, el) {
   document.querySelectorAll('.guide-panel').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('panel-' + id).classList.add('active');
+}
+
+/* ============================================================
+   SHARE LIST
+   ============================================================ */
+function handleShareList() {
+  const raw = document.getElementById('batchInput').value.trim();
+  if (!raw) { showToast('Paste some titles first!'); return; }
+  const titles    = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const mediaType = document.getElementById('batchMediaType').value;
+  const status    = document.getElementById('batchStatus').value;
+  const params    = new URLSearchParams();
+  params.set('titles', titles.join('|'));
+  params.set('type',   mediaType);
+  params.set('status', status);
+  const url = window.location.origin + window.location.pathname + '?' + params.toString();
+  document.getElementById('shareUrlInput').value = url;
+  document.getElementById('shareBlock').classList.add('show');
+  // Open batch so user sees the link
+  document.getElementById('batchWrap').classList.add('open');
+}
+
+function copyShareUrl() {
+  const input = document.getElementById('shareUrlInput');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(input.value).then(() => showToast('Copied!')).catch(() => fallbackCopy(input));
+  } else {
+    fallbackCopy(input);
+  }
+}
+function fallbackCopy(input) {
+  input.select();
+  document.execCommand('copy');
+  showToast('Copied!');
+}
+
+/* auto-fill from URL params when page loads */
+function checkShareParams() {
+  const params = new URLSearchParams(window.location.search);
+  const titles = params.get('titles');
+  if (!titles) return;
+  const titleList = titles.split('|').join('\n');
+  document.getElementById('batchInput').value    = titleList;
+  const mt = params.get('type');   if (mt)     document.getElementById('batchMediaType').value = mt;
+  const st = params.get('status'); if (st)     document.getElementById('batchStatus').value    = st;
+  // open batch add and show a toast
+  document.getElementById('batchWrap').classList.add('open');
+  showToast('List loaded from shared link!');
 }
 
 /* ============================================================
@@ -1075,6 +1273,7 @@ async function handleBatchFetch() {
     a.href = url; a.download = 'anymex_batch_' + Date.now() + '.anymex'; a.click();
     URL.revokeObjectURL(url);
     msg.textContent = `✔ Done — ${matched} added, ${skipped} skipped. File downloaded!`;
+    showToast('✔ .anymex downloaded!');
   } else if (batchStop) {
     msg.textContent = 'Stopped. ' + matched + ' matched so far.';
   } else {
@@ -1138,6 +1337,7 @@ function clearSession() {
   document.getElementById('resumeBanner').classList.remove('show');
 }
 checkResume();
+checkShareParams();
 
 /* ============================================================
    FILE PARSERS
@@ -1429,6 +1629,7 @@ async function handleBuild() {
   a.href = url; a.download = 'anymex_' + Date.now() + '.anymex'; a.click();
   URL.revokeObjectURL(url);
   showFetchStatus('success', '✔ .anymex file downloaded! Restore it in AnymeX → Data Management.');
+  showToast('✔ .anymex downloaded!');
   clearSession();
 }
 </script>
