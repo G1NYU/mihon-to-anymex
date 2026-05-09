@@ -3,224 +3,775 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mihon / Mangayomi → AnymeX Converter</title>
+<title>Mihon / Mangayomi → AnymeX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root {
-    --color-bg: #0f0f0f;
-    --color-surface: #1a1a1a;
-    --color-surface-2: #222;
-    --color-border: #2a2a2a;
-    --color-text: #e8e8e8;
-    --color-text-muted: #888;
-    --color-primary: #4f98a3;
-    --color-primary-hover: #227f8b;
-    --color-success: #6daa45;
-    --color-error: #d163a7;
-    --color-warn: #c9943a;
-    --color-mangayomi: #e07b39;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-full: 9999px;
-    --font-body: 'DM Sans', sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-body);
-    background-color: var(--color-bg);
-    background-image: url('https://i.ibb.co/hxh7zGJt/soft-white-foam.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    background-blend-mode: overlay;
-    color: var(--color-text);
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2.5rem 1rem 4rem;
-  }
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url('https://i.ibb.co/hxh7zGJt/soft-white-foam.jpg');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.045;
-    pointer-events: none;
-    z-index: 0;
-  }
-  .container { width: 100%; max-width: 860px; position: relative; z-index: 1; }
-  .logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; }
-  .logo svg { color: var(--color-primary); flex-shrink: 0; }
-  .logo-text { font-size: 1.1rem; font-weight: 600; }
-  .logo-sub { font-size: 0.8rem; color: var(--color-text-muted); }
-  h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.4rem; }
-  p.desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5; }
-  .guide-wrap { background: linear-gradient(135deg, rgba(79,152,163,0.08) 0%, rgba(157,232,106,0.06) 100%); border: 1px solid rgba(79,152,163,0.25); border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden; transition: border-color 0.2s; }
-  .guide-wrap:hover { border-color: rgba(79,152,163,0.4); }
-  .guide-header { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.25rem; cursor: pointer; user-select: none; gap: 0.75rem; }
-  .guide-header-left { display: flex; align-items: center; gap: 0.6rem; }
-  .guide-title { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
-  .guide-subtitle { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.25rem; }
-  .guide-chevron { color: var(--color-text-muted); font-size: 0.8rem; transition: transform 0.25s ease; flex-shrink: 0; }
-  .guide-wrap.open .guide-chevron { transform: rotate(180deg); }
-  .guide-body { display: none; padding: 0 1.25rem 1.25rem; }
-  .guide-wrap.open .guide-body { display: block; }
-  .guide-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .guide-tab { padding: 0.35rem 0.9rem; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--color-border); background: var(--color-surface-2); color: var(--color-text-muted); transition: all 0.18s; }
-  .guide-tab.active { background: rgba(79,152,163,0.18); color: #7ecfd8; border-color: rgba(79,152,163,0.4); }
-  .guide-tab.mangayomi-tab.active { background: rgba(224,123,57,0.18); color: #f0a070; border-color: rgba(224,123,57,0.4); }
-  .guide-panel { display: none; }
-  .guide-panel.active { display: block; }
-  .guide-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
-  @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
-  .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.75rem 0.9rem; }
-  .guide-step-num { font-size: 0.7rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
-  .guide-step p { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.45; }
-  .guide-step code { background: rgba(255,255,255,0.08); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.78rem; }
-  .guide-note { font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.5; padding: 0.6rem 0.9rem; background: rgba(255,255,255,0.04); border-radius: var(--radius-md); border-left: 3px solid var(--color-primary); }
-  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
-  .card-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: 1rem; }
-  label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted); margin-bottom: 0.35rem; }
-  input[type=file], input[type=number], input[type=text], select, textarea {
-    width: 100%; background: var(--color-surface-2); border: 1px solid var(--color-border);
-    border-radius: var(--radius-md); color: var(--color-text); font-family: var(--font-body);
-    font-size: 0.875rem; padding: 0.6rem 0.75rem; outline: none; transition: border-color 0.18s;
-  }
-  input[type=file]:focus, input[type=number]:focus, input[type=text]:focus, select:focus, textarea:focus { border-color: var(--color-primary); }
-  input[type=number] { -moz-appearance: textfield; }
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-  @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } }
-  .field { margin-bottom: 1rem; }
-  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
-  button {
-    padding: 0.6rem 1.4rem; border-radius: var(--radius-full); border: none;
-    font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
-    cursor: pointer; transition: opacity 0.18s, transform 0.12s;
-    background: var(--color-primary); color: #fff;
-  }
-  button:hover { opacity: 0.88; }
-  button:active { transform: scale(0.97); }
-  button:disabled { opacity: 0.35; cursor: not-allowed; }
-  button.secondary { background: var(--color-surface-2); color: var(--color-text-muted); border: 1px solid var(--color-border); }
-  button.warn-btn { background: var(--color-warn); color: #fff; }
-  .progress-wrap { margin-top: 1.25rem; display: none; }
-  .progress-title { font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.4rem; }
-  .progress-bar-bg { background: var(--color-surface-2); border-radius: var(--radius-full); height: 6px; overflow: hidden; }
-  .progress-bar { height: 100%; border-radius: var(--radius-full); background: var(--color-primary); width: 0%; transition: width 0.3s ease; }
-  .progress-bar.ratelimit { background: var(--color-warn); }
-  .pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
-  .pill { padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; background: var(--color-surface-2); color: var(--color-text-muted); border: 1px solid var(--color-border); }
-  .pill.success { background: rgba(109,170,69,0.15); color: #a3d97a; border-color: rgba(109,170,69,0.3); }
-  .pill.error   { background: rgba(209,99,167,0.15); color: #e89dcb; border-color: rgba(209,99,167,0.3); }
-  .pill.warn    { background: rgba(201,148,58,0.15); color: #e0b877; border-color: rgba(201,148,58,0.3); }
-  .status-box { margin-top: 1rem; padding: 0.9rem 1rem; border-radius: var(--radius-md); font-size: 0.82rem; line-height: 1.55; display: none; border: 1px solid var(--color-border); background: var(--color-surface-2); white-space: pre-wrap; }
-  .status-box.show { display: block; }
-  .status-box.success { border-color: rgba(109,170,69,0.35); background: rgba(109,170,69,0.08); color: #a3d97a; }
-  .status-box.error   { border-color: rgba(209,99,167,0.35); background: rgba(209,99,167,0.08); color: #e89dcb; }
-  .status-box.warn    { border-color: rgba(201,148,58,0.35); background: rgba(201,148,58,0.08); color: #e0b877; }
-  .result-table-wrap { overflow-x: auto; margin-top: 1rem; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-  th { text-align: left; padding: 0.4rem 0.6rem; color: var(--color-text-muted); font-weight: 600; border-bottom: 1px solid var(--color-border); }
-  td { padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-  tr:last-child td { border-bottom: none; }
-  .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; }
-  .badge.ok   { background: rgba(109,170,69,0.2);  color: #a3d97a; }
-  .badge.skip { background: rgba(209,99,167,0.2);  color: #e89dcb; }
-  .badge.wait { background: rgba(201,148,58,0.2);  color: #e0b877; }
-  .resume-banner { display: none; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(201,148,58,0.1); border: 1px solid rgba(201,148,58,0.3); border-radius: var(--radius-lg); padding: 0.9rem 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
-  .resume-banner.show { display: flex; }
-  .resume-banner p { font-size: 0.82rem; color: #e0b877; line-height: 1.45; }
-  .resume-banner strong { color: #f0ca8a; }
-  /* Batch Add */
-  .batch-wrap { background: linear-gradient(135deg, rgba(157,232,106,0.07) 0%, rgba(79,152,163,0.05) 100%); border: 1px solid rgba(157,232,106,0.2); border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden; transition: border-color 0.2s; }
-  .batch-wrap:hover { border-color: rgba(157,232,106,0.35); }
-  .batch-header { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.25rem; cursor: pointer; user-select: none; gap: 0.75rem; }
-  .batch-header-left { display: flex; align-items: center; gap: 0.6rem; }
-  .batch-title { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
-  .batch-subtitle { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.25rem; }
-  .batch-chevron { color: var(--color-text-muted); font-size: 0.8rem; transition: transform 0.25s ease; flex-shrink: 0; }
-  .batch-wrap.open .batch-chevron { transform: rotate(180deg); }
-  .batch-body { display: none; padding: 0 1.25rem 1.25rem; }
-  .batch-wrap.open .batch-body { display: block; }
-  textarea.batch-input { width: 100%; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; padding: 0.75rem 0.9rem; outline: none; resize: vertical; min-height: 120px; transition: border-color 0.18s; margin-bottom: 1rem; }
-  textarea.batch-input:focus { border-color: var(--color-primary); }
-  .batch-result-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.82rem; flex-wrap: wrap; }
-  .batch-result-row:last-child { border-bottom: none; }
-  .batch-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .batch-dot.ok   { background: var(--color-success); }
-  .batch-dot.skip { background: var(--color-error); }
-  .batch-dot.wait { background: var(--color-warn); }
-  .batch-result-title { flex: 1; color: var(--color-text); }
-  .batch-result-match { color: var(--color-text-muted); font-size: 0.76rem; }
-  .batch-results-box { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.75rem 1rem; max-height: 260px; overflow-y: auto; margin-bottom: 1rem; display: none; }
-  .batch-results-box.show { display: block; }
-  .batch-status { margin-top: 0.75rem; font-size: 0.83rem; color: var(--color-text-muted); min-height: 1.2em; }
+:root {
+  --bg:        #080808;
+  --surface:   #111111;
+  --surface-2: #181818;
+  --border:    #222222;
+  --border-hi: #333333;
+  --text:      #f0f0f0;
+  --muted:     #666666;
+  --muted-hi:  #999999;
+  --lime:      #c8f53a;
+  --lime-dim:  rgba(200,245,58,0.12);
+  --lime-glow: rgba(200,245,58,0.25);
+  --error:     #ff4f6a;
+  --warn:      #f5a623;
+  --success:   #3af5a0;
+  --mangayomi: #f07040;
+  --radius:    4px;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  font-family: var(--font-mono);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 6rem;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* accent top bar */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--lime);
+  z-index: 100;
+}
+
+.container {
+  width: 100%;
+  max-width: 900px;
+  padding: 0 2rem;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.site-header {
+  width: 100%;
+  max-width: 900px;
+  padding: 4rem 2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3rem;
+  animation: fadeUp 0.6s ease both;
+}
+.header-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.header-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 80px;
+}
+.site-title {
+  font-family: var(--font-head);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+.site-title em {
+  font-style: normal;
+  color: var(--lime);
+}
+.site-desc {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: var(--muted-hi);
+  max-width: 520px;
+}
+.site-desc code {
+  color: var(--lime);
+  background: var(--lime-dim);
+  padding: 0.1em 0.4em;
+  border-radius: 2px;
+  font-size: 0.76rem;
+}
+
+/* ── SECTION LABEL ───────────────────────────── */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--lime);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── CARDS ───────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 1px;
+  position: relative;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.5s ease both;
+}
+.card:hover { border-color: var(--border-hi); }
+.card + .card { margin-top: 1px; }
+
+.card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.card-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+.card-num {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+}
+
+/* ── GUIDE ACCORDION ─────────────────────────── */
+.accordion {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+.accordion:hover { border-color: var(--border-hi); }
+.accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  cursor: pointer;
+  user-select: none;
+  background: var(--surface);
+  gap: 1rem;
+}
+.accordion-trigger-left { display: flex; align-items: center; gap: 0.75rem; }
+.accordion-label {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.accordion-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+}
+.accordion-icon {
+  font-size: 0.75rem;
+  color: var(--muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.accordion.open .accordion-icon { transform: rotate(180deg); }
+.accordion-body {
+  display: none;
+  padding: 0 2rem 2rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.accordion.open .accordion-body { display: block; }
+
+.guide-tabs {
+  display: flex;
+  gap: 0;
+  margin: 1.25rem 0 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  width: fit-content;
+}
+.guide-tab {
+  padding: 0.4rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-right: 1px solid var(--border);
+  transition: all 0.15s;
+}
+.guide-tab:last-child { border-right: none; }
+.guide-tab:hover { color: var(--text); background: var(--surface-2); }
+.guide-tab.active { background: var(--lime); color: #000; font-weight: 700; }
+.guide-tab.tab-manga.active { background: var(--mangayomi); color: #000; }
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+
+.guide-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.guide-step {
+  background: var(--surface-2);
+  padding: 1rem 1.25rem;
+}
+.guide-step-num {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--lime);
+  margin-bottom: 0.5rem;
+}
+.guide-step p {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--muted-hi);
+}
+.guide-step a { color: var(--lime); text-decoration: none; }
+.guide-step a:hover { text-decoration: underline; }
+.guide-step code {
+  background: rgba(200,245,58,0.1);
+  color: var(--lime);
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+  font-size: 0.72rem;
+}
+.guide-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  color: var(--muted-hi);
+  padding: 0.75rem 1rem;
+  border-left: 2px solid var(--lime);
+  background: var(--lime-dim);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.guide-note code { color: var(--lime); background: none; font-size: 0.72rem; }
+
+/* ── BATCH ADD ───────────────────────────────── */
+.batch-card {
+  border: 1px solid rgba(200,245,58,0.3);
+  background: linear-gradient(135deg, rgba(200,245,58,0.04) 0%, var(--surface) 60%);
+  border-radius: var(--radius);
+  margin-bottom: 1px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  animation: fadeUp 0.5s ease 0.15s both;
+}
+.batch-card:hover { border-color: rgba(200,245,58,0.5); }
+.batch-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  cursor: pointer;
+  user-select: none;
+  gap: 1rem;
+}
+.batch-trigger-left { display: flex; align-items: center; gap: 0.75rem; }
+.batch-icon { font-size: 1.1rem; }
+.batch-label {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--lime);
+}
+.batch-sub {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+}
+.batch-chevron {
+  font-size: 0.75rem;
+  color: var(--muted);
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+.batch-card.open .batch-chevron { transform: rotate(180deg); }
+.batch-body {
+  display: none;
+  padding: 0 2rem 2rem;
+  border-top: 1px solid rgba(200,245,58,0.15);
+}
+.batch-card.open .batch-body { display: block; }
+
+.batch-result-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.batch-result-row:last-child { border-bottom: none; }
+.batch-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.batch-dot.ok   { background: var(--success); box-shadow: 0 0 6px var(--success); }
+.batch-dot.skip { background: var(--error); }
+.batch-dot.wait { background: var(--warn); }
+.batch-result-title { flex: 1; color: var(--text); }
+.batch-result-match { color: var(--muted); font-size: 0.7rem; }
+.batch-results-box {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 1.25rem;
+  display: none;
+}
+.batch-results-box.show { display: block; }
+.batch-status {
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--muted-hi);
+  min-height: 1.2em;
+}
+
+/* ── FORM ELEMENTS ───────────────────────────── */
+label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+label span { text-transform: none; letter-spacing: 0; font-weight: 400; }
+
+input[type=file],
+input[type=number],
+input[type=text],
+select, textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.65rem 0.9rem;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+input[type=file]:focus,
+input[type=number]:focus,
+input[type=text]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--lime);
+  box-shadow: 0 0 0 2px var(--lime-dim);
+}
+select { cursor: pointer; }
+
+textarea.batch-input {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+@media (max-width: 640px) { .row2, .row3 { grid-template-columns: 1fr; } }
+.field { margin-bottom: 1.25rem; }
+
+/* ── BUTTONS ─────────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+button {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+button:active::after { opacity: 0.08; }
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+
+/* primary */
+button.btn-primary {
+  background: var(--lime);
+  color: #000;
+  border-color: var(--lime);
+}
+button.btn-primary:hover:not(:disabled) {
+  background: #d9ff4a;
+  box-shadow: 0 0 20px var(--lime-glow);
+}
+
+/* secondary */
+button.btn-secondary {
+  background: transparent;
+  color: var(--muted-hi);
+  border-color: var(--border-hi);
+}
+button.btn-secondary:hover:not(:disabled) {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+/* warn */
+button.btn-warn {
+  background: transparent;
+  color: var(--warn);
+  border-color: var(--warn);
+}
+button.btn-warn:hover:not(:disabled) {
+  background: rgba(245,166,35,0.1);
+}
+
+/* success/batch */
+button.btn-success {
+  background: var(--lime);
+  color: #000;
+  border-color: var(--lime);
+}
+button.btn-success:hover:not(:disabled) {
+  background: #d9ff4a;
+  box-shadow: 0 0 20px var(--lime-glow);
+}
+
+/* ── PROGRESS ────────────────────────────────── */
+.progress-wrap {
+  margin-top: 1.5rem;
+  display: none;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+.progress-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted-hi);
+  letter-spacing: 0.05em;
+}
+.progress-pct {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+.progress-track {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  height: 4px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--lime);
+  width: 0%;
+  transition: width 0.25s ease;
+  box-shadow: 0 0 8px var(--lime-glow);
+}
+.progress-bar.ratelimit {
+  background: var(--warn);
+  box-shadow: 0 0 8px rgba(245,166,35,0.4);
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── PILLS ───────────────────────────────────── */
+.pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.pill {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--surface-2);
+}
+.pill.ok   { border-color: rgba(58,245,160,0.4); color: var(--success); background: rgba(58,245,160,0.06); }
+.pill.skip { border-color: rgba(255,79,106,0.4); color: var(--error);   background: rgba(255,79,106,0.06); }
+
+/* ── STATUS BOX ──────────────────────────────── */
+.status-box {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  display: none;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  white-space: pre-wrap;
+}
+.status-box.show { display: block; }
+.status-box.success { border-color: rgba(58,245,160,0.35); background: rgba(58,245,160,0.06); color: var(--success); }
+.status-box.error   { border-color: rgba(255,79,106,0.35);  background: rgba(255,79,106,0.06);  color: var(--error); }
+.status-box.warn    { border-color: rgba(245,166,35,0.35);  background: rgba(245,166,35,0.06);  color: var(--warn); }
+
+/* ── RESULT TABLE ────────────────────────────── */
+.result-table-wrap { overflow-x: auto; margin-top: 1.25rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.73rem; font-family: var(--font-mono); }
+th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: var(--muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  color: var(--muted-hi);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.015); }
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 2px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.badge.ok   { background: rgba(58,245,160,0.12); color: var(--success); }
+.badge.skip { background: rgba(255,79,106,0.12); color: var(--error); }
+
+/* ── RESUME BANNER ───────────────────────────── */
+.resume-banner {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(245,166,35,0.06);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: var(--radius);
+  padding: 1rem 1.5rem;
+  margin-bottom: 1px;
+  flex-wrap: wrap;
+  animation: fadeUp 0.4s ease both;
+}
+.resume-banner.show { display: flex; }
+.resume-banner p {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--warn);
+  line-height: 1.5;
+}
+.resume-banner strong { color: #ffd080; }
+
+/* ── FOOTER ──────────────────────────────────── */
+.site-footer {
+  margin-top: 4rem;
+  width: 100%;
+  max-width: 900px;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.footer-note {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.footer-link {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--lime);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+}
+.footer-link:hover { text-decoration: underline; }
+
+/* ── ANIMATIONS ──────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── DIVIDER ─────────────────────────────────── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5rem 0;
+}
 </style>
 </head>
 <body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-eyebrow">Browser-based converter · v2</div>
+  <h1 class="site-title">Mihon &amp;<br><em>Mangayomi</em><br>→ AnymeX</h1>
+  <p class="site-desc">
+    Upload a Mihon backup JSON, a Mangayomi <code>.backup</code> file, or a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file.
+  </p>
+</header>
+
 <div class="container">
 
-  <!-- LOGO -->
-  <div class="logo">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-    <div>
-      <div class="logo-text">Mihon / Mangayomi → AnymeX</div>
-      <div class="logo-sub">Browser-based backup converter</div>
-    </div>
-  </div>
-
-  <h1>Convert your manga library</h1>
-  <p class="desc">Upload a Mihon backup JSON, a Mangayomi <code>.backup</code> file, <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file.</p>
-
-  <!-- GUIDE -->
-  <div class="guide-wrap" id="guideWrap">
-    <div class="guide-header" onclick="toggleGuide()">
-      <div class="guide-header-left">
-        <span style="font-size:1rem">&#128218;</span>
-        <span class="guide-title">How to get your backup files</span>
-        <span class="guide-subtitle">expand for step-by-step</span>
+  <!-- HOW TO GET BACKUPS -->
+  <div class="accordion" id="guideWrap">
+    <div class="accordion-trigger" onclick="toggleAccordion('guideWrap')">
+      <div class="accordion-trigger-left">
+        <span class="accordion-label">How to get your backup files</span>
+        <span class="accordion-sub">expand for steps</span>
       </div>
-      <span class="guide-chevron">&#9662;</span>
+      <span class="accordion-icon">&#9662;</span>
     </div>
-    <div class="guide-body">
+    <div class="accordion-body">
       <div class="guide-tabs">
-        <div class="guide-tab active" onclick="switchGuideTab('mihon',this)">Mihon</div>
-        <div class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">Mangayomi</div>
-        <div class="guide-tab" onclick="switchGuideTab('csv',this)">CSV</div>
-        <div class="guide-tab" onclick="switchGuideTab('anymex',this)">AnymeX template</div>
+        <button class="guide-tab active" onclick="switchTab('mihon',this)">Mihon</button>
+        <button class="guide-tab tab-manga" onclick="switchTab('mangayomi',this)">Mangayomi</button>
+        <button class="guide-tab" onclick="switchTab('csv',this)">CSV</button>
+        <button class="guide-tab" onclick="switchTab('anymex',this)">AnymeX template</button>
       </div>
+
       <div class="guide-panel active" id="panel-mihon">
         <div class="guide-steps">
-          <div class="guide-step"><div class="guide-step-num">Step 1</div><p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Step 2</div><p>Open <a href="https://backup.mihon.tools" target="_blank" style="color:var(--color-primary)">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Step 3</div><p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 01</div><p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.mihon</code> file to your device.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 02</div><p>Open <a href="https://backup.mihon.tools" target="_blank">backup.mihon.tools</a>, load your backup, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 03</div><p>Upload the JSON below, optionally add an AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
         </div>
       </div>
       <div class="guide-panel" id="panel-mangayomi">
         <div class="guide-steps">
-          <div class="guide-step"><div class="guide-step-num">Step 1</div><p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file &mdash; it contains your full manga library.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Step 2</div><p>Use the <strong>Mangayomi backup (.backup)</strong> input below &mdash; no conversion needed. Status and chapter progress are imported automatically.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Step 3</div><p>Add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management → Restore backup.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 01</div><p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 02</div><p>Use the Mangayomi backup input below — no conversion needed. Status and read progress import automatically.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 03</div><p>Optionally add an AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management → Restore backup.</p></div>
         </div>
       </div>
       <div class="guide-panel" id="panel-csv">
         <div class="guide-steps">
           <div class="guide-step"><div class="guide-step-num">Format</div><p>No header row expected. First column must be the manga title.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Columns</div><p><code>Title, Status, ChaptersRead, ListName</code> &mdash; only Title is required; the rest default to PLANNING / 0 / Migrated.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Columns</div><p><code>Title, Status, ChaptersRead, ListName</code> — only Title is required; the rest default to PLANNING / 0 / Migrated.</p></div>
         </div>
-        <p class="guide-note">Status values: <code>CURRENT</code>, <code>PLANNING</code>, <code>COMPLETED</code>, <code>DROPPED</code>, <code>PAUSED</code>, <code>REPEATING</code>.</p>
+        <p class="guide-note">Status values: <code>CURRENT</code> <code>PLANNING</code> <code>COMPLETED</code> <code>DROPPED</code> <code>PAUSED</code> <code>REPEATING</code></p>
       </div>
       <div class="guide-panel" id="panel-anymex">
         <div class="guide-steps">
-          <div class="guide-step"><div class="guide-step-num">Where to get it</div><p>Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template.</p></div>
-          <div class="guide-step"><div class="guide-step-num">Why needed</div><p>The template supplies user-specific fields (userId, settings) so your restored backup looks native.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Where</div><p>Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Why</div><p>Supplies user-specific fields (userId, settings). Fully optional — a fresh file is built automatically if skipped.</p></div>
         </div>
       </div>
     </div>
@@ -228,45 +779,47 @@
 
   <!-- RESUME BANNER -->
   <div class="resume-banner" id="resumeBanner">
-    <p>&#9888;&#65039; <strong>Previous session detected.</strong> A partial result from your last fetch was saved. You can resume or start fresh.</p>
+    <p>⚠ <strong>Previous session detected.</strong> A partial result from your last fetch is saved.</p>
     <div style="display:flex;gap:0.5rem;flex-shrink:0">
-      <button onclick="resumeSession()" style="background:var(--color-warn)">&#9654; Resume</button>
-      <button class="secondary" onclick="clearSession()">Clear</button>
+      <button class="btn-warn" onclick="resumeSession()">▶ Resume</button>
+      <button class="btn-secondary" onclick="clearSession()">Clear</button>
     </div>
   </div>
 
   <!-- BATCH ADD -->
-  <div class="batch-wrap" id="batchWrap">
-    <div class="batch-header" onclick="toggleBatch()">
-      <div class="batch-header-left">
-        <span style="font-size:1.1rem">&#9889;</span>
-        <span class="batch-title">Batch Add</span>
-        <span class="batch-subtitle">paste titles, fetch AniList, get .anymex instantly &mdash; no backup needed</span>
+  <div class="batch-card" id="batchWrap">
+    <div class="batch-trigger" onclick="toggleBatch()">
+      <div class="batch-trigger-left">
+        <span class="batch-icon">⚡</span>
+        <div>
+          <div class="batch-label">Batch Add</div>
+          <div class="batch-sub">paste titles · fetch AniList · get .anymex instantly</div>
+        </div>
       </div>
       <span class="batch-chevron">&#9662;</span>
     </div>
     <div class="batch-body">
-      <p style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:1rem;line-height:1.5;">Found a bunch of manhwa online you want to add? Paste one title per line &mdash; no backup file needed. Pick your settings, optionally drop an existing <code>.anymex</code> as base (titles merge in), then hit <strong style="color:var(--color-text)">Fetch &amp; Build</strong>.</p>
+      <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-hi);line-height:1.7;margin-bottom:1.25rem">Found titles online you want to add without migrating a full backup? Paste one per line, pick your settings, optionally drop an existing <code style="color:var(--lime);background:var(--lime-dim);padding:.1em .35em;border-radius:2px;font-size:.72rem">.anymex</code> as a base (new titles merge in), then hit <strong style="color:var(--text)">Fetch &amp; Build</strong>.</p>
       <div class="field">
-        <label for="batchInput">Titles (one per line)</label>
-        <textarea class="batch-input" id="batchInput" placeholder="Solo Leveling&#10;Omniscient Reader&#10;The Beginning After the End&#10;..."></textarea>
+        <label for="batchInput">Titles — one per line</label>
+        <textarea class="batch-input" id="batchInput" placeholder="Solo Leveling&#10;Omniscient Reader&#10;The Beginning After the End"></textarea>
       </div>
-      <div class="row3">
+      <div class="row3" style="margin-bottom:1.25rem">
         <div>
           <label for="batchMediaType">Media type</label>
           <select id="batchMediaType">
-            <option value="MANGA" selected>&#128214; Manga / Manhwa</option>
-            <option value="ANIME">&#127916; Anime</option>
+            <option value="MANGA" selected>Manga / Manhwa</option>
+            <option value="ANIME">Anime</option>
           </select>
         </div>
         <div>
-          <label for="batchStatus">Reading status</label>
+          <label for="batchStatus">Status</label>
           <select id="batchStatus">
-            <option value="PLANNING" selected>&#9675; Plan to Read</option>
-            <option value="CURRENT">&#9679; Reading</option>
-            <option value="COMPLETED">&#10003; Completed</option>
-            <option value="DROPPED">&#10005; Dropped</option>
-            <option value="PAUSED">&#9208; On Hold</option>
+            <option value="PLANNING" selected>Plan to Read</option>
+            <option value="CURRENT">Reading</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="DROPPED">Dropped</option>
+            <option value="PAUSED">On Hold</option>
           </select>
         </div>
         <div>
@@ -275,12 +828,12 @@
         </div>
       </div>
       <div class="field">
-        <label for="batchBaseFile">&#128230; Base .anymex file <span style="color:var(--color-text-muted);font-size:0.78rem">(optional &mdash; new titles merge into your existing backup)</span></label>
+        <label for="batchBaseFile">Base .anymex <span style="color:var(--muted)">(optional — merge into existing backup)</span></label>
         <input type="file" id="batchBaseFile" accept=".anymex,.json,application/json">
       </div>
       <div class="btn-row">
-        <button id="batchFetchBtn" onclick="handleBatchFetch()" style="background:var(--color-success)">&#9889; Fetch &amp; Build</button>
-        <button id="batchStopBtn" class="secondary" onclick="batchStop=true" disabled>&#9632; Stop</button>
+        <button class="btn-success" id="batchFetchBtn" onclick="handleBatchFetch()">⚡ Fetch &amp; Build</button>
+        <button class="btn-secondary" id="batchStopBtn" onclick="batchStop=true" disabled>■ Stop</button>
       </div>
       <div class="batch-results-box" id="batchResultsBox"></div>
       <div class="batch-status" id="batchStatusMsg"></div>
@@ -288,20 +841,23 @@
   </div>
 
   <!-- STEP 1 -->
-  <div class="card">
-    <div class="card-title">Step 1 &mdash; Upload your backup</div>
-    <div class="row2">
+  <div class="card" style="margin-top:2rem">
+    <div class="card-head">
+      <span class="card-title">Upload backup</span>
+      <span class="card-num">01 / 03</span>
+    </div>
+    <div class="row2" style="margin-bottom:1.25rem">
       <div>
-        <label for="mihonFile">Mihon backup (JSON from backup.mihon.tools)</label>
+        <label for="mihonFile">Mihon backup <span>(JSON from backup.mihon.tools)</span></label>
         <input type="file" id="mihonFile" accept=".json,application/json" onchange="handleMihonFile(this)">
       </div>
       <div>
-        <label for="mangayomiFile">Mangayomi backup (.backup)</label>
+        <label for="mangayomiFile">Mangayomi backup <span>(.backup)</span></label>
         <input type="file" id="mangayomiFile" accept=".backup,application/octet-stream" onchange="handleMangayomiFile(this)">
       </div>
     </div>
     <div class="field">
-      <label for="csvFile">Or CSV (title, status, chaptersRead, listName)</label>
+      <label for="csvFile">Or CSV <span>(title, status, chaptersRead, listName)</span></label>
       <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCSVFile(this)">
     </div>
     <div id="parseStatus" class="status-box"></div>
@@ -309,9 +865,12 @@
 
   <!-- STEP 2 -->
   <div class="card">
-    <div class="card-title">Step 2 &mdash; AnymeX template &amp; options</div>
+    <div class="card-head">
+      <span class="card-title">Options</span>
+      <span class="card-num">02 / 03</span>
+    </div>
     <div class="field">
-      <label for="templateFile">AnymeX backup template (.anymex)</label>
+      <label for="templateFile">AnymeX template <span>(optional)</span></label>
       <input type="file" id="templateFile" accept=".anymex,.json,application/json">
     </div>
     <div class="row3">
@@ -320,7 +879,7 @@
         <input type="text" id="listName" value="Migrated" placeholder="Migrated">
       </div>
       <div>
-        <label for="delayMs">Delay between requests (ms)</label>
+        <label for="delayMs">Request delay (ms)</label>
         <input type="number" id="delayMs" min="500" step="100" value="1500">
       </div>
       <div>
@@ -332,33 +891,40 @@
 
   <!-- STEP 3 -->
   <div class="card">
-    <div class="card-title">Step 3 &mdash; Fetch &amp; Build</div>
+    <div class="card-head">
+      <span class="card-title">Fetch &amp; Build</span>
+      <span class="card-num">03 / 03</span>
+    </div>
     <div class="btn-row">
-      <button id="fetchBtn" onclick="handleFetch()" disabled>&#128269; Fetch AniList</button>
-      <button id="stopBtn" class="secondary" onclick="stopFetch()" disabled>&#9632; Stop</button>
-      <button id="retryBtn" class="warn-btn" onclick="handleRetry()" disabled style="display:none">&#8635; Retry skipped</button>
-      <button id="buildBtn" onclick="handleBuild()" disabled>&#128190; Build .anymex</button>
+      <button class="btn-primary" id="fetchBtn" onclick="handleFetch()" disabled>▶ Fetch AniList</button>
+      <button class="btn-secondary" id="stopBtn" onclick="stopFetch()" disabled>■ Stop</button>
+      <button class="btn-warn" id="retryBtn" onclick="handleRetry()" disabled style="display:none">↻ Retry skipped</button>
+      <button class="btn-primary" id="buildBtn" onclick="handleBuild()" disabled>↓ Build .anymex</button>
     </div>
     <div class="progress-wrap" id="progressWrap">
-      <div class="progress-title" id="progressTitle">Fetching&hellip;</div>
-      <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="progress-label">
+        <span class="progress-title" id="progressTitle">Fetching…</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
     </div>
     <div class="pills" id="pills"></div>
     <div class="status-box" id="fetchStatus"></div>
     <div class="result-table-wrap" id="resultTableWrap" style="display:none">
       <table id="resultTable">
-        <thead><tr><th>Title (input)</th><th>AniList match</th><th>Status</th><th>Ch.</th><th>Result</th></tr></thead>
+        <thead><tr><th>Input title</th><th>AniList match</th><th>Status</th><th>Ch.</th><th>Result</th></tr></thead>
         <tbody id="resultBody"></tbody>
       </table>
     </div>
   </div>
 
-  <p style="font-size:0.75rem;color:var(--color-text-muted);text-align:center;margin-top:1rem">
-    All processing happens in your browser. No data is sent to any server except the AniList public API.
-    &mdash; <a href="https://github.com/G1NYU/mihon-to-anymex" target="_blank" style="color:var(--color-primary)">Source on GitHub</a>
-  </p>
-
 </div>
+
+<footer class="site-footer">
+  <p class="footer-note">All processing happens in your browser. No data is sent to any server except the AniList public API.</p>
+  <a class="footer-link" href="https://github.com/G1NYU/mihon-to-anymex" target="_blank">↗ Source on GitHub</a>
+</footer>
+
 <script>
 /* ============================================================
    STATE
@@ -371,10 +937,15 @@ let pillAnilist    = null;
 const MAX_RETRIES  = 3;
 
 /* ============================================================
-   GUIDE
+   ACCORDION / TABS
    ============================================================ */
-function toggleGuide() { document.getElementById('guideWrap').classList.toggle('open'); }
-function switchGuideTab(id, el) {
+function toggleAccordion(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+function toggleBatch() {
+  document.getElementById('batchWrap').classList.toggle('open');
+}
+function switchTab(id, el) {
   document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.guide-panel').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -385,19 +956,17 @@ function switchGuideTab(id, el) {
    BATCH ADD
    ============================================================ */
 let batchStop = false;
-function toggleBatch() { document.getElementById('batchWrap').classList.toggle('open'); }
 
 async function handleBatchFetch() {
   const raw    = document.getElementById('batchInput').value;
   const titles = raw.split('\n').map(l => l.trim()).filter(Boolean);
   if (!titles.length) { document.getElementById('batchStatusMsg').textContent = 'Paste at least one title first.'; return; }
 
-  const mediaType = document.getElementById('batchMediaType').value;  // 'MANGA' | 'ANIME'
+  const mediaType = document.getElementById('batchMediaType').value;
   const status    = document.getElementById('batchStatus').value;
   const delay     = parseInt(document.getElementById('batchDelay').value) || 1500;
   const baseFile  = document.getElementById('batchBaseFile').files[0];
 
-  // load or create base object
   let base;
   if (baseFile) {
     try { base = JSON.parse(await baseFile.text()); }
@@ -425,13 +994,12 @@ async function handleBatchFetch() {
   for (let i = 0; i < titles.length; i++) {
     if (batchStop) break;
     const title = titles[i];
-
     const row = document.createElement('div');
     row.className = 'batch-result-row';
     row.innerHTML = `<span class="batch-dot wait"></span><span class="batch-result-title">${escHtml(title)}</span><span class="batch-result-match">searching…</span>`;
     box.appendChild(row);
     box.scrollTop = box.scrollHeight;
-    msg.textContent = (i + 1) + ' / ' + titles.length + ' — searching: ' + title;
+    msg.textContent = `${i + 1} / ${titles.length} — searching: ${title}`;
 
     try {
       const media = await queryAniList(title, mediaType);
@@ -439,7 +1007,6 @@ async function handleBatchFetch() {
         const displayTitle = media.title.english || media.title.romaji || title;
         const lib   = mediaType === 'ANIME' ? base.animeLibrary   : base.mangaLibrary;
         const lists = mediaType === 'ANIME' ? base.animeCustomLists : base.mangaCustomLists;
-
         if (!lib.find(x => x.mediaId === media.id)) {
           lib.push(buildLibEntry(media, { status, chaptersRead: 0 }, 'Batch Add', mediaType));
           let lst = lists.find(l => l.name === 'Batch Add');
@@ -459,8 +1026,7 @@ async function handleBatchFetch() {
       row.querySelector('.batch-dot').className = 'batch-dot skip';
       row.querySelector('.batch-result-match').textContent = 'error: ' + e.message;
     }
-
-    msg.textContent = (i + 1) + ' / ' + titles.length + ' — ' + matched + ' matched, ' + skipped + ' skipped';
+    msg.textContent = `${i + 1} / ${titles.length} — ${matched} matched, ${skipped} skipped`;
     if (i < titles.length - 1 && !batchStop) await sleepInterruptible(delay);
   }
 
@@ -473,13 +1039,12 @@ async function handleBatchFetch() {
     const a    = document.createElement('a');
     a.href = url; a.download = 'anymex_batch_' + Date.now() + '.anymex'; a.click();
     URL.revokeObjectURL(url);
-    msg.textContent = '✅ Done — ' + matched + ' added, ' + skipped + ' skipped. File downloaded!';
+    msg.textContent = `✔ Done — ${matched} added, ${skipped} skipped. File downloaded!`;
   } else if (batchStop) {
     msg.textContent = 'Stopped. ' + matched + ' matched so far.';
   } else {
     msg.textContent = 'No titles matched. Check spelling or try the other media type.';
   }
-
   document.getElementById('batchFetchBtn').disabled = false;
   document.getElementById('batchStopBtn').disabled  = true;
 }
@@ -487,33 +1052,33 @@ async function handleBatchFetch() {
 function buildLibEntry(media, entry, listName, mediaType) {
   const isAnime = mediaType === 'ANIME';
   return {
-    mediaId:       media.id,
-    title:         media.title.english || media.title.romaji || entry.title || '',
-    romajiTitle:   media.title.romaji  || '',
-    coverImage:    (media.coverImage && media.coverImage.large) ? media.coverImage.large : '',
-    bannerImage:   media.bannerImage || '',
-    status:        entry.status || 'PLANNING',
-    progress:      isAnime ? (entry.episodesWatched || 0) : (entry.chaptersRead || 0),
-    totalCount:    isAnime ? (media.episodes || 0) : (media.chapters || 0),
-    score:         0,
-    isFavorite:    false,
-    startedAt:     null,
-    completedAt:   null,
-    notes:         '',
-    listName:      listName || 'Batch Add',
-    mediaType:     mediaType,
-    format:        media.format || '',
-    genres:        media.genres || [],
-    averageScore:  media.averageScore || 0,
-    popularity:    media.popularity  || 0,
-    source:        'ANILIST'
+    mediaId:      media.id,
+    title:        media.title.english || media.title.romaji || entry.title || '',
+    romajiTitle:  media.title.romaji  || '',
+    coverImage:   (media.coverImage && media.coverImage.large) ? media.coverImage.large : '',
+    bannerImage:  media.bannerImage || '',
+    status:       entry.status || 'PLANNING',
+    progress:     isAnime ? (entry.episodesWatched || 0) : (entry.chaptersRead || 0),
+    totalCount:   isAnime ? (media.episodes || 0) : (media.chapters || 0),
+    score:        0,
+    isFavorite:   false,
+    startedAt:    null,
+    completedAt:  null,
+    notes:        '',
+    listName:     listName || 'Batch Add',
+    mediaType:    mediaType,
+    format:       media.format || '',
+    genres:       media.genres || [],
+    averageScore: media.averageScore || 0,
+    popularity:   media.popularity  || 0,
+    source:       'ANILIST'
   };
 }
 
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* ============================================================
-   RESUME / SESSION
+   RESUME
    ============================================================ */
 function checkResume() {
   try {
@@ -527,7 +1092,7 @@ function resumeSession() {
     anilistResults = d.results || [];
     parsedTitles   = d.parsed  || [];
     renderTable();
-    showFetchStatus('info', 'Session restored — ' + anilistResults.length + ' results loaded.');
+    showFetchStatus('success', 'Session restored — ' + anilistResults.length + ' results loaded.');
     document.getElementById('buildBtn').disabled = false;
     if (skippedTitles.length) enableRetry();
   } catch(e) { clearSession(); }
@@ -594,7 +1159,7 @@ function handleCSVFile(input) {
     const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
     parsedTitles = lines.map(l => {
       const cols = l.split(',').map(c => c.trim());
-      return { title: cols[0] || '', status: cols[1] || 'PLANNING', chaptersRead: parseInt(cols[2]) || 0, listName: cols[3] || 'Migrated' };
+      return { title: cols[0]||'', status: cols[1]||'PLANNING', chaptersRead: parseInt(cols[2])||0, listName: cols[3]||'Migrated' };
     }).filter(t => t.title);
     showParseStatus('success', '✔ Parsed ' + parsedTitles.length + ' titles from CSV.');
     document.getElementById('fetchBtn').disabled = parsedTitles.length === 0;
@@ -602,23 +1167,22 @@ function handleCSVFile(input) {
   reader.readAsText(file);
 }
 function convertMihonStatus(s) {
-  const map = { 1:'CURRENT', 2:'COMPLETED', 3:'PAUSED', 4:'DROPPED', 5:'PLANNING', 6:'REPEATING' };
+  const map = {1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'PLANNING',6:'REPEATING'};
   return map[s] || 'PLANNING';
 }
 function convertMangayomiStatus(s) {
-  if (typeof s === 'number') { const map = { 0:'PLANNING',1:'CURRENT',2:'COMPLETED',3:'DROPPED',4:'PAUSED' }; return map[s] || 'PLANNING'; }
+  if (typeof s === 'number') { const map={0:'PLANNING',1:'CURRENT',2:'COMPLETED',3:'DROPPED',4:'PAUSED'}; return map[s]||'PLANNING'; }
   return 'PLANNING';
 }
 
 /* ============================================================
-   ANILIST QUERY
+   ANILIST
    ============================================================ */
 async function queryAniList(title, type) {
-  const query = `query($search:String,$type:MediaType){Media(search:$search,type:$type,format_in:[MANGA,ONE_SHOT,NOVEL]){id title{romaji english}coverImage{large}bannerImage format chapters episodes genres averageScore popularity}}`;
   const mediaType = type || 'MANGA';
-  const actualQuery = mediaType === 'ANIME'
-    ? `query($search:String,$type:MediaType){Media(search:$search,type:$type){id title{romaji english}coverImage{large}bannerImage format episodes genres averageScore popularity}}`
-    : query;
+  const gql = mediaType === 'ANIME'
+    ? `query($s:String,$t:MediaType){Media(search:$s,type:$t){id title{romaji english}coverImage{large}bannerImage format episodes genres averageScore popularity}}`
+    : `query($s:String,$t:MediaType){Media(search:$s,type:$t,format_in:[MANGA,ONE_SHOT,NOVEL]){id title{romaji english}coverImage{large}bannerImage format chapters episodes genres averageScore popularity}}`;
 
   let attempt = 0;
   while (attempt <= MAX_RETRIES) {
@@ -627,7 +1191,7 @@ async function queryAniList(title, type) {
       const res = await fetch('https://graphql.anilist.co', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ query: actualQuery, variables: { search: title, type: mediaType } })
+        body: JSON.stringify({ query: gql, variables: { s: title, t: mediaType } })
       });
       if (res.status === 429) {
         if (attempt >= MAX_RETRIES) return null;
@@ -646,19 +1210,20 @@ async function queryAniList(title, type) {
 async function countdownWait(seconds) {
   const bar   = document.getElementById('progressBar');
   const title = document.getElementById('progressTitle');
-  if (bar)   bar.classList.add('ratelimit');
+  if (bar) bar.classList.add('ratelimit');
   for (let s = seconds; s > 0; s--) {
     if (isStopped || batchStop) break;
-    if (title) title.textContent = '⏸ Rate limited — resuming in ' + s + 's…';
+    if (title) title.textContent = `⏸ Rate limited — resuming in ${s}s…`;
+    if (document.getElementById('progressPct')) document.getElementById('progressPct').textContent = '';
     await sleepInterruptible(1000);
   }
-  if (bar)   bar.classList.remove('ratelimit');
+  if (bar) bar.classList.remove('ratelimit');
 }
 
 function sleepInterruptible(ms) {
   return new Promise(resolve => {
     const step = 100, end = Date.now() + ms;
-    const tick = () => { if (Date.now() >= end || isStopped || batchStop) { resolve(); } else { setTimeout(tick, step); } };
+    const tick = () => { if (Date.now() >= end || isStopped || batchStop) resolve(); else setTimeout(tick, step); };
     setTimeout(tick, step);
   });
 }
@@ -680,28 +1245,22 @@ async function handleFetch() {
   document.getElementById('pills').innerHTML = '';
   pillAnilist = null;
   showFetchStatus('', '');
-
   await runFetch(parsedTitles, false);
-
   document.getElementById('fetchBtn').disabled  = false;
   document.getElementById('stopBtn').disabled   = true;
   document.getElementById('buildBtn').disabled  = anilistResults.length === 0;
   if (skippedTitles.length > 0) enableRetry();
-  if (anilistResults.length) {
-    sessionStorage.setItem('anymex_partial', JSON.stringify({ results: anilistResults, parsed: parsedTitles }));
-  }
+  if (anilistResults.length) sessionStorage.setItem('anymex_partial', JSON.stringify({ results: anilistResults, parsed: parsedTitles }));
 }
 
 async function runFetch(titleList, isRetry) {
   const delay = parseInt(document.getElementById('delayMs').value) || 1500;
   let ok = 0, skip = 0;
   updatePills(0, 0, titleList.length);
-
   for (let i = 0; i < titleList.length; i++) {
     if (isStopped) break;
     const entry = titleList[i];
     setProgress(i, titleList.length, entry.title);
-
     const media = await queryAniList(entry.title, 'MANGA');
     if (media) {
       if (isRetry) { const idx = anilistResults.findIndex(r => r.inputTitle === entry.title); if (idx >= 0) anilistResults.splice(idx, 1); }
@@ -744,12 +1303,14 @@ function enableRetry() {
 }
 
 /* ============================================================
-   PROGRESS / UI HELPERS
+   PROGRESS / UI
    ============================================================ */
 function setProgress(i, total, label) {
   const pct = total ? Math.round((i / total) * 100) : 0;
-  document.getElementById('progressBar').style.width  = pct + '%';
+  document.getElementById('progressBar').style.width = pct + '%';
   document.getElementById('progressTitle').textContent = label + ' (' + i + '/' + total + ')';
+  const pctEl = document.getElementById('progressPct');
+  if (pctEl) pctEl.textContent = pct + '%';
 }
 
 function updatePills(ok, skip, total) {
@@ -759,12 +1320,14 @@ function updatePills(ok, skip, total) {
     pillAnilist = document.createElement('span');
     pillAnilist.className = 'pill';
     container.appendChild(pillAnilist);
-    const p2 = document.createElement('span'); p2.className = 'pill error'; p2.id = 'pillSkip'; container.appendChild(p2);
+    const p2 = document.createElement('span'); p2.className = 'pill'; p2.id = 'pillSkip'; container.appendChild(p2);
     const p3 = document.createElement('span'); p3.className = 'pill'; p3.id = 'pillTotal'; container.appendChild(p3);
   }
-  pillAnilist.className = 'pill ' + (ok > 0 ? 'success' : '');
+  pillAnilist.className = 'pill ' + (ok > 0 ? 'ok' : '');
   pillAnilist.textContent = '✔ ' + ok + ' matched';
-  document.getElementById('pillSkip').textContent  = '✖ ' + skip + ' skipped';
+  const ps = document.getElementById('pillSkip');
+  ps.className = 'pill ' + (skip > 0 ? 'skip' : '');
+  ps.textContent = '✖ ' + skip + ' skipped';
   document.getElementById('pillTotal').textContent = total + ' total';
 }
 
@@ -772,9 +1335,9 @@ function addTableRow(inputTitle, media) {
   const tbody = document.getElementById('resultBody');
   const tr = document.createElement('tr');
   if (media) {
-    tr.innerHTML = `<td>${escHtml(inputTitle)}</td><td>${escHtml(media.title.english||media.title.romaji||'')}</td><td>—</td><td>—</td><td><span class="badge ok">✔ matched</span></td>`;
+    tr.innerHTML = `<td style="color:var(--text)">${escHtml(inputTitle)}</td><td>${escHtml(media.title.english||media.title.romaji||'')}</td><td>—</td><td>—</td><td><span class="badge ok">matched</span></td>`;
   } else {
-    tr.innerHTML = `<td>${escHtml(inputTitle)}</td><td>—</td><td>—</td><td>—</td><td><span class="badge skip">✖ skipped</span></td>`;
+    tr.innerHTML = `<td style="color:var(--text)">${escHtml(inputTitle)}</td><td>—</td><td>—</td><td>—</td><td><span class="badge skip">skipped</span></td>`;
   }
   tbody.appendChild(tr);
 }
@@ -798,7 +1361,7 @@ function showFetchStatus(type, msg) {
 }
 
 /* ============================================================
-   BUILD .anymex
+   BUILD
    ============================================================ */
 function buildFreshOutput() {
   return { schemaVersion: 2, animeLibrary: [], mangaLibrary: [], animeCustomLists: [], mangaCustomLists: [], animeCount: 0, mangaCount: 0 };
@@ -808,17 +1371,14 @@ async function handleBuild() {
   if (!anilistResults.length) return;
   const tplFile  = document.getElementById('templateFile').files[0];
   const listName = document.getElementById('listName').value.trim() || 'Migrated';
-
   let output = buildFreshOutput();
   if (tplFile) {
     try { output = JSON.parse(await tplFile.text()); } catch(e) { showFetchStatus('error', 'Could not read template: ' + e.message); return; }
   }
   if (!output.mangaLibrary)     output.mangaLibrary     = [];
   if (!output.mangaCustomLists) output.mangaCustomLists = [];
-
   let customList = output.mangaCustomLists.find(l => l.name === listName);
   if (!customList) { customList = { name: listName, mediaTypeIndex: 0, mediaIds: [] }; output.mangaCustomLists.push(customList); }
-
   for (const r of anilistResults) {
     const entry = buildLibEntry(r.media, r.entry, listName, 'MANGA');
     if (!output.mangaLibrary.find(x => x.mediaId === entry.mediaId)) {
@@ -826,10 +1386,8 @@ async function handleBuild() {
       if (!customList.mediaIds.includes(entry.mediaId)) customList.mediaIds.push(entry.mediaId);
     }
   }
-
   output.mangaCount = output.mangaLibrary.length;
   output.animeCount = (output.animeLibrary || []).length;
-
   const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
