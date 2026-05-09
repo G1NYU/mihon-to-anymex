@@ -79,4 +79,765 @@
   .guide-panel.active { display: block; }
   .guide-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.1rem; }
   @media (max-width: 560px) { .guide-steps { grid-template-columns: 1fr; } }
-  .guide-step { background: rgba(0,0,0,0.25); border: 1px solid 
+  .guide-step { background: rgba(0,0,0,0.25); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.75rem 0.9rem; }
+  .guide-step-num { font-size: 0.7rem; font-weight: 700; color: var(--color-primary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+  .guide-step p { font-size: 0.8rem; color: var(--color-text-muted); line-height: 1.45; }
+  .guide-step code { background: rgba(255,255,255,0.08); padding: 0.1em 0.35em; border-radius: 3px; font-size: 0.78rem; }
+  .guide-note { font-size: 0.78rem; color: var(--color-text-muted); line-height: 1.5; padding: 0.6rem 0.9rem; background: rgba(255,255,255,0.04); border-radius: var(--radius-md); border-left: 3px solid var(--color-primary); }
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1rem; }
+  .card-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-text-muted); margin-bottom: 1rem; }
+  label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--color-text-muted); margin-bottom: 0.35rem; }
+  input[type=file], input[type=number], input[type=text], select, textarea {
+    width: 100%; background: var(--color-surface-2); border: 1px solid var(--color-border);
+    border-radius: var(--radius-md); color: var(--color-text); font-family: var(--font-body);
+    font-size: 0.875rem; padding: 0.6rem 0.75rem; outline: none; transition: border-color 0.18s;
+  }
+  input[type=file]:focus, input[type=number]:focus, input[type=text]:focus, select:focus, textarea:focus { border-color: var(--color-primary); }
+  input[type=number] { -moz-appearance: textfield; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  @media (max-width: 600px) { .row2, .row3 { grid-template-columns: 1fr; } }
+  .field { margin-bottom: 1rem; }
+  .btn-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+  button {
+    padding: 0.6rem 1.4rem; border-radius: var(--radius-full); border: none;
+    font-family: var(--font-body); font-size: 0.875rem; font-weight: 600;
+    cursor: pointer; transition: opacity 0.18s, transform 0.12s;
+    background: var(--color-primary); color: #fff;
+  }
+  button:hover { opacity: 0.88; }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+  button.secondary { background: var(--color-surface-2); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+  button.warn-btn { background: var(--color-warn); color: #fff; }
+  .progress-wrap { margin-top: 1.25rem; display: none; }
+  .progress-title { font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 0.4rem; }
+  .progress-bar-bg { background: var(--color-surface-2); border-radius: var(--radius-full); height: 6px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: var(--radius-full); background: var(--color-primary); width: 0%; transition: width 0.3s ease; }
+  .progress-bar.ratelimit { background: var(--color-warn); }
+  .pills { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+  .pill { padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; background: var(--color-surface-2); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+  .pill.success { background: rgba(109,170,69,0.15); color: #a3d97a; border-color: rgba(109,170,69,0.3); }
+  .pill.error   { background: rgba(209,99,167,0.15); color: #e89dcb; border-color: rgba(209,99,167,0.3); }
+  .pill.warn    { background: rgba(201,148,58,0.15); color: #e0b877; border-color: rgba(201,148,58,0.3); }
+  .status-box { margin-top: 1rem; padding: 0.9rem 1rem; border-radius: var(--radius-md); font-size: 0.82rem; line-height: 1.55; display: none; border: 1px solid var(--color-border); background: var(--color-surface-2); white-space: pre-wrap; }
+  .status-box.show { display: block; }
+  .status-box.success { border-color: rgba(109,170,69,0.35); background: rgba(109,170,69,0.08); color: #a3d97a; }
+  .status-box.error   { border-color: rgba(209,99,167,0.35); background: rgba(209,99,167,0.08); color: #e89dcb; }
+  .status-box.warn    { border-color: rgba(201,148,58,0.35); background: rgba(201,148,58,0.08); color: #e0b877; }
+  .result-table-wrap { overflow-x: auto; margin-top: 1rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  th { text-align: left; padding: 0.4rem 0.6rem; color: var(--color-text-muted); font-weight: 600; border-bottom: 1px solid var(--color-border); }
+  td { padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom: none; }
+  .badge { display: inline-block; padding: 0.15rem 0.55rem; border-radius: var(--radius-full); font-size: 0.7rem; font-weight: 700; }
+  .badge.ok   { background: rgba(109,170,69,0.2);  color: #a3d97a; }
+  .badge.skip { background: rgba(209,99,167,0.2);  color: #e89dcb; }
+  .badge.wait { background: rgba(201,148,58,0.2);  color: #e0b877; }
+  .resume-banner { display: none; align-items: center; justify-content: space-between; gap: 1rem; background: rgba(201,148,58,0.1); border: 1px solid rgba(201,148,58,0.3); border-radius: var(--radius-lg); padding: 0.9rem 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .resume-banner.show { display: flex; }
+  .resume-banner p { font-size: 0.82rem; color: #e0b877; line-height: 1.45; }
+  .resume-banner strong { color: #f0ca8a; }
+  /* Batch Add */
+  .batch-wrap { background: linear-gradient(135deg, rgba(157,232,106,0.07) 0%, rgba(79,152,163,0.05) 100%); border: 1px solid rgba(157,232,106,0.2); border-radius: var(--radius-lg); margin-bottom: 1rem; overflow: hidden; transition: border-color 0.2s; }
+  .batch-wrap:hover { border-color: rgba(157,232,106,0.35); }
+  .batch-header { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.25rem; cursor: pointer; user-select: none; gap: 0.75rem; }
+  .batch-header-left { display: flex; align-items: center; gap: 0.6rem; }
+  .batch-title { font-size: 0.88rem; font-weight: 600; color: var(--color-text); }
+  .batch-subtitle { font-size: 0.75rem; color: var(--color-text-muted); margin-left: 0.25rem; }
+  .batch-chevron { color: var(--color-text-muted); font-size: 0.8rem; transition: transform 0.25s ease; flex-shrink: 0; }
+  .batch-wrap.open .batch-chevron { transform: rotate(180deg); }
+  .batch-body { display: none; padding: 0 1.25rem 1.25rem; }
+  .batch-wrap.open .batch-body { display: block; }
+  textarea.batch-input { width: 100%; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; padding: 0.75rem 0.9rem; outline: none; resize: vertical; min-height: 120px; transition: border-color 0.18s; margin-bottom: 1rem; }
+  textarea.batch-input:focus { border-color: var(--color-primary); }
+  .batch-result-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.82rem; flex-wrap: wrap; }
+  .batch-result-row:last-child { border-bottom: none; }
+  .batch-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .batch-dot.ok   { background: var(--color-success); }
+  .batch-dot.skip { background: var(--color-error); }
+  .batch-dot.wait { background: var(--color-warn); }
+  .batch-result-title { flex: 1; color: var(--color-text); }
+  .batch-result-match { color: var(--color-text-muted); font-size: 0.76rem; }
+  .batch-results-box { background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.75rem 1rem; max-height: 260px; overflow-y: auto; margin-bottom: 1rem; display: none; }
+  .batch-results-box.show { display: block; }
+  .batch-status { margin-top: 0.75rem; font-size: 0.83rem; color: var(--color-text-muted); min-height: 1.2em; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- LOGO -->
+  <div class="logo">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <div>
+      <div class="logo-text">Mihon / Mangayomi → AnymeX</div>
+      <div class="logo-sub">Browser-based backup converter</div>
+    </div>
+  </div>
+
+  <h1>Convert your manga library</h1>
+  <p class="desc">Upload a Mihon backup JSON, a Mangayomi <code>.backup</code> file, <em>or</em> a plain CSV alongside an AnymeX template. The browser queries AniList and downloads a ready-to-restore <code>.anymex</code> file &mdash; no Python, no install.</p>
+
+  <!-- GUIDE -->
+  <div class="guide-wrap" id="guideWrap">
+    <div class="guide-header" onclick="toggleGuide()">
+      <div class="guide-header-left">
+        <span style="font-size:1rem">&#128218;</span>
+        <span class="guide-title">How to get your backup files</span>
+        <span class="guide-subtitle">expand for step-by-step</span>
+      </div>
+      <span class="guide-chevron">&#9662;</span>
+    </div>
+    <div class="guide-body">
+      <div class="guide-tabs">
+        <div class="guide-tab active" onclick="switchGuideTab('mihon',this)">Mihon</div>
+        <div class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">Mangayomi</div>
+        <div class="guide-tab" onclick="switchGuideTab('csv',this)">CSV</div>
+        <div class="guide-tab" onclick="switchGuideTab('anymex',this)">AnymeX template</div>
+      </div>
+      <div class="guide-panel active" id="panel-mihon">
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">Step 1</div><p>In Mihon, go to <strong>More → Backup &amp; restore → Create backup</strong>. Save the <code>.tachibk</code> file to your device.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 2</div><p>Open <a href="https://backup.mihon.tools" target="_blank" style="color:var(--color-primary)">backup.mihon.tools</a>, load your <code>.tachibk</code>, then click <strong>Download → JSON</strong>. That JSON file is your input here.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 3</div><p>Upload the JSON below, add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management.</p></div>
+        </div>
+      </div>
+      <div class="guide-panel" id="panel-mangayomi">
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">Step 1</div><p>In Mangayomi, go to <strong>More → Settings → Backup &amp; restore → Create backup</strong>. Save the <code>.backup</code> file &mdash; it contains your full manga library.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 2</div><p>Use the <strong>Mangayomi backup (.backup)</strong> input below &mdash; no conversion needed. Status and chapter progress are imported automatically.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Step 3</div><p>Add your AnymeX template, click <strong>Parse → Fetch → Build</strong>. Restore the <code>.anymex</code> in AnymeX → Data Management → Restore backup.</p></div>
+        </div>
+      </div>
+      <div class="guide-panel" id="panel-csv">
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">Format</div><p>No header row expected. First column must be the manga title.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Columns</div><p><code>Title, Status, ChaptersRead, ListName</code> &mdash; only Title is required; the rest default to PLANNING / 0 / Migrated.</p></div>
+        </div>
+        <p class="guide-note">Status values: <code>CURRENT</code>, <code>PLANNING</code>, <code>COMPLETED</code>, <code>DROPPED</code>, <code>PAUSED</code>, <code>REPEATING</code>.</p>
+      </div>
+      <div class="guide-panel" id="panel-anymex">
+        <div class="guide-steps">
+          <div class="guide-step"><div class="guide-step-num">Where to get it</div><p>Open AnymeX → Data Management → Backup Data. Even a 1-manga backup works as template.</p></div>
+          <div class="guide-step"><div class="guide-step-num">Why needed</div><p>The template supplies user-specific fields (userId, settings) so your restored backup looks native.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESUME BANNER -->
+  <div class="resume-banner" id="resumeBanner">
+    <p>&#9888;&#65039; <strong>Previous session detected.</strong> A partial result from your last fetch was saved. You can resume or start fresh.</p>
+    <div style="display:flex;gap:0.5rem;flex-shrink:0">
+      <button onclick="resumeSession()" style="background:var(--color-warn)">&#9654; Resume</button>
+      <button class="secondary" onclick="clearSession()">Clear</button>
+    </div>
+  </div>
+
+  <!-- BATCH ADD -->
+  <div class="batch-wrap" id="batchWrap">
+    <div class="batch-header" onclick="toggleBatch()">
+      <div class="batch-header-left">
+        <span style="font-size:1.1rem">&#9889;</span>
+        <span class="batch-title">Batch Add</span>
+        <span class="batch-subtitle">paste titles, fetch AniList, get .anymex instantly &mdash; no backup needed</span>
+      </div>
+      <span class="batch-chevron">&#9662;</span>
+    </div>
+    <div class="batch-body">
+      <p style="font-size:0.82rem;color:var(--color-text-muted);margin-bottom:1rem;line-height:1.5;">Found a bunch of manhwa online you want to add? Paste one title per line &mdash; no backup file needed. Pick your settings, optionally drop an existing <code>.anymex</code> as base (titles merge in), then hit <strong style="color:var(--color-text)">Fetch &amp; Build</strong>.</p>
+      <div class="field">
+        <label for="batchInput">Titles (one per line)</label>
+        <textarea class="batch-input" id="batchInput" placeholder="Solo Leveling&#10;Omniscient Reader&#10;The Beginning After the End&#10;..."></textarea>
+      </div>
+      <div class="row3">
+        <div>
+          <label for="batchMediaType">Media type</label>
+          <select id="batchMediaType">
+            <option value="MANGA" selected>&#128214; Manga / Manhwa</option>
+            <option value="ANIME">&#127916; Anime</option>
+          </select>
+        </div>
+        <div>
+          <label for="batchStatus">Reading status</label>
+          <select id="batchStatus">
+            <option value="PLANNING" selected>&#9675; Plan to Read</option>
+            <option value="CURRENT">&#9679; Reading</option>
+            <option value="COMPLETED">&#10003; Completed</option>
+            <option value="DROPPED">&#10005; Dropped</option>
+            <option value="PAUSED">&#9208; On Hold</option>
+          </select>
+        </div>
+        <div>
+          <label for="batchDelay">Delay (ms)</label>
+          <input type="number" id="batchDelay" min="500" step="100" value="1500">
+        </div>
+      </div>
+      <div class="field">
+        <label for="batchBaseFile">&#128230; Base .anymex file <span style="color:var(--color-text-muted);font-size:0.78rem">(optional &mdash; new titles merge into your existing backup)</span></label>
+        <input type="file" id="batchBaseFile" accept=".anymex,.json,application/json">
+      </div>
+      <div class="btn-row">
+        <button id="batchFetchBtn" onclick="handleBatchFetch()" style="background:var(--color-success)">&#9889; Fetch &amp; Build</button>
+        <button id="batchStopBtn" class="secondary" onclick="batchStop=true" disabled>&#9632; Stop</button>
+      </div>
+      <div class="batch-results-box" id="batchResultsBox"></div>
+      <div class="batch-status" id="batchStatusMsg"></div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-title">Step 1 &mdash; Upload your backup</div>
+    <div class="row2">
+      <div>
+        <label for="mihonFile">Mihon backup (JSON from backup.mihon.tools)</label>
+        <input type="file" id="mihonFile" accept=".json,application/json" onchange="handleMihonFile(this)">
+      </div>
+      <div>
+        <label for="mangayomiFile">Mangayomi backup (.backup)</label>
+        <input type="file" id="mangayomiFile" accept=".backup,application/octet-stream" onchange="handleMangayomiFile(this)">
+      </div>
+    </div>
+    <div class="field">
+      <label for="csvFile">Or CSV (title, status, chaptersRead, listName)</label>
+      <input type="file" id="csvFile" accept=".csv,text/csv" onchange="handleCSVFile(this)">
+    </div>
+    <div id="parseStatus" class="status-box"></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card">
+    <div class="card-title">Step 2 &mdash; AnymeX template &amp; options</div>
+    <div class="field">
+      <label for="templateFile">AnymeX backup template (.anymex)</label>
+      <input type="file" id="templateFile" accept=".anymex,.json,application/json">
+    </div>
+    <div class="row3">
+      <div>
+        <label for="listName">Custom list name</label>
+        <input type="text" id="listName" value="Migrated" placeholder="Migrated">
+      </div>
+      <div>
+        <label for="delayMs">Delay between requests (ms)</label>
+        <input type="number" id="delayMs" min="500" step="100" value="1500">
+      </div>
+      <div>
+        <label for="maxRetries">Max 429 retries</label>
+        <input type="number" id="maxRetries" min="1" max="10" value="3">
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card">
+    <div class="card-title">Step 3 &mdash; Fetch &amp; Build</div>
+    <div class="btn-row">
+      <button id="fetchBtn" onclick="handleFetch()" disabled>&#128269; Fetch AniList</button>
+      <button id="stopBtn" class="secondary" onclick="stopFetch()" disabled>&#9632; Stop</button>
+      <button id="retryBtn" class="warn-btn" onclick="handleRetry()" disabled style="display:none">&#8635; Retry skipped</button>
+      <button id="buildBtn" onclick="handleBuild()" disabled>&#128190; Build .anymex</button>
+    </div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-title" id="progressTitle">Fetching&hellip;</div>
+      <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+    <div class="pills" id="pills"></div>
+    <div class="status-box" id="fetchStatus"></div>
+    <div class="result-table-wrap" id="resultTableWrap" style="display:none">
+      <table id="resultTable">
+        <thead><tr><th>Title (input)</th><th>AniList match</th><th>Status</th><th>Ch.</th><th>Result</th></tr></thead>
+        <tbody id="resultBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <p style="font-size:0.75rem;color:var(--color-text-muted);text-align:center;margin-top:1rem">
+    All processing happens in your browser. No data is sent to any server except the AniList public API.
+    &mdash; <a href="https://github.com/G1NYU/mihon-to-anymex" target="_blank" style="color:var(--color-primary)">Source on GitHub</a>
+  </p>
+
+</div>
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let parsedTitles   = [];
+let anilistResults = [];
+let skippedTitles  = [];
+let isStopped      = false;
+let pillAnilist    = null;
+const MAX_RETRIES  = 3;
+
+/* ============================================================
+   GUIDE
+   ============================================================ */
+function toggleGuide() { document.getElementById('guideWrap').classList.toggle('open'); }
+function switchGuideTab(id, el) {
+  document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.guide-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+/* ============================================================
+   BATCH ADD
+   ============================================================ */
+let batchStop = false;
+function toggleBatch() { document.getElementById('batchWrap').classList.toggle('open'); }
+
+async function handleBatchFetch() {
+  const raw    = document.getElementById('batchInput').value;
+  const titles = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!titles.length) { document.getElementById('batchStatusMsg').textContent = 'Paste at least one title first.'; return; }
+
+  const mediaType = document.getElementById('batchMediaType').value;  // 'MANGA' | 'ANIME'
+  const status    = document.getElementById('batchStatus').value;
+  const delay     = parseInt(document.getElementById('batchDelay').value) || 1500;
+  const baseFile  = document.getElementById('batchBaseFile').files[0];
+
+  // load or create base object
+  let base;
+  if (baseFile) {
+    try { base = JSON.parse(await baseFile.text()); }
+    catch(e) { document.getElementById('batchStatusMsg').textContent = 'Could not read base file: ' + e.message; return; }
+  } else {
+    base = buildFreshOutput();
+  }
+  if (!base.animeLibrary)     base.animeLibrary     = [];
+  if (!base.mangaLibrary)     base.mangaLibrary     = [];
+  if (!base.animeCustomLists) base.animeCustomLists = [];
+  if (!base.mangaCustomLists) base.mangaCustomLists = [];
+
+  batchStop = false;
+  document.getElementById('batchFetchBtn').disabled = true;
+  document.getElementById('batchStopBtn').disabled  = false;
+
+  const box = document.getElementById('batchResultsBox');
+  box.innerHTML = '';
+  box.classList.add('show');
+  const msg = document.getElementById('batchStatusMsg');
+  msg.textContent = 'Starting…';
+
+  let matched = 0, skipped = 0;
+
+  for (let i = 0; i < titles.length; i++) {
+    if (batchStop) break;
+    const title = titles[i];
+
+    const row = document.createElement('div');
+    row.className = 'batch-result-row';
+    row.innerHTML = `<span class="batch-dot wait"></span><span class="batch-result-title">${escHtml(title)}</span><span class="batch-result-match">searching…</span>`;
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+    msg.textContent = (i + 1) + ' / ' + titles.length + ' — searching: ' + title;
+
+    try {
+      const media = await queryAniList(title, mediaType);
+      if (media) {
+        const displayTitle = media.title.english || media.title.romaji || title;
+        const lib   = mediaType === 'ANIME' ? base.animeLibrary   : base.mangaLibrary;
+        const lists = mediaType === 'ANIME' ? base.animeCustomLists : base.mangaCustomLists;
+
+        if (!lib.find(x => x.mediaId === media.id)) {
+          lib.push(buildLibEntry(media, { status, chaptersRead: 0 }, 'Batch Add', mediaType));
+          let lst = lists.find(l => l.name === 'Batch Add');
+          if (!lst) { lst = { name: 'Batch Add', mediaTypeIndex: mediaType === 'ANIME' ? 1 : 0, mediaIds: [] }; lists.push(lst); }
+          if (!lst.mediaIds.includes(media.id)) lst.mediaIds.push(media.id);
+        }
+        matched++;
+        row.querySelector('.batch-dot').className = 'batch-dot ok';
+        row.querySelector('.batch-result-match').textContent = '→ ' + displayTitle;
+      } else {
+        skipped++;
+        row.querySelector('.batch-dot').className = 'batch-dot skip';
+        row.querySelector('.batch-result-match').textContent = 'not found';
+      }
+    } catch(e) {
+      skipped++;
+      row.querySelector('.batch-dot').className = 'batch-dot skip';
+      row.querySelector('.batch-result-match').textContent = 'error: ' + e.message;
+    }
+
+    msg.textContent = (i + 1) + ' / ' + titles.length + ' — ' + matched + ' matched, ' + skipped + ' skipped';
+    if (i < titles.length - 1 && !batchStop) await sleepInterruptible(delay);
+  }
+
+  base.animeCount = (base.animeLibrary || []).length;
+  base.mangaCount = (base.mangaLibrary || []).length;
+
+  if (!batchStop && matched > 0) {
+    const blob = new Blob([JSON.stringify(base, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = 'anymex_batch_' + Date.now() + '.anymex'; a.click();
+    URL.revokeObjectURL(url);
+    msg.textContent = '✅ Done — ' + matched + ' added, ' + skipped + ' skipped. File downloaded!';
+  } else if (batchStop) {
+    msg.textContent = 'Stopped. ' + matched + ' matched so far.';
+  } else {
+    msg.textContent = 'No titles matched. Check spelling or try the other media type.';
+  }
+
+  document.getElementById('batchFetchBtn').disabled = false;
+  document.getElementById('batchStopBtn').disabled  = true;
+}
+
+function buildLibEntry(media, entry, listName, mediaType) {
+  const isAnime = mediaType === 'ANIME';
+  return {
+    mediaId:       media.id,
+    title:         media.title.english || media.title.romaji || entry.title || '',
+    romajiTitle:   media.title.romaji  || '',
+    coverImage:    (media.coverImage && media.coverImage.large) ? media.coverImage.large : '',
+    bannerImage:   media.bannerImage || '',
+    status:        entry.status || 'PLANNING',
+    progress:      isAnime ? (entry.episodesWatched || 0) : (entry.chaptersRead || 0),
+    totalCount:    isAnime ? (media.episodes || 0) : (media.chapters || 0),
+    score:         0,
+    isFavorite:    false,
+    startedAt:     null,
+    completedAt:   null,
+    notes:         '',
+    listName:      listName || 'Batch Add',
+    mediaType:     mediaType,
+    format:        media.format || '',
+    genres:        media.genres || [],
+    averageScore:  media.averageScore || 0,
+    popularity:    media.popularity  || 0,
+    source:        'ANILIST'
+  };
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ============================================================
+   RESUME / SESSION
+   ============================================================ */
+function checkResume() {
+  try {
+    const s = sessionStorage.getItem('anymex_partial');
+    if (s) { const d = JSON.parse(s); if (d && d.results && d.results.length) document.getElementById('resumeBanner').classList.add('show'); }
+  } catch(e){}
+}
+function resumeSession() {
+  try {
+    const d = JSON.parse(sessionStorage.getItem('anymex_partial'));
+    anilistResults = d.results || [];
+    parsedTitles   = d.parsed  || [];
+    renderTable();
+    showFetchStatus('info', 'Session restored — ' + anilistResults.length + ' results loaded.');
+    document.getElementById('buildBtn').disabled = false;
+    if (skippedTitles.length) enableRetry();
+  } catch(e) { clearSession(); }
+  document.getElementById('resumeBanner').classList.remove('show');
+}
+function clearSession() {
+  sessionStorage.removeItem('anymex_partial');
+  document.getElementById('resumeBanner').classList.remove('show');
+}
+checkResume();
+
+/* ============================================================
+   FILE PARSERS
+   ============================================================ */
+function handleMihonFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const backupManga = data.backupManga || [];
+      parsedTitles = backupManga.map(m => ({
+        title:        m.title || '',
+        status:       convertMihonStatus(m.status),
+        chaptersRead: m.lastChapterRead || 0,
+        listName:     'Migrated'
+      })).filter(t => t.title);
+      showParseStatus('success', '✔ Parsed ' + parsedTitles.length + ' titles from Mihon backup.');
+      document.getElementById('fetchBtn').disabled = parsedTitles.length === 0;
+    } catch(err) { showParseStatus('error', 'Failed to parse Mihon JSON: ' + err.message); }
+  };
+  reader.readAsText(file);
+}
+function handleMangayomiFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const buf = e.target.result;
+      JSZip.loadAsync(buf).then(zip => {
+        const entry = zip.file('manga.json') || zip.file(Object.keys(zip.files)[0]);
+        if (!entry) throw new Error('No JSON entry found in .backup');
+        entry.async('text').then(text => {
+          const data = JSON.parse(text);
+          const mangas = data.manga || data.mangas || [];
+          parsedTitles = mangas.map(m => ({
+            title:        m.name || m.title || '',
+            status:       convertMangayomiStatus(m.lastReadChapterIndex !== undefined ? m.userCategoryList : m.status),
+            chaptersRead: typeof m.lastReadChapterIndex === 'number' ? m.lastReadChapterIndex : 0,
+            listName:     'Migrated'
+          })).filter(t => t.title);
+          showParseStatus('success', '✔ Parsed ' + parsedTitles.length + ' titles from Mangayomi backup.');
+          document.getElementById('fetchBtn').disabled = parsedTitles.length === 0;
+        });
+      }).catch(err => { showParseStatus('error', 'Failed to read .backup: ' + err.message); });
+    } catch(err) { showParseStatus('error', 'Error: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function handleCSVFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
+    parsedTitles = lines.map(l => {
+      const cols = l.split(',').map(c => c.trim());
+      return { title: cols[0] || '', status: cols[1] || 'PLANNING', chaptersRead: parseInt(cols[2]) || 0, listName: cols[3] || 'Migrated' };
+    }).filter(t => t.title);
+    showParseStatus('success', '✔ Parsed ' + parsedTitles.length + ' titles from CSV.');
+    document.getElementById('fetchBtn').disabled = parsedTitles.length === 0;
+  };
+  reader.readAsText(file);
+}
+function convertMihonStatus(s) {
+  const map = { 1:'CURRENT', 2:'COMPLETED', 3:'PAUSED', 4:'DROPPED', 5:'PLANNING', 6:'REPEATING' };
+  return map[s] || 'PLANNING';
+}
+function convertMangayomiStatus(s) {
+  if (typeof s === 'number') { const map = { 0:'PLANNING',1:'CURRENT',2:'COMPLETED',3:'DROPPED',4:'PAUSED' }; return map[s] || 'PLANNING'; }
+  return 'PLANNING';
+}
+
+/* ============================================================
+   ANILIST QUERY
+   ============================================================ */
+async function queryAniList(title, type) {
+  const query = `query($search:String,$type:MediaType){Media(search:$search,type:$type,format_in:[MANGA,ONE_SHOT,NOVEL]){id title{romaji english}coverImage{large}bannerImage format chapters episodes genres averageScore popularity}}`;
+  const mediaType = type || 'MANGA';
+  const actualQuery = mediaType === 'ANIME'
+    ? `query($search:String,$type:MediaType){Media(search:$search,type:$type){id title{romaji english}coverImage{large}bannerImage format episodes genres averageScore popularity}}`
+    : query;
+
+  let attempt = 0;
+  while (attempt <= MAX_RETRIES) {
+    if (isStopped) return null;
+    try {
+      const res = await fetch('https://graphql.anilist.co', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ query: actualQuery, variables: { search: title, type: mediaType } })
+      });
+      if (res.status === 429) {
+        if (attempt >= MAX_RETRIES) return null;
+        const retryAfter = parseInt(res.headers.get('Retry-After') || '60');
+        await countdownWait(retryAfter);
+        attempt++; continue;
+      }
+      if (!res.ok) return null;
+      const json = await res.json();
+      return (json.data && json.data.Media) ? json.data.Media : null;
+    } catch(e) { return null; }
+  }
+  return null;
+}
+
+async function countdownWait(seconds) {
+  const bar   = document.getElementById('progressBar');
+  const title = document.getElementById('progressTitle');
+  if (bar)   bar.classList.add('ratelimit');
+  for (let s = seconds; s > 0; s--) {
+    if (isStopped || batchStop) break;
+    if (title) title.textContent = '⏸ Rate limited — resuming in ' + s + 's…';
+    await sleepInterruptible(1000);
+  }
+  if (bar)   bar.classList.remove('ratelimit');
+}
+
+function sleepInterruptible(ms) {
+  return new Promise(resolve => {
+    const step = 100, end = Date.now() + ms;
+    const tick = () => { if (Date.now() >= end || isStopped || batchStop) { resolve(); } else { setTimeout(tick, step); } };
+    setTimeout(tick, step);
+  });
+}
+
+/* ============================================================
+   MAIN FETCH
+   ============================================================ */
+async function handleFetch() {
+  if (!parsedTitles.length) return;
+  isStopped = false;
+  anilistResults = []; skippedTitles = [];
+  document.getElementById('fetchBtn').disabled = true;
+  document.getElementById('stopBtn').disabled  = false;
+  document.getElementById('buildBtn').disabled = true;
+  document.getElementById('retryBtn').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('resultTableWrap').style.display = 'none';
+  document.getElementById('resultBody').innerHTML = '';
+  document.getElementById('pills').innerHTML = '';
+  pillAnilist = null;
+  showFetchStatus('', '');
+
+  await runFetch(parsedTitles, false);
+
+  document.getElementById('fetchBtn').disabled  = false;
+  document.getElementById('stopBtn').disabled   = true;
+  document.getElementById('buildBtn').disabled  = anilistResults.length === 0;
+  if (skippedTitles.length > 0) enableRetry();
+  if (anilistResults.length) {
+    sessionStorage.setItem('anymex_partial', JSON.stringify({ results: anilistResults, parsed: parsedTitles }));
+  }
+}
+
+async function runFetch(titleList, isRetry) {
+  const delay = parseInt(document.getElementById('delayMs').value) || 1500;
+  let ok = 0, skip = 0;
+  updatePills(0, 0, titleList.length);
+
+  for (let i = 0; i < titleList.length; i++) {
+    if (isStopped) break;
+    const entry = titleList[i];
+    setProgress(i, titleList.length, entry.title);
+
+    const media = await queryAniList(entry.title, 'MANGA');
+    if (media) {
+      if (isRetry) { const idx = anilistResults.findIndex(r => r.inputTitle === entry.title); if (idx >= 0) anilistResults.splice(idx, 1); }
+      anilistResults.push({ inputTitle: entry.title, media, entry });
+      const si = skippedTitles.indexOf(entry.title); if (si >= 0) skippedTitles.splice(si, 1);
+      ok++;
+    } else {
+      if (!isRetry && !skippedTitles.includes(entry.title)) skippedTitles.push(entry.title);
+      skip++;
+    }
+    updatePills(ok, skip, titleList.length);
+    addTableRow(entry.title, media);
+    if (i < titleList.length - 1) await sleepInterruptible(delay);
+  }
+  setProgress(titleList.length, titleList.length, isStopped ? 'Stopped' : 'Done');
+  document.getElementById('resultTableWrap').style.display = 'block';
+  showFetchStatus('success', (isStopped ? 'Stopped. ' : '✔ Done. ') + ok + ' matched, ' + skip + ' skipped.');
+}
+
+async function handleRetry() {
+  if (!skippedTitles.length) return;
+  isStopped = false;
+  document.getElementById('retryBtn').disabled = true;
+  document.getElementById('stopBtn').disabled  = false;
+  const toRetry = parsedTitles.filter(p => skippedTitles.includes(p.title));
+  await runFetch(toRetry, true);
+  document.getElementById('stopBtn').disabled  = true;
+  document.getElementById('buildBtn').disabled = anilistResults.length === 0;
+  if (skippedTitles.length > 0) enableRetry(); else document.getElementById('retryBtn').style.display = 'none';
+  sessionStorage.setItem('anymex_partial', JSON.stringify({ results: anilistResults, parsed: parsedTitles }));
+}
+
+function stopFetch() { isStopped = true; }
+
+function enableRetry() {
+  const btn = document.getElementById('retryBtn');
+  btn.style.display = '';
+  btn.disabled = false;
+  btn.textContent = '↻ Retry skipped (' + skippedTitles.length + ')';
+}
+
+/* ============================================================
+   PROGRESS / UI HELPERS
+   ============================================================ */
+function setProgress(i, total, label) {
+  const pct = total ? Math.round((i / total) * 100) : 0;
+  document.getElementById('progressBar').style.width  = pct + '%';
+  document.getElementById('progressTitle').textContent = label + ' (' + i + '/' + total + ')';
+}
+
+function updatePills(ok, skip, total) {
+  const container = document.getElementById('pills');
+  if (!pillAnilist) {
+    container.innerHTML = '';
+    pillAnilist = document.createElement('span');
+    pillAnilist.className = 'pill';
+    container.appendChild(pillAnilist);
+    const p2 = document.createElement('span'); p2.className = 'pill error'; p2.id = 'pillSkip'; container.appendChild(p2);
+    const p3 = document.createElement('span'); p3.className = 'pill'; p3.id = 'pillTotal'; container.appendChild(p3);
+  }
+  pillAnilist.className = 'pill ' + (ok > 0 ? 'success' : '');
+  pillAnilist.textContent = '✔ ' + ok + ' matched';
+  document.getElementById('pillSkip').textContent  = '✖ ' + skip + ' skipped';
+  document.getElementById('pillTotal').textContent = total + ' total';
+}
+
+function addTableRow(inputTitle, media) {
+  const tbody = document.getElementById('resultBody');
+  const tr = document.createElement('tr');
+  if (media) {
+    tr.innerHTML = `<td>${escHtml(inputTitle)}</td><td>${escHtml(media.title.english||media.title.romaji||'')}</td><td>—</td><td>—</td><td><span class="badge ok">✔ matched</span></td>`;
+  } else {
+    tr.innerHTML = `<td>${escHtml(inputTitle)}</td><td>—</td><td>—</td><td>—</td><td><span class="badge skip">✖ skipped</span></td>`;
+  }
+  tbody.appendChild(tr);
+}
+
+function renderTable() {
+  document.getElementById('resultBody').innerHTML = '';
+  anilistResults.forEach(r => addTableRow(r.inputTitle, r.media));
+  document.getElementById('resultTableWrap').style.display = 'block';
+}
+
+function showParseStatus(type, msg) {
+  const el = document.getElementById('parseStatus');
+  el.className = 'status-box show ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : '');
+  el.textContent = msg;
+}
+function showFetchStatus(type, msg) {
+  const el = document.getElementById('fetchStatus');
+  if (!msg) { el.className = 'status-box'; el.textContent = ''; return; }
+  el.className = 'status-box show ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warn' ? 'warn' : '');
+  el.textContent = msg;
+}
+
+/* ============================================================
+   BUILD .anymex
+   ============================================================ */
+function buildFreshOutput() {
+  return { schemaVersion: 2, animeLibrary: [], mangaLibrary: [], animeCustomLists: [], mangaCustomLists: [], animeCount: 0, mangaCount: 0 };
+}
+
+async function handleBuild() {
+  if (!anilistResults.length) return;
+  const tplFile  = document.getElementById('templateFile').files[0];
+  const listName = document.getElementById('listName').value.trim() || 'Migrated';
+
+  let output = buildFreshOutput();
+  if (tplFile) {
+    try { output = JSON.parse(await tplFile.text()); } catch(e) { showFetchStatus('error', 'Could not read template: ' + e.message); return; }
+  }
+  if (!output.mangaLibrary)     output.mangaLibrary     = [];
+  if (!output.mangaCustomLists) output.mangaCustomLists = [];
+
+  let customList = output.mangaCustomLists.find(l => l.name === listName);
+  if (!customList) { customList = { name: listName, mediaTypeIndex: 0, mediaIds: [] }; output.mangaCustomLists.push(customList); }
+
+  for (const r of anilistResults) {
+    const entry = buildLibEntry(r.media, r.entry, listName, 'MANGA');
+    if (!output.mangaLibrary.find(x => x.mediaId === entry.mediaId)) {
+      output.mangaLibrary.push(entry);
+      if (!customList.mediaIds.includes(entry.mediaId)) customList.mediaIds.push(entry.mediaId);
+    }
+  }
+
+  output.mangaCount = output.mangaLibrary.length;
+  output.animeCount = (output.animeLibrary || []).length;
+
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'anymex_' + Date.now() + '.anymex'; a.click();
+  URL.revokeObjectURL(url);
+  showFetchStatus('success', '✔ .anymex file downloaded! Restore it in AnymeX → Data Management.');
+  clearSession();
+}
+</script>
+</body>
+</html>
