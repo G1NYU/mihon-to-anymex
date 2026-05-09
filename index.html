@@ -848,5 +848,64 @@ function startParticles(){ const cv=$('particleCanvas'),ctx=cv.getContext('2d');
 
 initGuide();checkResume();updateButtons();
 </script>
+  <style>
+.site-footer{background:rgba(8,8,8,0.95);border-top:1px solid rgba(200,245,58,0.15);padding:2.5rem 1rem 1.5rem;margin-top:3rem;font-family:'Space Mono',monospace;}
+.footer-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;}
+.footer-author{display:flex;align-items:center;gap:1rem;}
+.footer-avatar{width:44px;height:44px;border-radius:50%;border:2px solid rgba(200,245,58,0.4);object-fit:cover;}
+.footer-handle{color:#fff;font-size:0.8rem;font-weight:700;letter-spacing:0.08em;margin-bottom:0.4rem;}
+.footer-links{display:flex;gap:0.5rem;flex-wrap:wrap;}
+.footer-btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.3rem 0.75rem;border-radius:4px;font-size:0.7rem;font-family:'Space Mono',monospace;font-weight:700;letter-spacing:0.06em;text-decoration:none;border:1px solid;transition:all 0.2s;}
+.footer-btn.anilist{color:#02a9ff;border-color:rgba(2,169,255,0.35);background:rgba(2,169,255,0.08);}
+.footer-btn.anilist:hover{background:rgba(2,169,255,0.18);border-color:#02a9ff;}
+.footer-btn.paypal{color:#00d4ff;border-color:rgba(0,212,255,0.35);background:rgba(0,212,255,0.08);}
+.footer-btn.paypal:hover{background:rgba(0,212,255,0.18);border-color:#00d4ff;}
+.footer-counter{display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;}
+.footer-counter-label{font-size:0.65rem;color:#555;letter-spacing:0.1em;text-transform:uppercase;}
+.footer-counter-val{font-size:1.1rem;font-weight:700;color:#C8F53A;letter-spacing:0.05em;min-width:60px;text-align:right;}
+.footer-bottom{max-width:860px;margin:1.5rem auto 0;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.footer-copy{font-size:0.65rem;color:#444;letter-spacing:0.08em;}
+.footer-gh{font-size:0.65rem;color:#555;text-decoration:none;letter-spacing:0.06em;transition:color 0.2s;}
+.footer-gh:hover{color:#C8F53A;}
+</style>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-author">
+      <img class="footer-avatar" src="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png" alt="G1NYU avatar">
+      <div>
+        <div class="footer-handle">G1NYU</div>
+        <div class="footer-links">
+          <a class="footer-btn anilist" href="https://anilist.co/user/G1NYU/" target="_blank" rel="noopener">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6.361 2.943L0 21.056h4.942l1.077-3.133H11.4l1.052 3.133H17.6L11.241 2.943zM7.237 14.079l1.862-5.415 1.862 5.415zM17.895 2.943v18.113h4.868V2.943z"/></svg>
+            ANILIST
+          </a>
+          <a class="footer-btn paypal" href="https://paypal.me/giiinyu" target="_blank" rel="noopener">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 2.28a.78.78 0 0 1 .771-.65h7.517c2.548 0 4.564.676 5.674 1.907 1.056 1.173 1.32 2.658.796 4.636-.065.246-.137.497-.218.752C18.026 12.19 15.82 13.9 12.307 13.9H9.963a.78.78 0 0 0-.77.653l-.85 5.377a.641.641 0 0 1-.633.546H7.076z"/><path d="M20.226 7.3c-.016.1-.033.202-.053.305-1.177 6.04-5.207 8.124-10.352 8.124H7.467a.641.641 0 0 0-.633.544l-1.35 8.563a.338.338 0 0 0 .334.39h3.405a.641.641 0 0 0 .633-.544l.52-3.3a.78.78 0 0 1 .77-.652h1.628c4.573 0 8.15-1.857 9.193-7.228.438-2.253.212-4.135-.741-5.202z"/></svg>
+            DONATE
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-counter">
+      <div class="footer-counter-label">SITE VISITS</div>
+      <div class="footer-counter-val" id="visitCount">—</div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2025 G1NYU &mdash; MIHON TO ANYMEX</span>
+    <a class="footer-gh" href="https://github.com/G1NYU/mihon-to-anymex" target="_blank" rel="noopener">VIEW SOURCE &rarr;</a>
+  </div>
+</footer>
+<script>
+(function(){
+  fetch('https://counterapi.com/api/g1nyu/mihon-to-anymex/hit')
+    .then(r=>r.json())
+    .then(d=>{
+      const el=document.getElementById('visitCount');
+      if(el&&d&&d.value!=null) el.textContent=Number(d.value).toLocaleString();
+    })
+    .catch(()=>{});
+})();
+</script>
 </body>
 </html>
