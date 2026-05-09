@@ -146,6 +146,8 @@
   button.secondary:hover:not(:disabled) { background:#2a2a2a; }
   button.success { background:#3d6e28; }
   button.success:hover:not(:disabled) { background:#4a8832; }
+  button.warn { background:var(--color-warn); color:#1a0f00; }
+  button.warn:hover:not(:disabled) { background:#e0a93f; }
   .progress-wrap { margin-top:1.5rem; }
   .progress-meta { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:0.35rem; gap:0.5rem; flex-wrap:wrap; }
   .progress-left { display:flex; flex-direction:column; gap:0.15rem; }
@@ -158,10 +160,11 @@
   .progress-bar { height:100%; width:0%; border-radius:var(--radius-full); background:linear-gradient(90deg,#4f98a3,#7ecfd8); transition:width 0.3s ease,background 0.6s ease; position:relative; overflow:hidden; }
   .progress-bar::after { content:''; position:absolute; top:0; left:-60%; width:40%; height:100%; background:rgba(255,255,255,0.25); animation:shimmer 1.6s infinite; }
   @keyframes shimmer{0%{left:-60%}100%{left:120%}}
-  .progress-bar.done    { background:linear-gradient(90deg,#6daa45,#9de86a); }
-  .progress-bar.done::after    { animation:none; }
-  .progress-bar.stopped { background:linear-gradient(90deg,#d163a7,#e896cc); }
-  .progress-bar.stopped::after { animation:none; }
+  .progress-bar.done      { background:linear-gradient(90deg,#6daa45,#9de86a); }
+  .progress-bar.done::after      { animation:none; }
+  .progress-bar.stopped   { background:linear-gradient(90deg,#d163a7,#e896cc); }
+  .progress-bar.stopped::after   { animation:none; }
+  .progress-bar.ratelimit { background:linear-gradient(90deg,#c9943a,#e0b86a); }
   .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem; margin-top:1.25rem; }
   @media(max-width:400px){ .stats{grid-template-columns:1fr 1fr;} }
   .stat { background:var(--color-surface-2); border:1px solid var(--color-border); border-radius:var(--radius-md); padding:0.9rem 1rem; transition:border-color 0.3s; }
@@ -193,6 +196,7 @@
   .pill.ok .dot   { background:var(--color-success); }
   .pill.ok        { color:var(--color-text); }
   .pill.warn .dot { background:var(--color-warn); }
+  .pill.warn      { color:var(--color-warn); }
   .resume-banner { display:none; background:rgba(201,148,58,0.12); border:1px solid rgba(201,148,58,0.3); border-radius:var(--radius-md); padding:0.75rem 1rem; font-size:0.85rem; color:var(--color-warn); margin-bottom:1rem; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; }
   .resume-banner.show { display:flex; }
   .resume-banner button { padding:0.4rem 0.9rem; font-size:0.82rem; background:var(--color-warn); color:#1a0f00; }
@@ -268,7 +272,6 @@
         <button class="guide-tab active" onclick="switchGuideTab('mihon',this)">&#128190; Mihon</button>
         <button class="guide-tab mangayomi-tab" onclick="switchGuideTab('mangayomi',this)">&#128992; Mangayomi</button>
       </div>
-
       <div class="guide-panel active" id="guide-mihon">
         <div class="guide-steps">
           <div class="guide-step">
@@ -290,7 +293,6 @@
           <button class="guide-dismiss" onclick="dismissGuide(event)">Don't show again</button>
         </div>
       </div>
-
       <div class="guide-panel" id="guide-mangayomi">
         <div class="guide-steps">
           <div class="guide-step">
@@ -390,6 +392,7 @@
     </div>
     <div class="btn-row" style="margin-bottom:1.25rem">
       <button id="fetchBtn" onclick="handleFetch()" disabled>Fetch AniList metadata</button>
+      <button id="retrySkippedBtn" class="warn" onclick="handleRetrySkipped()" disabled>&#8635; Retry skipped</button>
       <button id="stopBtn" class="secondary" onclick="handleStop()" disabled>Stop</button>
     </div>
     <div class="progress-wrap">
@@ -427,6 +430,7 @@ const ANILIST_URL='https://graphql.anilist.co';
 const LS_KEY='mihon_anymex_session';
 const LS_GUIDE='mihon_anymex_guide_dismissed';
 const SQLJS_CDN='https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js';
+const MAX_RETRIES=3;
 
 let sourceEntries=[];
 let templateData=null;
@@ -455,7 +459,7 @@ function setPill(id,text,state){
 }
 
 function updatePillTemplate(){
-  if(templateData) setPill('pillTemplate','Template: loaded',  'ok');
+  if(templateData) setPill('pillTemplate','Template: loaded','ok');
   else             setPill('pillTemplate','Template: not provided','');
 }
 
@@ -465,10 +469,7 @@ function setBadge(mode,text){
   b.innerHTML=text;
 }
 
-function toggleGuide(){
-  const w=document.getElementById('guideWrap');
-  w.classList.toggle('open');
-}
+function toggleGuide(){ document.getElementById('guideWrap').classList.toggle('open'); }
 function switchGuideTab(tab,btn){
   document.querySelectorAll('.guide-tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.guide-panel').forEach(p=>p.classList.remove('active'));
@@ -528,11 +529,9 @@ function parseMihonJson(data){
     if(!m.title) continue;
     const url=(m.url||'').toLowerCase();
     const isAnime=url.includes('anime')||url.includes('/episode')||(m.source||'').toLowerCase().includes('anime');
-    let rawStatus='PLANNING';
     const sc=m.status??m.readingStatus??0;
     const statusMap={1:'CURRENT',2:'COMPLETED',3:'PAUSED',4:'DROPPED',5:'REPEATING',6:'PLANNING'};
-    rawStatus=statusMap[sc]||'PLANNING';
-    entries.push({title:m.title.trim(),mediaType:isAnime?'anime':'manga',status:rawStatus,chaptersRead:m.lastChapterRead??m.chaptersRead??0});
+    entries.push({title:m.title.trim(),mediaType:isAnime?'anime':'manga',status:statusMap[sc]||'PLANNING',chaptersRead:m.lastChapterRead??m.chaptersRead??0});
   }
   return entries;
 }
@@ -572,12 +571,7 @@ async function readSqlite(file){
       const db=new SQL.Database(new Uint8Array(buf));
       const res=db.exec('SELECT title,url FROM manga');
       if(!res.length){resolve([]);return;}
-      const entries=res[0].values.map(([title,url])=>({
-        title:(title||'').trim(),
-        mediaType:'manga',
-        status:'PLANNING',
-        chaptersRead:0
-      })).filter(e=>e.title);
+      const entries=res[0].values.map(([title])=>({title:(title||'').trim(),mediaType:'manga',status:'PLANNING',chaptersRead:0})).filter(e=>e.title);
       resolve(entries);
     }catch(e){reject(e);}
   });
@@ -585,20 +579,12 @@ async function readSqlite(file){
 
 async function handleParse(){
   clearStatus();
-  sourceEntries=[];
-  anilistResults=[];
-  skippedTitles=[];
+  sourceEntries=[]; anilistResults=[]; skippedTitles=[];
   document.getElementById('breakdownPanel').classList.remove('show');
-
   const jsonFile=document.getElementById('backupJsonFile').files[0];
   const mangayomiFile=document.getElementById('mangayomiFile').files[0];
   const csvFile=document.getElementById('csvFile').files[0];
-
-  if(!jsonFile&&!mangayomiFile&&!csvFile){
-    setStatus('Please upload a backup or CSV file first.','error');
-    return;
-  }
-
+  if(!jsonFile&&!mangayomiFile&&!csvFile){ setStatus('Please upload a backup or CSV file first.','error'); return; }
   try{
     if(jsonFile){
       const txt=await jsonFile.text();
@@ -608,8 +594,7 @@ async function handleParse(){
       else if(data.manga){ sourceEntries=parseMangayomiJson(data); setBadge('mangayomi','&#128992; Mangayomi'); }
       else{ setStatus('Could not detect backup format.','error'); return; }
     } else if(mangayomiFile){
-      const ext=mangayomiFile.name.split('.').pop().toLowerCase();
-      if(ext==='backup'){
+      if(mangayomiFile.name.split('.').pop().toLowerCase()==='backup'){
         const txt=await mangayomiFile.text();
         let data;
         try{ data=JSON.parse(txt); }catch(e){
@@ -619,24 +604,18 @@ async function handleParse(){
           data=null;
         }
         if(data){ sourceEntries=parseMangayomiJson(data); setBadge('mangayomi','&#128992; Mangayomi'); }
-      } else {
-        setStatus('Please upload a .backup file for Mangayomi.','error'); return;
-      }
+      } else { setStatus('Please upload a .backup file for Mangayomi.','error'); return; }
     } else if(csvFile){
-      const txt=await csvFile.text();
-      sourceEntries=parseCsv(txt);
+      sourceEntries=parseCsv(await csvFile.text());
       setBadge('csv','&#9776; CSV');
     }
-
     if(!sourceEntries.length){ setStatus('No titles found in the uploaded file.','error'); return; }
-
     const animeCount=sourceEntries.filter(e=>e.mediaType==='anime').length;
     const mangaCount=sourceEntries.filter(e=>e.mediaType==='manga').length;
     document.getElementById('bdAnime').textContent=animeCount;
     document.getElementById('bdManga').textContent=mangaCount;
     document.getElementById('bdTotal').textContent=sourceEntries.length;
     document.getElementById('breakdownPanel').classList.add('show');
-
     setPill('pillSource','Source: '+sourceEntries.length+' titles','ok');
     updatePillTemplate();
     document.getElementById('fetchBtn').disabled=false;
@@ -648,91 +627,165 @@ async function handleParse(){
   }
 }
 
+/* --- AniList query with 429 auto-retry --- */
 async function queryAniList(title,type){
-  const query=`
-    query($search:String,$type:MediaType){
-      Media(search:$search,type:$type,format_not_in:[NOVEL]){
-        id title{romaji english native} format
-      }
-    }`;
-  const res=await fetch(ANILIST_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Accept':'application/json'},
-    body:JSON.stringify({query,variables:{search:title,type:type.toUpperCase()}})
-  });
-  if(!res.ok) throw new Error('HTTP '+res.status);
-  const json=await res.json();
-  if(json.errors) return null;
-  return json.data?.Media||null;
+  const query=`query($search:String,$type:MediaType){Media(search:$search,type:$type,format_not_in:[NOVEL]){id title{romaji english native}format}}`;
+  const bar=document.getElementById('bar');
+  for(let attempt=0;attempt<MAX_RETRIES;attempt++){
+    const res=await fetch(ANILIST_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({query,variables:{search:title,type:type.toUpperCase()}})
+    });
+    if(res.status===429){
+      const retryAfter=parseInt(res.headers.get('Retry-After')||'60',10);
+      log('[429] Rate limited. Waiting '+retryAfter+'s before retrying “'+title+'” (attempt '+(attempt+1)+'/'+MAX_RETRIES+')');
+      bar.classList.add('ratelimit');
+      setPill('pillAnilist','AniList: rate limited ⏸','warn');
+      await sleepInterruptible(retryAfter*1000,secs=>{
+        document.getElementById('progressTitle').textContent='⏸ Rate limited — resuming in '+secs+'s…';
+      });
+      bar.classList.remove('ratelimit');
+      if(stopRequested) throw new Error('Stopped');
+      continue;
+    }
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const json=await res.json();
+    if(json.errors) return null;
+    return json.data?.Media||null;
+  }
+  throw new Error('Max retries exceeded after 429s');
 }
 
 function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+async function sleepInterruptible(ms,onTick){
+  const step=1000;
+  let remaining=ms;
+  while(remaining>0&&!stopRequested){
+    if(onTick) onTick(Math.ceil(remaining/1000));
+    await sleep(Math.min(step,remaining));
+    remaining-=step;
+  }
+}
+
+async function runFetch(entries,isRetry=false){
+  const delay=parseInt(document.getElementById('delayMs').value)||2500;
+  const bar=document.getElementById('bar');
+  const total=entries.length;
+  let newMatched=0,newSkipped=0;
+  const freshSkipped=[];
+
+  if(!isRetry){
+    anilistResults=[]; skippedTitles=[];
+    document.getElementById('sMatched').textContent=0;
+    document.getElementById('sSkipped').textContent=0;
+    document.getElementById('sTitles').textContent=0;
+    bar.className='progress-bar';
+    bar.style.width='0%';
+  }
+
+  for(let i=0;i<total;i++){
+    if(stopRequested) break;
+    const entry=entries[i];
+    const pct=Math.round((i+1)/total*100);
+    if(!isRetry){ bar.style.width=pct+'%'; document.getElementById('progressPct').textContent=pct+'%'; }
+    document.getElementById('progressTitle').textContent=(isRetry?'[Retry] ':'')+entry.title;
+    document.getElementById('progressSub').textContent=(i+1)+' / '+total+(isRetry?' (retrying skipped)':'');
+    const remaining=(total-i-1)*delay/1000;
+    document.getElementById('progressEta').textContent=remaining>0?'~'+Math.ceil(remaining)+'s left':'';
+    if(!isRetry) document.getElementById('sTitles').textContent=i+1;
+
+    try{
+      const media=await queryAniList(entry.title,entry.mediaType);
+      if(media){
+        anilistResults.push({entry,media});
+        newMatched++;
+        document.getElementById('sMatched').textContent=anilistResults.length;
+        log('[OK] '+entry.title+' → '+(media.title.english||media.title.romaji));
+      } else {
+        freshSkipped.push(entry.title);
+        newSkipped++;
+        if(isRetry) document.getElementById('sSkipped').textContent=parseInt(document.getElementById('sSkipped').textContent)+1;
+        log('[SKIP] '+entry.title);
+      }
+    }catch(e){
+      freshSkipped.push(entry.title);
+      newSkipped++;
+      if(isRetry) document.getElementById('sSkipped').textContent=parseInt(document.getElementById('sSkipped').textContent)+1;
+      log('[ERR] '+entry.title+': '+e.message);
+    }
+    if(i<total-1) await sleepInterruptible(delay);
+  }
+
+  if(isRetry){
+    skippedTitles=freshSkipped;
+    document.getElementById('sSkipped').textContent=skippedTitles.length;
+  } else {
+    skippedTitles=freshSkipped;
+  }
+  return {newMatched,newSkipped};
+}
 
 async function handleFetch(){
   if(isFetching) return;
   if(!sourceEntries.length){ setStatus('Parse a source file first.','error'); return; }
   isFetching=true; stopRequested=false;
   document.getElementById('fetchBtn').disabled=true;
+  document.getElementById('retrySkippedBtn').disabled=true;
   document.getElementById('stopBtn').disabled=false;
   document.getElementById('buildBtn').disabled=true;
-  anilistResults=[]; skippedTitles=[];
-  const delay=parseInt(document.getElementById('delayMs').value)||2500;
-  const bar=document.getElementById('bar');
-  const total=sourceEntries.length;
-  let matched=0,skipped=0;
   clearStatus();
 
-  for(let i=0;i<total;i++){
-    if(stopRequested) break;
-    const entry=sourceEntries[i];
-    const pct=Math.round((i+1)/total*100);
-    bar.style.width=pct+'%';
-    document.getElementById('progressPct').textContent=pct+'%';
-    document.getElementById('progressTitle').textContent=entry.title;
-    document.getElementById('progressSub').textContent=(i+1)+' / '+total;
-    const remaining=(total-i-1)*delay/1000;
-    document.getElementById('progressEta').textContent=remaining>0?'~'+Math.ceil(remaining)+'s left':'';
-    document.getElementById('sTitles').textContent=i+1;
-
-    try{
-      const media=await queryAniList(entry.title,entry.mediaType);
-      if(media){
-        anilistResults.push({entry,media});
-        matched++;
-        document.getElementById('sMatched').textContent=matched;
-        log('[OK] '+entry.title+' → '+media.id+' ('+( media.title.english||media.title.romaji)+')' );
-      } else {
-        skippedTitles.push(entry.title);
-        skipped++;
-        document.getElementById('sSkipped').textContent=skipped;
-        log('[SKIP] '+entry.title);
-      }
-    }catch(e){
-      skippedTitles.push(entry.title);
-      skipped++;
-      document.getElementById('sSkipped').textContent=skipped;
-      log('[ERR] '+entry.title+': '+e.message);
-    }
-    if(i<total-1) await sleep(delay);
-  }
-
+  const {newMatched,newSkipped}=await runFetch(sourceEntries,false);
   isFetching=false;
   document.getElementById('stopBtn').disabled=true;
+  const bar=document.getElementById('bar');
   if(stopRequested){
     bar.classList.add('stopped');
-    setStatus('Stopped at '+matched+' matched, '+skipped+' skipped.','info');
+    setStatus('Stopped at '+newMatched+' matched, '+newSkipped+' skipped.','info');
     document.getElementById('progressTitle').textContent='Stopped';
   } else {
     bar.classList.add('done');
     document.getElementById('progressTitle').textContent='Done';
-    setPill('pillAnilist','AniList: '+matched+' matched','ok');
-    showMission(total,matched,skipped);
+    setPill('pillAnilist','AniList: '+newMatched+' matched','ok');
+    showMission(sourceEntries.length,newMatched,newSkipped);
   }
-  if(anilistResults.length){
-    document.getElementById('buildBtn').disabled=false;
-    document.getElementById('dlMatchesBtn').disabled=false;
+  if(anilistResults.length){ document.getElementById('buildBtn').disabled=false; document.getElementById('dlMatchesBtn').disabled=false; }
+  if(skippedTitles.length){ document.getElementById('dlSkippedBtn').disabled=false; document.getElementById('retrySkippedBtn').disabled=false; }
+  saveSession();
+}
+
+async function handleRetrySkipped(){
+  if(isFetching||!skippedTitles.length) return;
+  const toRetry=skippedTitles.map(t=>sourceEntries.find(e=>e.title===t)||{title:t,mediaType:'manga',status:'PLANNING',chaptersRead:0});
+  isFetching=true; stopRequested=false;
+  document.getElementById('retrySkippedBtn').disabled=true;
+  document.getElementById('fetchBtn').disabled=true;
+  document.getElementById('stopBtn').disabled=false;
+  document.getElementById('buildBtn').disabled=true;
+  clearStatus();
+  const bar=document.getElementById('bar');
+  bar.className='progress-bar';
+  bar.style.width='0%';
+  document.getElementById('progressPct').textContent='0%';
+  log('--- Retrying '+toRetry.length+' skipped titles ---');
+
+  await runFetch(toRetry,true);
+  isFetching=false;
+  document.getElementById('stopBtn').disabled=true;
+  if(stopRequested){
+    bar.classList.add('stopped');
+    document.getElementById('progressTitle').textContent='Stopped';
+  } else {
+    bar.classList.add('done');
+    document.getElementById('progressTitle').textContent='Retry done';
+    setPill('pillAnilist','AniList: '+anilistResults.length+' matched','ok');
   }
+  if(anilistResults.length){ document.getElementById('buildBtn').disabled=false; document.getElementById('dlMatchesBtn').disabled=false; }
+  document.getElementById('retrySkippedBtn').disabled=!skippedTitles.length;
   if(skippedTitles.length) document.getElementById('dlSkippedBtn').disabled=false;
+  setStatus('Retry done. Total matched: '+anilistResults.length+', still skipped: '+skippedTitles.length+'.','info');
   saveSession();
 }
 
@@ -763,74 +816,45 @@ function buildFreshOutput(){
   const now=new Date();
   const pad=n=>String(n).padStart(2,'0');
   const dateStr=pad(now.getDate())+' '+pad(now.getMonth()+1)+' '+now.getFullYear()+' '+pad(now.getHours())+':'+pad(now.getMinutes())+' '+(now.getHours()<12?'AM':'PM');
-  return {
-    date:dateStr,
-    appVersion:'',
-    username:'',
-    avatar:'',
-    animeCount:0,
-    mangaCount:0,
-    novelCount:0,
-    animeLibrary:[],
-    mangaLibrary:[],
-    novelLibrary:[],
-    animeCustomLists:[],
-    mangaCustomLists:[],
-    novelCustomLists:[],
-    settings:[]
-  };
+  return {date:dateStr,appVersion:'',username:'',avatar:'',animeCount:0,mangaCount:0,novelCount:0,animeLibrary:[],mangaLibrary:[],novelLibrary:[],animeCustomLists:[],mangaCustomLists:[],novelCustomLists:[],settings:[]};
 }
 
 function handleBuild(){
   if(!anilistResults.length){ setStatus('Nothing to build. Run the fetch step first.','error'); return; }
-
   const listName=document.getElementById('listName').value||'new';
   const overrideStatus=document.getElementById('readingStatus').value;
-
   const output=templateData?JSON.parse(JSON.stringify(templateData)):buildFreshOutput();
-
   if(!output.animeCustomLists) output.animeCustomLists=[];
   if(!output.mangaCustomLists) output.mangaCustomLists=[];
   if(!output.novelCustomLists) output.novelCustomLists=[];
   if(!output.animeLibrary)     output.animeLibrary=[];
   if(!output.mangaLibrary)     output.mangaLibrary=[];
   if(!output.novelLibrary)     output.novelLibrary=[];
-
   let animeList=output.animeCustomLists.find(l=>l.name===listName);
   if(!animeList){ animeList={name:listName,mediaTypeIndex:1,mediaIds:[]}; output.animeCustomLists.push(animeList); }
   if(!animeList.mediaIds) animeList.mediaIds=[];
-
   let mangaList=output.mangaCustomLists.find(l=>l.name===listName);
   if(!mangaList){ mangaList={name:listName,mediaTypeIndex:0,mediaIds:[]}; output.mangaCustomLists.push(mangaList); }
   if(!mangaList.mediaIds) mangaList.mediaIds=[];
-
   let addedAnime=0,addedManga=0;
   for(const {media,entry} of anilistResults){
     const e=buildEntry(media,entry,listName,overrideStatus);
     const isAnime=e.mediaType==='anime';
     const lib=isAnime?output.animeLibrary:output.mangaLibrary;
     const list=isAnime?animeList:mangaList;
-    const exists=lib.find(x=>x.mediaId===e.mediaId);
-    if(!exists){
+    if(!lib.find(x=>x.mediaId===e.mediaId)){
       lib.push(e);
       if(!list.mediaIds.includes(e.mediaId)) list.mediaIds.push(e.mediaId);
       isAnime?addedAnime++:addedManga++;
     }
   }
-
   output.animeCount=output.animeLibrary.length;
   output.mangaCount=output.mangaLibrary.length;
-
   if(templateData) log('Built using provided template as base.');
   else log('Built fresh output (no template provided).');
-
   const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download='anymex_converted_'+Date.now()+'.anymex';
-  a.click();
-  URL.revokeObjectURL(url);
+  const a=document.createElement('a'); a.href=url; a.download='anymex_converted_'+Date.now()+'.anymex'; a.click(); URL.revokeObjectURL(url);
   setStatus('Built and downloaded! Added '+addedAnime+' anime + '+addedManga+' manga entries.','success');
   log('Download triggered: '+addedAnime+' anime, '+addedManga+' manga added.');
 }
@@ -847,11 +871,7 @@ function dlSkipped(){
 }
 
 function saveSession(){
-  try{
-    const data={sourceEntries,anilistResults,skippedTitles,ts:Date.now()};
-    localStorage.setItem(LS_KEY,JSON.stringify(data));
-    sessionSaved=true;
-  }catch(e){}
+  try{ localStorage.setItem(LS_KEY,JSON.stringify({sourceEntries,anilistResults,skippedTitles,ts:Date.now()})); sessionSaved=true; }catch(e){}
 }
 function checkResume(){
   try{
@@ -867,33 +887,27 @@ function checkResume(){
 function handleResume(){
   try{
     const data=JSON.parse(localStorage.getItem(LS_KEY));
-    sourceEntries=data.sourceEntries||[];
-    anilistResults=data.anilistResults||[];
-    skippedTitles=data.skippedTitles||[];
+    sourceEntries=data.sourceEntries||[]; anilistResults=data.anilistResults||[]; skippedTitles=data.skippedTitles||[];
     document.getElementById('resumeBanner').classList.remove('show');
     setPill('pillSource','Source: '+sourceEntries.length+' titles','ok');
     setPill('pillAnilist','AniList: '+anilistResults.length+' matched (resumed)','ok');
     updatePillTemplate();
     document.getElementById('buildBtn').disabled=false;
     document.getElementById('dlMatchesBtn').disabled=false;
-    if(skippedTitles.length) document.getElementById('dlSkippedBtn').disabled=false;
+    if(skippedTitles.length){ document.getElementById('dlSkippedBtn').disabled=false; document.getElementById('retrySkippedBtn').disabled=false; }
     document.getElementById('sTitles').textContent=sourceEntries.length;
     document.getElementById('sMatched').textContent=anilistResults.length;
     document.getElementById('sSkipped').textContent=skippedTitles.length;
     log('Session resumed: '+anilistResults.length+' matched titles restored.');
   }catch(e){ log('Resume failed: '+e.message); }
 }
-function clearSave(){
-  localStorage.removeItem(LS_KEY);
-  document.getElementById('resumeBanner').classList.remove('show');
-}
+function clearSave(){ localStorage.removeItem(LS_KEY); document.getElementById('resumeBanner').classList.remove('show'); }
 
 function showMission(total,matched,skipped){
   document.getElementById('mTotal').textContent=total;
   document.getElementById('mMatched').textContent=matched;
   document.getElementById('mSkipped').textContent=skipped;
-  const overlay=document.getElementById('missionOverlay');
-  overlay.classList.add('show');
+  document.getElementById('missionOverlay').classList.add('show');
   startParticles();
 }
 function closeMission(){
@@ -907,34 +921,25 @@ function startParticles(){
   const ctx=canvas.getContext('2d');
   canvas.width=window.innerWidth; canvas.height=window.innerHeight;
   const particles=Array.from({length:80},()=>({
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    vx:(Math.random()-0.5)*1.2,
-    vy:(Math.random()-0.5)*1.2,
-    r:Math.random()*2.5+0.5,
-    alpha:Math.random()*0.6+0.2,
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    vx:(Math.random()-0.5)*1.2, vy:(Math.random()-0.5)*1.2,
+    r:Math.random()*2.5+0.5, alpha:Math.random()*0.6+0.2,
     color:Math.random()<0.5?'79,152,163':'209,99,167'
   }));
   function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
     for(const p of particles){
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle='rgba('+p.color+','+p.alpha+')';
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba('+p.color+','+p.alpha+')'; ctx.fill();
       p.x+=p.vx; p.y+=p.vy;
-      if(p.x<0) p.x=canvas.width;
-      if(p.x>canvas.width) p.x=0;
-      if(p.y<0) p.y=canvas.height;
-      if(p.y>canvas.height) p.y=0;
+      if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+      if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
     }
     particleRAF=requestAnimationFrame(draw);
   }
   draw();
 }
-function stopParticles(){
-  if(particleRAF) cancelAnimationFrame(particleRAF);
-}
+function stopParticles(){ if(particleRAF) cancelAnimationFrame(particleRAF); }
 </script>
 </body>
 </html>
