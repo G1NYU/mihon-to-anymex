@@ -868,6 +868,17 @@ initGuide();checkResume();updateButtons();
 .footer-gh{font-size:0.65rem;color:#555;text-decoration:none;letter-spacing:0.06em;transition:color 0.2s;}
 .footer-gh:hover{color:#C8F53A;}
 </style>
+<div id="revCard" class="container rev-card" style="max-width:860px;margin-bottom:1rem;">
+  <h2 data-i18n="revTitle">AnymeX → Mihon</h2>
+  <p data-i18n="revDesc">Upload an <strong>.anymex</strong> backup and convert your library back to a Mihon-compatible JSON backup.</p>
+  <div class="rev-drop" id="revDrop" onclick="document.getElementById('revInput').click()" ondragover="revDrag(event,true)" ondragleave="revDrag(event,false)" ondrop="revDropFile(event)">
+    <input type="file" id="revInput" accept=".anymex,.json" onchange="revPickFile(this)">
+    <span data-i18n="revDropLabel">📴 Drop .anymex file or click to browse</span>
+  </div>
+  <div class="rev-loaded" id="revLoaded"></div>
+  <button class="rev-btn" id="revBtn" onclick="runReverse()" disabled data-i18n="revBtn">Convert → Mihon JSON</button>
+  <div class="rev-log" id="revLog"></div>
+</div>
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-author">
