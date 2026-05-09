@@ -32,6 +32,28 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 
+/* ── WALLPAPER BACKGROUND ──────────────────────── */
+#bg-wallpaper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url('https://wallpapercave.com/wp/wp6597690.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  /* heavy dark overlay — keeps the image felt, not seen */
+  filter: brightness(0.18) saturate(0.6);
+  opacity: 0.55;
+  pointer-events: none;
+}
+/* vignette so edges fade into pure black */
+#bg-wallpaper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(8,8,8,0.85) 100%);
+}
+
 body {
   font-family: var(--font-mono);
   background: var(--bg);
@@ -64,6 +86,12 @@ body::after {
   height: 2px;
   background: var(--lime);
   z-index: 100;
+}
+
+/* ensure all content sits above the wallpaper layer */
+.site-header, .container, .site-footer {
+  position: relative;
+  z-index: 1;
 }
 
 .container {
@@ -152,7 +180,9 @@ body::after {
 
 /* ── CARDS ───────────────────────────────────── */
 .card {
-  background: var(--surface);
+  background: rgba(17,17,17,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 2rem;
@@ -205,7 +235,9 @@ body::after {
   padding: 1.25rem 2rem;
   cursor: pointer;
   user-select: none;
-  background: var(--surface);
+  background: rgba(17,17,17,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   gap: 1rem;
 }
 .accordion-trigger-left { display: flex; align-items: center; gap: 0.75rem; }
@@ -232,7 +264,9 @@ body::after {
 .accordion-body {
   display: none;
   padding: 0 2rem 2rem;
-  background: var(--surface);
+  background: rgba(17,17,17,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-top: 1px solid var(--border);
 }
 .accordion.open .accordion-body { display: block; }
@@ -320,7 +354,9 @@ body::after {
 /* ── BATCH ADD ───────────────────────────────── */
 .batch-card {
   border: 1px solid rgba(200,245,58,0.3);
-  background: linear-gradient(135deg, rgba(200,245,58,0.04) 0%, var(--surface) 60%);
+  background: linear-gradient(135deg, rgba(200,245,58,0.04) 0%, rgba(17,17,17,0.88) 60%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: var(--radius);
   margin-bottom: 1px;
   overflow: hidden;
@@ -485,7 +521,6 @@ button::after {
 button:active::after { opacity: 0.08; }
 button:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* primary */
 button.btn-primary {
   background: var(--lime);
   color: #000;
@@ -496,7 +531,6 @@ button.btn-primary:hover:not(:disabled) {
   box-shadow: 0 0 20px var(--lime-glow);
 }
 
-/* secondary */
 button.btn-secondary {
   background: transparent;
   color: var(--muted-hi);
@@ -507,7 +541,6 @@ button.btn-secondary:hover:not(:disabled) {
   color: var(--text);
 }
 
-/* warn */
 button.btn-warn {
   background: transparent;
   color: var(--warn);
@@ -517,7 +550,6 @@ button.btn-warn:hover:not(:disabled) {
   background: rgba(245,166,35,0.1);
 }
 
-/* success/batch */
 button.btn-success {
   background: var(--lime);
   color: #000;
@@ -718,6 +750,9 @@ tr:hover td { background: rgba(255,255,255,0.015); }
 </style>
 </head>
 <body>
+
+<!-- WALLPAPER LAYER -->
+<div id="bg-wallpaper"></div>
 
 <!-- HEADER -->
 <header class="site-header">
