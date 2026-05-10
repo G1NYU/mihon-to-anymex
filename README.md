@@ -1,102 +1,166 @@
-# Mihon / Mangayomi → AnymeX
+<div align="center">
 
-A **browser-based** migration tool. No Python, no installs, no server.
-Convert your manga/anime library to AnymeX format — complete with AniList metadata, covers, ratings and genres.
+```
+███╗   ███╗██╗██╗  ██╗ ██████╗ ███╗   ██╗    ██╗
+████╗ ████║██║██║  ██║██╔═══██╗████╗  ██║   ██╔╝
+██╔████╔██║██║███████║██║   ██║██╔██╗ ██║  ██╔╝ 
+██║╚██╔╝██║██║██╔══██║██║   ██║██║╚██╗██║ ██╔╝  
+██║ ╚═╝ ██║██║██║  ██║╚██████╔╝██║ ╚████║██╔╝   
+╚═╝     ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝    
+   ╔╦╗╔═╗  ╔═╗╔╗╔╦ ╦╔╦╗╔═╗═╗ ╦
+   ║║║╠═╣  ╠═╣║║║╚╦╝║║║║╣ ╔╩╦╝
+   ╩ ╩╩ ╩  ╩ ╩╝╚╝ ╩ ╩ ╩╚═╝╩ ╚═
+```
+
+**Browser-based manga & anime library migration tool**
+
+[![Live Tool](https://img.shields.io/badge/LIVE%20TOOL-g1nyu.github.io-c8f53a?style=for-the-badge&labelColor=111111)](https://g1nyu.github.io/mihon-to-anymex/)
+[![License](https://img.shields.io/badge/LICENSE-MIT-c8f53a?style=for-the-badge&labelColor=111111)](./LICENSE)
+[![No Server](https://img.shields.io/badge/SERVER-NONE-c8f53a?style=for-the-badge&labelColor=111111)](#privacy)
+[![AniList](https://img.shields.io/badge/POWERED%20BY-ANILIST-02a9ff?style=for-the-badge&labelColor=111111)](https://anilist.co)
+
+*No Python. No installs. No server. Just your browser.*
 
 > Created by [G1NYU](https://github.com/G1NYU) with the help of Perplexity AI.
 
-🔗 **Live tool:** [g1nyu.github.io/mihon-to-anymex](https://g1nyu.github.io/mihon-to-anymex/)
+</div>
 
 ---
 
-## Features
+## ✦ What It Does
 
-| Feature | Description |
-|---|---|
-| **Mihon Import** | Upload a Mihon backup JSON (via backup.mihon.tools) |
-| **Mangayomi Import** | Upload a `.backup` file directly — no conversion needed |
-| **CSV Import** | Paste or upload a plain CSV list of titles |
-| **Batch Add** | Paste titles one per line, fetch AniList, get `.anymex` instantly |
-| **Share List** | Generate a compressed URL to share your list with others |
-| **Reverse Migrate** | Convert an AnymeX backup back to Mihon JSON |
-| **Lists Tab** | Upload your `.anymex` and generate a shareable cover grid |
-| **EN / JP UI** | Toggle interface language between English and Japanese |
+Migrate your entire manga or anime library between apps — complete with **AniList metadata, cover art, ratings, read progress and genres** — all processed locally in your browser.
+
+```
+Mihon backup (.json)  ─┐
+Mangayomi (.backup)   ─┤──▶  AniList lookup  ──▶  .anymex  ──▶  AnymeX
+CSV list              ─┤
+Batch titles          ─┘
+
+AnymeX (.anymex)  ──▶  Mihon JSON  ──▶  backup.mihon.tools  ──▶  Mihon
+```
 
 ---
 
-## How to Use
+## ✦ Features
+
+| | Feature | Description |
+|:---:|---|---|
+| 📥 | **Mihon Import** | Upload a Mihon backup JSON via backup.mihon.tools |
+| 📥 | **Mangayomi Import** | Upload a `.backup` file directly — no conversion needed |
+| 📄 | **CSV Import** | Plain CSV list of titles with optional status & progress |
+| ⚡ | **Batch Add** | Paste titles, fetch AniList, download `.anymex` instantly |
+| 🔗 | **Share List** | Compressed URL to share your list with anyone |
+| 🔄 | **Reverse Migrate** | AnymeX backup → Mihon JSON, no server |
+| 🖼️ | **Lists Tab** | Shareable cover grid from your `.anymex` backup |
+| 🌐 | **EN / JP UI** | Toggle interface between English and Japanese |
+| 💾 | **Resume Support** | Interrupted fetches auto-save and resume |
+| 🔒 | **100% In-Browser** | Nothing sent to any server except the AniList public API |
+
+---
+
+## ✦ Quickstart
 
 ### Mihon → AnymeX
 
-1. In Mihon → **More → Backup & restore → Create backup** → save the `.mihon` file
-2. Go to [backup.mihon.tools](https://backup.mihon.tools), load the file, click **Download → JSON**
-3. Upload that JSON in **Card 01 — Upload backup**
-4. Optionally upload an AnymeX template in **Card 02 — Options**
-5. Click **▶ Fetch AniList** → wait for results → **↓ Build .anymex**
-6. In AnymeX → **Data Management → Restore Data** → select the file
+```
+1. Mihon → More → Backup & restore → Create backup  (.mihon file)
+2. backup.mihon.tools → Upload → Download JSON
+3. Upload JSON on the tool → Fetch AniList → Build .anymex
+4. AnymeX → Data Management → Restore Data → select file
+```
 
 ### Mangayomi → AnymeX
 
-1. In Mangayomi → **More → Settings → Backup & restore → Create backup** → save the `.backup` file
-2. Upload it directly in **Card 01 — Upload backup** (no conversion needed)
-3. Follow steps 4–6 above
-
-### CSV → AnymeX
-
-- Format: one title per row, columns: `Title, Status, ChaptersRead, ListName`
-- Only `Title` is required — the rest default to `PLANNING / 0 / Migrated`
-- Valid status values: `CURRENT` `PLANNING` `COMPLETED` `DROPPED` `PAUSED` `REPEATING`
+```
+1. Mangayomi → Settings → Backup & restore → Create backup  (.backup file)
+2. Upload .backup directly on the tool → Fetch AniList → Build .anymex
+3. AnymeX → Data Management → Restore Data → select file
+```
 
 ### Batch Add
 
-1. Paste titles one per line in the **Batch Add** card
-2. Pick media type (Manga / Anime) and status
-3. Optionally drop an existing `.anymex` as a base to merge into
-4. Click **⚡ Fetch & Build** — file downloads automatically
-5. Use **↑ Share List** to generate a URL others can open to auto-fill the same titles
+```
+1. Paste titles one per line in the Batch Add card
+2. Pick media type + status
+3. Drop an existing .anymex to merge into  (optional)
+4. ⚡ Fetch & Build → file downloads automatically
+```
 
 ### Reverse Migrate (AnymeX → Mihon)
 
-1. In AnymeX → **Data Management → Backup Data** → export your `.anymex`
-2. Upload it in the **Reverse Migrate** card
-3. Click **↓ Convert & Download .json**
-4. Go to [backup.mihon.tools](https://backup.mihon.tools) → **Upload JSON → Export .mihon**
-5. Restore in Mihon → **More → Backup & restore → Restore backup**
+```
+1. AnymeX → Data Management → Backup Data  (.anymex file)
+2. Upload in Reverse Migrate card → Convert & Download .json
+3. backup.mihon.tools → Upload JSON → Export .mihon
+4. Mihon → Backup & restore → Restore backup
+```
 
-> ⚠️ Only manga entries are converted. Anime entries are skipped. Read progress and status are preserved.
+> ⚠️ Only manga entries convert. Read progress & status are preserved. Scores and notes are not supported by the Mihon format.
 
 ### Lists Tab
 
-1. Click the **Lists** tab at the top of the page
-2. Upload your `.anymex` file
-3. Select which list to share and enter a display name
-4. A compressed shareable link is generated — share it on Reddit or Discord
-5. Viewers can browse your cover grid and import it directly to AnymeX
-
----
-
-## Privacy
-
-All processing happens **entirely in your browser**. No data is sent to any server except the [AniList public API](https://anilist.gitbook.io/anilist-apiv2-docs/) for title lookups.
-
----
-
-## File Structure
-
 ```
-index.html          — main app UI
-apply-tabs.js       — injects Convert / Lists tab nav
-lists.js            — Lists tab logic (share, viewer)
-mal.js              — MAL import logic
-lz-string.min.js    — URL compression for share links
-inject-scripts.js   — sequential script loader
-mangayomi-to-csv.html — standalone Mangayomi helper
-anilist_fetch.py    — legacy Python fetcher
-build_anymex.py     — legacy Python builder
+1. Click the Lists tab at the top of the page
+2. Upload your .anymex file
+3. Select a list → enter a display name
+4. Share the compressed link on Reddit or Discord
 ```
 
 ---
 
-## License
+## ✦ CSV Format
+
+```csv
+Solo Leveling,CURRENT,180,Reading
+Omniscient Reader,COMPLETED,551,Finished
+Vinland Saga,PLANNING,0,Migrated
+```
+
+| Column | Required | Default |
+|---|:---:|---|
+| Title | ✅ | — |
+| Status | ❌ | `PLANNING` |
+| Chapters Read | ❌ | `0` |
+| List Name | ❌ | `Migrated` |
+
+Valid status values: `CURRENT` `PLANNING` `COMPLETED` `DROPPED` `PAUSED` `REPEATING`
+
+---
+
+## ✦ Privacy
+
+All processing happens **entirely in your browser**.
+The only external call is to the [AniList public GraphQL API](https://anilist.gitbook.io/anilist-apiv2-docs/) for title lookups.
+No data is stored, logged, or transmitted anywhere else.
+
+---
+
+## ✦ File Structure
+
+```
+mihon-to-anymex/
+├── index.html              ← main app UI (all-in-one)
+├── apply-tabs.js           ← injects Convert / Lists tab nav
+├── lists.js                ← Lists tab (share & viewer logic)
+├── mal.js                  ← MAL import logic
+├── lz-string.min.js        ← URL compression for share links
+├── inject-scripts.js       ← sequential script loader
+├── mangayomi-to-csv.html   ← standalone Mangayomi helper page
+├── anilist_fetch.py        ← legacy Python fetcher
+└── build_anymex.py         ← legacy Python builder
+```
+
+---
+
+## ✦ License
 
 MIT — free to use, modify and share.
+
+---
+
+<div align="center">
+
+made with ✦ by <a href="https://github.com/G1NYU">G1NYU</a> · <a href="https://anilist.co/user/G1NYU/">AniList</a> · <a href="https://g1nyu.github.io/mihon-to-anymex/">Live Tool</a>
+
+</div>
