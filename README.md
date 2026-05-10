@@ -11,10 +11,6 @@
 [![No Server](https://img.shields.io/badge/SERVER-NONE-c8f53a?style=for-the-badge&labelColor=111111)](#privacy)
 [![AniList](https://img.shields.io/badge/POWERED%20BY-ANILIST-02a9ff?style=for-the-badge&labelColor=111111)](https://anilist.co)
 
-*No Python. No installs. No server. Just your browser.*
-
-> Created by [G1NYU](https://github.com/G1NYU) with the help of Perplexity AI.
-
 </div>
 
 ---
