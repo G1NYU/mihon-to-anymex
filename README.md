@@ -1,16 +1,8 @@
 <div align="center">
 
-```
-███╗   ███╗██╗██╗  ██╗ ██████╗ ███╗   ██╗    ██╗
-████╗ ████║██║██║  ██║██╔═══██╗████╗  ██║   ██╔╝
-██╔████╔██║██║███████║██║   ██║██╔██╗ ██║  ██╔╝ 
-██║╚██╔╝██║██║██╔══██║██║   ██║██║╚██╗██║ ██╔╝  
-██║ ╚═╝ ██║██║██║  ██║╚██████╔╝██║ ╚████║██╔╝   
-╚═╝     ╚═╝╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝    
-   ╔╦╗╔═╗  ╔═╗╔╗╔╦ ╦╔╦╗╔═╗═╗ ╦
-   ║║║╠═╣  ╠═╣║║║╚╦╝║║║║╣ ╔╩╦╝
-   ╩ ╩╩ ╩  ╩ ╩╝╚╝ ╩ ╩ ╩╚═╝╩ ╚═
-```
+<img src="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png" width="72" height="72" alt="logo"/>
+
+# MIHON / MANGAYOMI → ANYMEX
 
 **Browser-based manga & anime library migration tool**
 
@@ -161,6 +153,6 @@ MIT — free to use, modify and share.
 
 <div align="center">
 
-made with ✦ by <a href="https://github.com/G1NYU">G1NYU</a> · <a href="https://anilist.co/user/G1NYU/">AniList</a> · <a href="https://g1nyu.github.io/mihon-to-anymex/">Live Tool</a>
+made with ✦ by <a href="https://github.com/G1NYU">G1NYU</a> &nbsp;·&nbsp; <a href="https://anilist.co/user/G1NYU/">AniList</a> &nbsp;·&nbsp; <a href="https://g1nyu.github.io/mihon-to-anymex/">Live Tool</a>
 
 </div>
