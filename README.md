@@ -1,100 +1,158 @@
-# Mihon → AnymeX Migration Tool
+<div align="center">
 
-Convert your **Mihon** or **Komikku** manga library to **AnymeX** format, complete with AniList metadata, covers, ratings and genres.
+<img src="https://storage.ko-fi.com/cdn/useruploads/post/4577af25-8a01-4cdf-ae95-9093ea50fdc1_neobun.png" width="72" height="72" alt="logo"/>
+
+# MIHON / MANGAYOMI → ANYMEX
+
+**Browser-based manga & anime library migration tool**
+
+[![Live Tool](https://img.shields.io/badge/LIVE%20TOOL-g1nyu.github.io-c8f53a?style=for-the-badge&labelColor=111111)](https://g1nyu.github.io/mihon-to-anymex/)
+[![License](https://img.shields.io/badge/LICENSE-MIT-c8f53a?style=for-the-badge&labelColor=111111)](./LICENSE)
+[![No Server](https://img.shields.io/badge/SERVER-NONE-c8f53a?style=for-the-badge&labelColor=111111)](#privacy)
+[![AniList](https://img.shields.io/badge/POWERED%20BY-ANILIST-02a9ff?style=for-the-badge&labelColor=111111)](https://anilist.co)
+
+*No Python. No installs. No server. Just your browser.*
 
 > Created by [G1NYU](https://github.com/G1NYU) with the help of Perplexity AI.
 
----
-
-## Why This Exists
-
-AnymeX cannot directly import Mihon `.proto.gz` or Komikku backups. Its `.anymex` restore format requires:
-- A valid **AniList numeric ID** on every entry (null IDs are silently skipped)
-- `readChapters` and `watchedEpisodes` as **lists**, not integers
-- All entry IDs referenced inside **`mangaCustomLists`** or the library appears empty
-
-This toolset solves all of that automatically.
+</div>
 
 ---
 
-## What You Need
+## ✦ What It Does
 
-- A PC with **Python 3** installed → [python.org](https://python.org) *(check "Add Python to PATH" during install)*
-- Your Mihon library exported as a **CSV** (title, author, artist columns — no header row)
-- Your own `.anymex` backup file from AnymeX (even with just 1 manga added manually)
+Migrate your entire manga or anime library between apps — complete with **AniList metadata, cover art, ratings, read progress and genres** — all processed locally in your browser.
 
----
+```
+Mihon backup (.json)  ─┐
+Mangayomi (.backup)   ─┤──▶  AniList lookup  ──▶  .anymex  ──▶  AnymeX
+CSV list              ─┤
+Batch titles          ─┘
 
-## Setup
-
-```bash
-pip install requests pandas
+AnymeX (.anymex)  ──▶  Mihon JSON  ──▶  backup.mihon.tools  ──▶  Mihon
 ```
 
-Clone or download this repo and put these files on your Desktop alongside:
-- `mihon_library.csv` — your Mihon CSV export
-- `your_backup.anymex` — your AnymeX backup template
+---
+
+## ✦ Features
+
+| | Feature | Description |
+|:---:|---|---|
+| 📥 | **Mihon Import** | Upload a Mihon backup JSON via backup.mihon.tools |
+| 📥 | **Mangayomi Import** | Upload a `.backup` file directly — no conversion needed |
+| 📄 | **CSV Import** | Plain CSV list of titles with optional status & progress |
+| ⚡ | **Batch Add** | Paste titles, fetch AniList, download `.anymex` instantly |
+| 🔗 | **Share List** | Compressed URL to share your list with anyone |
+| 🔄 | **Reverse Migrate** | AnymeX backup → Mihon JSON, no server |
+| 🖼️ | **Lists Tab** | Shareable cover grid from your `.anymex` backup |
+| 🌐 | **EN / JP UI** | Toggle interface between English and Japanese |
+| 💾 | **Resume Support** | Interrupted fetches auto-save and resume |
+| 🔒 | **100% In-Browser** | Nothing sent to any server except the AniList public API |
 
 ---
 
-## Step 1 — Fetch AniList Metadata
+## ✦ Quickstart
 
-```bash
-python anilist_fetch.py
+### Mihon → AnymeX
+
+```
+1. Mihon → More → Backup & restore → Create backup  (.mihon file)
+2. backup.mihon.tools → Upload → Download JSON
+3. Upload JSON on the tool → Fetch AniList → Build .anymex
+4. AnymeX → Data Management → Restore Data → select file
 ```
 
-This queries the AniList API for every title in your CSV and saves results to `anilist_results.json`.
+### Mangayomi → AnymeX
 
-- Takes ~20 minutes for 600 titles (rate limited to 30 req/min)
-- **Auto-saves every 20 entries** — safe to interrupt and resume
-- Typically matches ~75–80% of titles
-
----
-
-## Step 2 — Build the .anymex File
-
-Open `build_anymex.py` and update these two lines at the top:
-
-```python
-CSV_PATH = r'C:\Users\YOURUSERNAME\Desktop\mihon_library.csv'
-BACKUP_PATH = 'your_backup.anymex'
+```
+1. Mangayomi → Settings → Backup & restore → Create backup  (.backup file)
+2. Upload .backup directly on the tool → Fetch AniList → Build .anymex
+3. AnymeX → Data Management → Restore Data → select file
 ```
 
-Then run:
+### Batch Add
 
-```bash
-python build_anymex.py
+```
+1. Paste titles one per line in the Batch Add card
+2. Pick media type + status
+3. Drop an existing .anymex to merge into  (optional)
+4. ⚡ Fetch & Build → file downloads automatically
 ```
 
-This produces `mihon_to_anymex.anymex` in the same folder.
+### Reverse Migrate (AnymeX → Mihon)
+
+```
+1. AnymeX → Data Management → Backup Data  (.anymex file)
+2. Upload in Reverse Migrate card → Convert & Download .json
+3. backup.mihon.tools → Upload JSON → Export .mihon
+4. Mihon → Backup & restore → Restore backup
+```
+
+> ⚠️ Only manga entries convert. Read progress & status are preserved. Scores and notes are not supported by the Mihon format.
+
+### Lists Tab
+
+```
+1. Click the Lists tab at the top of the page
+2. Upload your .anymex file
+3. Select a list → enter a display name
+4. Share the compressed link on Reddit or Discord
+```
 
 ---
 
-## Step 3 — Restore in AnymeX
+## ✦ CSV Format
 
-1. Transfer `mihon_to_anymex.anymex` to your Android device
-2. Open AnymeX → **Data Management → Restore Data**
-3. Select the file
+```csv
+Solo Leveling,CURRENT,180,Reading
+Omniscient Reader,COMPLETED,551,Finished
+Vinland Saga,PLANNING,0,Migrated
+```
 
----
+| Column | Required | Default |
+|---|:---:|---|
+| Title | ✅ | — |
+| Status | ❌ | `PLANNING` |
+| Chapters Read | ❌ | `0` |
+| List Name | ❌ | `Migrated` |
 
-## Notes
-
-- Titles not matched on AniList (~20–25%) are skipped. You can add them manually in AnymeX.
-- Read progress is not carried over (Mihon CSV doesn't include it)
-- The `.anymex` file is plain JSON — you can open and inspect it in any text editor
-
----
-
-## Roadmap
-
-- [ ] Web app / GUI version (no Python needed)
-- [ ] Support for Mihon `.proto.gz` direct import
-- [ ] Resume support for interrupted AniList fetch
-- [ ] Progress data mapping if available
+Valid status values: `CURRENT` `PLANNING` `COMPLETED` `DROPPED` `PAUSED` `REPEATING`
 
 ---
 
-## License
+## ✦ Privacy
+
+All processing happens **entirely in your browser**.
+The only external call is to the [AniList public GraphQL API](https://anilist.gitbook.io/anilist-apiv2-docs/) for title lookups.
+No data is stored, logged, or transmitted anywhere else.
+
+---
+
+## ✦ File Structure
+
+```
+mihon-to-anymex/
+├── index.html              ← main app UI (all-in-one)
+├── apply-tabs.js           ← injects Convert / Lists tab nav
+├── lists.js                ← Lists tab (share & viewer logic)
+├── mal.js                  ← MAL import logic
+├── lz-string.min.js        ← URL compression for share links
+├── inject-scripts.js       ← sequential script loader
+├── mangayomi-to-csv.html   ← standalone Mangayomi helper page
+├── anilist_fetch.py        ← legacy Python fetcher
+└── build_anymex.py         ← legacy Python builder
+```
+
+---
+
+## ✦ License
 
 MIT — free to use, modify and share.
+
+---
+
+<div align="center">
+
+made with ✦ by <a href="https://github.com/G1NYU">G1NYU</a> &nbsp;·&nbsp; <a href="https://anilist.co/user/G1NYU/">AniList</a> &nbsp;·&nbsp; <a href="https://g1nyu.github.io/mihon-to-anymex/">Live Tool</a>
+
+</div>
