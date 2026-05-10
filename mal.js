@@ -1,16 +1,11 @@
 /* ═══════════════════════════════════════════════════════════
    MAL XML → AnymeX
-   Parses MyAnimeList export XML, looks up each entry on
-   AniList by MAL ID (via the idMal field), and builds a
-   ready-to-restore .anymex file.
+   Parses MyAnimeList export XML (anime + manga),
+   resolves each entry via AniList (by MAL ID),
+   builds and downloads a .anymex backup file.
 ═══════════════════════════════════════════════════════════ */
 
-/* Accent colour tokens (teal) injected at runtime */
-const MAL_COLOR = '#2dd4bf';
-const MAL_DIM   = 'rgba(45,212,191,0.12)';
-const MAL_GLOW  = 'rgba(45,212,191,0.25)';
-
-/* Inject CSS once */
+/* ── Inject CSS once ── */
 (function injectMalCSS() {
   const style = document.createElement('style');
   style.textContent = `
@@ -56,33 +51,20 @@ const MAL_GLOW  = 'rgba(45,212,191,0.25)';
 })();
 
 /* ── State ── */
-let malParsed    = [];   // [{malId, title, type, status, progress, score}]
-let malStop      = false;
-let malResults   = [];   // [{entry, media|null}]
+let malParsed  = [];
+let malStop    = false;
+let malResults = [];
 
 /* ── Toggle ── */
 function toggleMal() {
   document.getElementById('malWrap').classList.toggle('open');
 }
 
-/* ── MAL status → AniList status ── */
+/* ── Status maps ── */
 function malStatusToAniList(type, status) {
-  const manga = {
-    'Reading':           'CURRENT',
-    'Completed':         'COMPLETED',
-    'On-Hold':           'PAUSED',
-    'Dropped':           'DROPPED',
-    'Plan to Read':      'PLANNING',
-  };
-  const anime = {
-    'Watching':          'CURRENT',
-    'Completed':         'COMPLETED',
-    'On-Hold':           'PAUSED',
-    'Dropped':           'DROPPED',
-    'Plan to Watch':     'PLANNING',
-  };
-  const map = (type === 'anime') ? anime : manga;
-  return map[status] || 'PLANNING';
+  const manga = { 'Reading':'CURRENT','Completed':'COMPLETED','On-Hold':'PAUSED','Dropped':'DROPPED','Plan to Read':'PLANNING' };
+  const anime = { 'Watching':'CURRENT','Completed':'COMPLETED','On-Hold':'PAUSED','Dropped':'DROPPED','Plan to Watch':'PLANNING' };
+  return ((type === 'manga') ? manga : anime)[status] || 'PLANNING';
 }
 
 /* ── Parse MAL XML ── */
@@ -91,41 +73,31 @@ function handleMalFile(input) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const parser  = new DOMParser();
-      const xml     = parser.parseFromString(e.target.result, 'application/xml');
-      const perr    = xml.querySelector('parsererror');
-      if (perr) throw new Error('Invalid XML: ' + perr.textContent.slice(0, 80));
+      const parser = new DOMParser();
+      const xml    = parser.parseFromString(e.target.result, 'application/xml');
+      if (xml.querySelector('parsererror')) throw new Error('Invalid XML');
 
-      const isManga  = !!xml.querySelector('myinfo > user_export_type');
       const exportType = xml.querySelector('user_export_type')?.textContent?.trim();
-      // MAL: 1=anime, 2=manga
       const type = (exportType === '2') ? 'manga' : 'anime';
-
-      const entries = xml.querySelectorAll(type === 'manga' ? 'manga' : 'anime');
-      if (!entries.length) throw new Error('No entries found. Make sure you exported the correct list type (anime or manga).');
+      const selector = (type === 'manga') ? 'manga' : 'anime';
+      const nodes = [...xml.querySelectorAll(selector)];
+      if (!nodes.length) throw new Error('No entries found. Export the correct list type.');
 
       malParsed = [];
-      entries.forEach(el => {
+      nodes.forEach(el => {
         const get = tag => el.querySelector(tag)?.textContent?.trim() || '';
         const malId    = parseInt(get(type === 'manga' ? 'manga_mangadb_id' : 'series_animedb_id')) || 0;
         const title    = get(type === 'manga' ? 'manga_title' : 'series_title');
-        const rawStatus = get(type === 'manga' ? 'my_status' : 'my_status');
+        const rawSt    = get('my_status');
         const progress = parseInt(get(type === 'manga' ? 'my_read_chapters' : 'my_watched_episodes')) || 0;
         const score    = parseFloat(get('my_score')) || 0;
         if (!malId || !title) return;
-        malParsed.push({
-          malId, title, type,
-          status: malStatusToAniList(type, rawStatus),
-          progress, score
-        });
+        malParsed.push({ malId, title, type, status: malStatusToAniList(type, rawSt), progress, score });
       });
 
-      if (!malParsed.length) throw new Error('No valid entries parsed. Check your XML file.');
-
-      const typeLabel = type === 'manga' ? 'manga' : 'anime';
-      showMalStatus('success', `✔ Parsed ${malParsed.length} ${typeLabel} entries from MAL export.`);
+      if (!malParsed.length) throw new Error('No valid entries parsed.');
+      showMalStatus('success', `✔ Parsed ${malParsed.length} ${type} entries from MAL export.`);
       document.getElementById('malFetchBtn').disabled = false;
-      document.getElementById('malListType').textContent = type === 'manga' ? 'MANGA' : 'ANIME';
     } catch(err) {
       showMalStatus('error', 'Failed to parse XML: ' + err.message);
       document.getElementById('malFetchBtn').disabled = true;
@@ -139,19 +111,16 @@ async function queryAniListByMalId(malId, type) {
   const mediaType = type === 'manga' ? 'MANGA' : 'ANIME';
   const gql = `query($id:Int,$t:MediaType){Media(idMal:$id,type:$t){id idMal title{romaji english}coverImage{large}bannerImage format chapters episodes genres averageScore popularity}}`;
   let attempt = 0;
-  const maxRetry = 4;
-  while (attempt <= maxRetry) {
+  while (attempt <= 4) {
     if (malStop) return null;
     try {
       const res = await fetch('https://graphql.anilist.co', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
         body: JSON.stringify({ query: gql, variables: { id: malId, t: mediaType } })
       });
       if (res.status === 429) {
-        if (attempt >= maxRetry) return null;
-        const wait = parseInt(res.headers.get('Retry-After') || '60');
-        await malCountdownWait(wait);
+        if (attempt >= 4) return null;
+        await malCountdownWait(parseInt(res.headers.get('Retry-After') || '60'));
         attempt++; continue;
       }
       if (!res.ok) return null;
@@ -163,12 +132,12 @@ async function queryAniListByMalId(malId, type) {
 }
 
 async function malCountdownWait(seconds) {
-  const bar   = document.getElementById('malProgressBar');
-  const title = document.getElementById('malProgressTitle');
+  const bar = document.getElementById('malProgressBar');
+  const ttl = document.getElementById('malProgressTitle');
   if (bar) bar.classList.add('ratelimit');
   for (let s = seconds; s > 0; s--) {
     if (malStop) break;
-    if (title) title.textContent = `⏸ Rate limited — resuming in ${s}s…`;
+    if (ttl) ttl.textContent = `⏸ Rate limited — resuming in ${s}s…`;
     await new Promise(r => setTimeout(r, 1000));
   }
   if (bar) bar.classList.remove('ratelimit');
@@ -185,17 +154,15 @@ function malSleep(ms) {
 /* ── Main fetch + build ── */
 async function handleMalFetch() {
   if (!malParsed.length) return;
-  malStop    = false;
-  malResults = [];
+  malStop = false; malResults = [];
 
-  const delay     = parseInt(document.getElementById('malDelay').value) || 1500;
-  const listName  = document.getElementById('malListName').value.trim() || 'MAL Import';
-  const baseFile  = document.getElementById('malBaseFile').files[0];
-
+  const delay    = parseInt(document.getElementById('malDelay').value) || 1500;
+  const listName = document.getElementById('malListName').value.trim() || 'MAL Import';
+  const baseFile = document.getElementById('malBaseFile').files[0];
   let base;
   if (baseFile) {
     try { base = JSON.parse(await baseFile.text()); }
-    catch(e) { showMalStatus('error', 'Could not read base file: ' + e.message); return; }
+    catch(e) { showMalStatus('error','Could not read base file: '+e.message); return; }
   } else {
     base = { schemaVersion:2, animeLibrary:[], mangaLibrary:[], animeCustomLists:[], mangaCustomLists:[], animeCount:0, mangaCount:0 };
   }
@@ -210,53 +177,35 @@ async function handleMalFetch() {
   showMalStatus('', '');
 
   let ok = 0, skip = 0;
-
   for (let i = 0; i < malParsed.length; i++) {
     if (malStop) break;
     const entry = malParsed[i];
     setMalProgress(i, malParsed.length, entry.title);
-
     const media = await queryAniListByMalId(entry.malId, entry.type);
-
     if (media) {
-      const isAnime  = entry.type === 'anime';
-      const lib      = isAnime ? base.animeLibrary    : base.mangaLibrary;
-      const lists    = isAnime ? base.animeCustomLists : base.mangaCustomLists;
+      const isAnime = entry.type === 'anime';
+      const lib     = isAnime ? base.animeLibrary    : base.mangaLibrary;
+      const lists   = isAnime ? base.animeCustomLists : base.mangaCustomLists;
       const libEntry = {
-        mediaId:      media.id,
-        title:        media.title.english || media.title.romaji || entry.title,
-        romajiTitle:  media.title.romaji  || '',
-        coverImage:   media.coverImage?.large || '',
-        bannerImage:  media.bannerImage || '',
-        status:       entry.status,
-        progress:     entry.progress,
-        totalCount:   isAnime ? (media.episodes || 0) : (media.chapters || 0),
-        score:        entry.score,
-        isFavorite:   false,
-        startedAt:    null,
-        completedAt:  null,
-        notes:        '',
-        listName:     listName,
-        mediaType:    isAnime ? 'ANIME' : 'MANGA',
-        format:       media.format || '',
-        genres:       media.genres || [],
-        averageScore: media.averageScore || 0,
-        popularity:   media.popularity   || 0,
-        source:       'ANILIST'
+        mediaId: media.id, title: media.title.english || media.title.romaji || entry.title,
+        romajiTitle: media.title.romaji || '', coverImage: media.coverImage?.large || '',
+        bannerImage: media.bannerImage || '', status: entry.status, progress: entry.progress,
+        totalCount: isAnime ? (media.episodes||0) : (media.chapters||0),
+        score: entry.score, isFavorite: false, startedAt: null, completedAt: null, notes: '',
+        listName: listName, mediaType: isAnime ? 'ANIME' : 'MANGA',
+        format: media.format || '', genres: media.genres || [],
+        averageScore: media.averageScore || 0, popularity: media.popularity || 0, source: 'ANILIST'
       };
       if (!lib.find(x => x.mediaId === media.id)) {
         lib.push(libEntry);
         let lst = lists.find(l => l.name === listName);
-        if (!lst) { lst = { name: listName, mediaTypeIndex: isAnime ? 1 : 0, mediaIds: [] }; lists.push(lst); }
+        if (!lst) { lst = { name: listName, mediaTypeIndex: isAnime?1:0, mediaIds:[] }; lists.push(lst); }
         if (!lst.mediaIds.includes(media.id)) lst.mediaIds.push(media.id);
       }
-      malResults.push({ entry, media });
-      ok++;
+      malResults.push({ entry, media }); ok++;
     } else {
-      malResults.push({ entry, media: null });
-      skip++;
+      malResults.push({ entry, media: null }); skip++;
     }
-
     setMalPills(ok, skip, malParsed.length);
     addMalTableRow(entry, media);
     if (i < malParsed.length - 1) await malSleep(delay);
@@ -268,21 +217,18 @@ async function handleMalFetch() {
   base.animeCount = base.animeLibrary.length;
 
   if (!malStop && ok > 0) {
-    const blob = new Blob([JSON.stringify(base, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(base, null, 2)], { type:'application/json' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href     = url;
-    a.download = 'anymex_from_mal_' + Date.now() + '.anymex';
-    a.click();
+    a.href = url; a.download = 'anymex_from_mal_' + Date.now() + '.anymex'; a.click();
     URL.revokeObjectURL(url);
     showMalStatus('success', `✔ Done — ${ok} matched, ${skip} skipped. .anymex downloaded!`);
     if (typeof showToast === 'function') showToast('✔ MAL → .anymex downloaded!');
   } else if (malStop) {
-    showMalStatus('warn', `Stopped — ${ok} matched so far. Re-run to continue.`);
+    showMalStatus('warn', `Stopped — ${ok} matched so far.`);
   } else {
-    showMalStatus('warn', 'No entries matched on AniList. Check your XML file.');
+    showMalStatus('warn', 'No entries matched on AniList.');
   }
-
   document.getElementById('malFetchBtn').disabled = false;
   document.getElementById('malStopBtn').disabled  = true;
 }
@@ -290,7 +236,7 @@ async function handleMalFetch() {
 /* ── UI helpers ── */
 function setMalProgress(i, total, label) {
   const pct = total ? Math.round((i / total) * 100) : 0;
-  document.getElementById('malProgressBar').style.width  = pct + '%';
+  document.getElementById('malProgressBar').style.width   = pct + '%';
   document.getElementById('malProgressTitle').textContent = label + ' (' + i + '/' + total + ')';
   document.getElementById('malProgressPct').textContent   = pct + '%';
 }
@@ -324,7 +270,7 @@ function addMalTableRow(entry, media) {
 function showMalStatus(type, msg) {
   const el = document.getElementById('malStatus');
   if (!msg) { el.className = 'status-box'; el.textContent = ''; return; }
-  el.className = 'status-box show ' + (type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warn' ? 'warn' : '');
+  el.className = 'status-box show ' + (type==='error'?'error':type==='success'?'success':type==='warn'?'warn':'');
   el.textContent = msg;
 }
 
